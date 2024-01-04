@@ -9,6 +9,7 @@ import {
     ScrollView,
 } from '@my/ui'
 import { Base, HomeScreenCardProps } from 'app/@types/types'
+import { AnimatePresence } from 'tamagui'
 
 export function Cards(props: HomeScreenCardProps) {
     const { title, releaseYear, onPress, imageUrl, ...rest } = props
@@ -47,34 +48,37 @@ export function MovieCards(
             <XStack
                 $sm={{ flexDirection: 'row' }}
                 paddingHorizontal="$1"
-                enterStyle={{
-                    opacity: 0,
-                    y: 10,
-                    scale: 0.9,
-                }}
-                exitStyle={{
-                    opacity: 0,
-                    y: -10,
-                    scale: 0.9,
-                }}
+                backgroundColor={'transparent'}
                 space
             >
                 {movies?.map((movie, index) => (
-                    <Cards
-                        animation="bouncy"
-                        size="$4"
-                        width={100}
-                        height={140}
-                        scale={0.9}
-                        hoverStyle={{ scale: 0.925 }}
-                        pressStyle={{ scale: 0.875 }}
-                        imageUrl={movie.imageUrl}
-                        key={index}
-                        onPress={() => onPress(movie.title)}
-                        releaseYear={movie.releaseYear}
-                        title={movie.title}
-                        tmdbId={movie.tmdbId}
-                    />
+                    <AnimatePresence key={index}>
+                        <Cards
+                            animation="bouncy"
+                            enterStyle={{
+                                opacity: 0,
+                                y: 10,
+                                scale: 0.9,
+                            }}
+                            exitStyle={{
+                                opacity: 0,
+                                y: -10,
+                                scale: 0.9,
+                            }}
+                            size="$4"
+                            width={100}
+                            height={140}
+                            scale={0.9}
+                            hoverStyle={{ scale: 0.925 }}
+                            pressStyle={{ scale: 0.875 }}
+                            imageUrl={movie.imageUrl}
+                            key={index}
+                            onPress={() => onPress(movie.title)}
+                            releaseYear={movie.releaseYear}
+                            title={movie.title}
+                            tmdbId={movie.tmdbId}
+                        />
+                    </AnimatePresence>
                 ))}
             </XStack>
         </ScrollView>

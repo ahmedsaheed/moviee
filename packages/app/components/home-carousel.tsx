@@ -41,7 +41,7 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                         <CustomItem
                             key={index}
                             index={index}
-                            imageUrl={data!![index].backdropUrl}
+                            imageUrl={data!![index].imageUrl}
                             animationValue={animationValue}
                             name={data[index].title}
                         />
@@ -69,38 +69,21 @@ function CarouselCard(props: {
 }) {
     const { imageUrl, onPress, ...rest } = props
     return (
-        //
-        // <Card
-        //     elevate
-        //     size="$9"
-        //     height={200}
-        //     width={width - 30}
-        //     bordered
-        //     {...rest}
-        //     onPress={onPress}
-        // >
-        //     <Card.Header padded></Card.Header>
-        //     <Card.Footer padded>
-        //         <XStack flex={2} />
-        //     </Card.Footer>
-        //     <Card.Background>
         <Image
-            resizeMode="cover"
+            resizeMode={'cover'}
             alignSelf={'auto'}
+            onPress={onPress}
             style={{
                 flex: 1,
                 width: undefined,
                 height: undefined,
                 borderRadius: 10,
+                aspectRatio: 1.8,
             }}
             source={{
-                width: 50,
-                height: 220,
-                uri: `https://image.tmdb.org/t/p/w500${imageUrl}`,
+                uri: `https://image.tmdb.org/t/p/original${imageUrl}`,
             }}
         />
-        //     </Card.Background>
-        // </Card>
     )
 }
 
