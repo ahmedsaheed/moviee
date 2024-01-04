@@ -25,9 +25,9 @@ import { useEffect, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { useLink } from 'solito/link'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
-import { Base, BaseMovieInfo } from 'app/@types/types'
-import { getMovieByCategory } from 'app/lib/movies/trending'
-import { Cards } from 'app/components/card'
+import { Base, BaseMovieInfo, HeadingAndMovies } from 'app/@types/types'
+import { getMovieByCategory } from 'app/lib/movies/genre'
+import { Cards, MovieCards } from 'app/components/card'
 import { PlayerWrapper, VideoPlayer } from 'app/components/av'
 
 export function HomeScreen() {
@@ -42,6 +42,12 @@ export function HomeScreen() {
     const [adventureMovies, setAdventureMovies] = useState<Array<Base> | null>(
         null
     )
+    const [comedyMovies, setComedyMovies] = useState<Array<Base> | null>(null)
+    const [animationMovies, setAnimationMovies] = useState<Array<Base> | null>(
+        null
+    )
+
+    const [dramaMovies, setDramaMovies] = useState<Array<Base> | null>(null)
     const [documentaryMovies, setDocumentaryMovies] =
         useState<Array<Base> | null>(null)
     const linkProps = useLink({
@@ -72,6 +78,24 @@ export function HomeScreen() {
             console.log('out', out)
             setDocumentaryMovies(out)
         })
+
+        const drama = async () => await getMovieByCategory('DRAMA')
+        drama().then(out => {
+            console.log('out', out)
+            setDramaMovies(out)
+        })
+
+        const comedy = async () => await getMovieByCategory('COMEDY')
+        comedy().then(out => {
+            console.log('out', out)
+            setComedyMovies(out)
+        })
+
+        const animation = async () => await getMovieByCategory('ANIMATION')
+        animation().then(out => {
+            console.log('out', out)
+            setAnimationMovies(out)
+        })
     }, [])
 
     async function getMetaAndPlay(movieName: string) {
@@ -96,6 +120,38 @@ export function HomeScreen() {
         setLoading(false)
     }, [media])
 
+    const genre: HeadingAndMovies[] = [
+        {
+            heading: 'Trending Today',
+            movies: trendingToday,
+        },
+        {
+            heading: 'Action Movies',
+            movies: trendingWeekly,
+        },
+        {
+            heading: 'Comedy Movies',
+            movies: comedyMovies,
+        },
+        {
+            heading: 'Adventure Movies',
+            movies: adventureMovies,
+        },
+        {
+            heading: 'Drama Movies',
+            movies: dramaMovies,
+        },
+        {
+            heading: 'Documentary Movies',
+            movies: documentaryMovies,
+        },
+
+        {
+            heading: 'Adult Animation',
+            movies: animationMovies,
+        },
+    ]
+
     return (
         <YStack f={1} p="$4" space>
             <ScrollView>
@@ -109,62 +165,26 @@ export function HomeScreen() {
                             await getMetaAndPlay(searchQuery)
                         }
                     />
-                    {trendingToday && (
-                        <>
-                            <SizableText
-                                theme="alt2"
-                                size="$1"
-                                fontWeight={600}
-                            >
-                                {' '}
-                                Trending today
-                            </SizableText>
-                            <MovieCards
-                                movies={trendingToday}
-                                onPress={getMetaAndPlay}
-                            />
-                            <SizableText
-                                theme="alt2"
-                                size="$1"
-                                fontWeight={600}
-                                p={2}
-                            >
-                                {' '}
-                                Action Movies
-                            </SizableText>
-                            <MovieCards
-                                movies={trendingWeekly}
-                                onPress={getMetaAndPlay}
-                            />
 
-                            <SizableText
-                                theme="alt2"
-                                size="$1"
-                                fontWeight={600}
-                                p={2}
-                            >
-                                {' '}
-                                Adventure Movies
-                            </SizableText>
-                            <MovieCards
-                                movies={adventureMovies}
-                                onPress={getMetaAndPlay}
-                            />
-
-                            <SizableText
-                                theme="alt2"
-                                size="$1"
-                                fontWeight={600}
-                                p={2}
-                            >
-                                {' '}
-                                Documentaries Movies
-                            </SizableText>
-                            <MovieCards
-                                movies={documentaryMovies}
-                                onPress={getMetaAndPlay}
-                            />
-                        </>
+                    {genre.map(
+                        (item, index) =>
+                            item.movies && (
+                                <>
+                                    <SizableText
+                                        theme="alt2"
+                                        size="$1"
+                                        fontWeight={600}
+                                        p={2}
+                                    >
+                                        {' '}
+                                        {item.heading}
+                                    </SizableText>
+                                    <MovieCards
+                                        movies={item.movies}
+                                        onPress={getMetaAndPlay}
+                                    />
+                                </>
+                            )
                     )}
                     <Separator />
 
@@ -232,39 +252,6 @@ function SheetDemo() {
     )
 }
 
-function MovieCards(
-    props:
-        | { movies: Array<Base> | null; onPress: (movieName: string) => void }
-        | undefined
-) {
-    if (!props) {
-        return null
-    }
-    const { movies, onPress } = props
-    return (
-        <ScrollView horizontal={true}>
-            <XStack $sm={{ flexDirection: 'row' }} paddingHorizontal="$1" space>
-                {movies?.map((movie, index) => (
-                    <Cards
-                        animation="bouncy"
-                        size="$4"
-                        width={100}
-                        height={140}
-                        scale={0.9}
-                        hoverStyle={{ scale: 0.925 }}
-                        pressStyle={{ scale: 0.875 }}
-                        imageUrl={movie.imageUrl}
-                        key={index}
-                        onPress={() => onPress(movie.title)}
-                        releaseYear={movie.releaseYear}
-                        title={movie.title}
-                        tmdbId={movie.tmdbId}
-                    />
-                ))}
-            </XStack>
-        </ScrollView>
-    )
-}
 export const styles = StyleSheet.create({
     container: {
         flex: 1,

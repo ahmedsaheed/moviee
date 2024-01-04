@@ -5,6 +5,9 @@
       "android": {
         "buildType": "apk"
       },
+      "env": {
+        "EXPO_PUBLIC_API_KEY": "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3Y2FjNGVmMDU3ZTJlYzAzM2Y5MmUwMWQ1ZTg2MzcxMSIsInN1YiI6IjY1OTQ5NjcwMzUyMGU4MDUxYmM5NzMxMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.J5nCHqPkakTXkiCHFNSOBQXdmsXr4ZfRLnmLiHsUgs4m"
+      },
       "ios": {
         "simulator": true,
         "image": "latest"

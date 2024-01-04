@@ -1,3 +1,4 @@
+const KEY = process.env.EXPO_PUBLIC_API_KEY!!
 const GET: RequestInit = {
     method: 'GET',
     headers: {
@@ -19,9 +20,10 @@ function baseFetcher(url: RequestInfo, init: RequestInit) {
 /**
  * Fetcher : A simple HTTP request handler
  **/
-export function fetcher<T>(
+export async function fetcher<T>(
     url: RequestInfo,
     init: RequestInit = GET
 ): Promise<T> {
-    return baseFetcher(url, init).then(response => response.json())
+    const response = await baseFetcher(url, init)
+    return await response.json()
 }

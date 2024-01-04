@@ -42,6 +42,11 @@ export type ApiResponse = {
     total_pages: number
     total_results: number
 }
+export type HeadingAndMovies = {
+    heading: string
+    movies: Array<Base> | null
+}
+
 export type MovieCategories =
     | 'TRENDING'
     | 'ACTION'
