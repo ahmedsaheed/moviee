@@ -1,5 +1,7 @@
 import { CardProps } from '@my/ui'
 import { ScrapeMedia } from '@movie-web/providers'
+import type { ViewStyle } from 'react-native'
+import type { AnimatedStyleProp } from 'react-native-reanimated'
 
 export type HomeScreenCardProps = {
     onPress: (string) => void
@@ -11,6 +13,7 @@ export type Base = {
     imageUrl: string
     title: string
     releaseYear: string
+    backdropUrl?: string
 }
 
 export type BaseMovieInfo = {
@@ -46,6 +49,8 @@ export type HeadingAndMovies = {
     heading: string
     movies: Array<Base> | null
 }
+
+export type TAnimationStyle = (value: number) => AnimatedStyleProp<ViewStyle>
 
 export type MovieCategories =
     | 'TRENDING'

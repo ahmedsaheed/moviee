@@ -2,6 +2,7 @@ import {
     Anchor,
     Button,
     H1,
+    H2,
     Input,
     Paragraph,
     ScrollView,
@@ -20,6 +21,7 @@ import {
     ScrapeMedia,
     targets,
 } from '@movie-web/providers'
+import { AnimatePresence } from 'tamagui'
 import { ChevronDown, ChevronUp } from '@tamagui/lucide-icons'
 import { useEffect, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
@@ -29,6 +31,8 @@ import { Base, BaseMovieInfo, HeadingAndMovies } from 'app/@types/types'
 import { getMovieByCategory } from 'app/lib/movies/genre'
 import { Cards, MovieCards } from 'app/components/card'
 import { PlayerWrapper, VideoPlayer } from 'app/components/av'
+import { HomeTopCarousel } from 'app/components/home-carousel'
+import { Greeting } from 'app/components/greeting'
 
 export function HomeScreen() {
     const [data, setData] = useState<RunOutput | null>(null)
@@ -153,28 +157,41 @@ export function HomeScreen() {
     ]
 
     return (
-        <YStack f={1} p="$4" space>
-            <ScrollView>
-                <YStack space="$4" maw={600}>
+        <ScrollView>
+            <YStack f={1} p="$4" space>
+                <YStack space="$4" pt={'4'} pb={'6'} maw={600}>
+                    <Greeting />
+                    {/*<H2 pt="$8">Good evening</H2>*/}
                     <Input
                         size="$4"
-                        borderWidth={2}
+                        borderWidth={1}
                         onChangeText={text => setSearchQuery(text)}
-                        placeholder="Search for a movie..."
+                        placeholder="What would you like to watch"
                         onSubmitEditing={async () =>
                             await getMetaAndPlay(searchQuery)
                         }
                     />
+                    {trendingToday && <HomeTopCarousel data={trendingToday} />}
 
-                    {genre.map(
-                        (item, index) =>
-                            item.movies && (
+                    {genre.map((item, index) => (
+                        <AnimatePresence key={index}>
+                            {item.movies && (
                                 <>
                                     <SizableText
                                         theme="alt2"
                                         size="$1"
                                         fontWeight={600}
                                         p={2}
+                                        enterStyle={{
+                                            opacity: 0,
+                                            y: 10,
+                                            scale: 0.9,
+                                        }}
+                                        exitStyle={{
+                                            opacity: 0,
+                                            y: -10,
+                                            scale: 0.9,
+                                        }}
                                     >
                                         {' '}
                                         {item.heading}
@@ -184,8 +201,9 @@ export function HomeScreen() {
                                         onPress={getMetaAndPlay}
                                     />
                                 </>
-                            )
-                    )}
+                            )}
+                        </AnimatePresence>
+                    ))}
                     <Separator />
 
                     <PlayerWrapper
@@ -200,8 +218,8 @@ export function HomeScreen() {
                 {/*</XStack>*/}
 
                 {/*<SheetDemo />*/}
-            </ScrollView>
-        </YStack>
+            </YStack>
+        </ScrollView>
     )
 }
 

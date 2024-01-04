@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "yourprojectsname",
-    "slug": "yourprojectsname",
-    "scheme": "yourprojectsname",
+    "name": "moviee",
+    "slug": "moviee",
+    "scheme": "moviee",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,14 +20,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourprojectsname.app"
+      "bundleIdentifier": "com.moviee.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.yourprojectsname.app"
+      "package": "com.moviee.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -20,8 +20,7 @@ export function Cards(props: HomeScreenCardProps) {
             </Card.Footer>
             <Card.Background>
                 <Image
-                    resizeMode="contain"
-                    alignSelf="center"
+                    resizeMode="cover"
                     bordered
                     borderRadius="$4"
                     source={{
@@ -45,7 +44,21 @@ export function MovieCards(
     const { movies, onPress } = props
     return (
         <ScrollView horizontal={true}>
-            <XStack $sm={{ flexDirection: 'row' }} paddingHorizontal="$1" space>
+            <XStack
+                $sm={{ flexDirection: 'row' }}
+                paddingHorizontal="$1"
+                enterStyle={{
+                    opacity: 0,
+                    y: 10,
+                    scale: 0.9,
+                }}
+                exitStyle={{
+                    opacity: 0,
+                    y: -10,
+                    scale: 0.9,
+                }}
+                space
+            >
                 {movies?.map((movie, index) => (
                     <Cards
                         animation="bouncy"

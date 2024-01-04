@@ -38,5 +38,6 @@ function extractToBase(movie: Movie): Base {
         title: movie.title,
         tmdbId: movie.id,
         releaseYear: movie.release_date.split('-')[0]!!,
+        backdropUrl: `https://image.tmdb.org/t/p/w500${movie.backdrop_path}`,
     }
 }
