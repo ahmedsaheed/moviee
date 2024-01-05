@@ -29,12 +29,12 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
     )
 
     return (
-        <View style={{ flex: 1 }}>
+        <View>
             <Carousel
                 loop={true}
                 autoPlay={true}
-                style={{ width: width - 30, height: 200, borderRadius: 10 }}
-                width={width}
+                style={{ height: 200, borderRadius: 10 }}
+                width={width - 15}
                 data={[...data!!]}
                 renderItem={({ index, animationValue }) => {
                     return (
@@ -48,7 +48,7 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                     )
                 }}
                 customAnimation={animationStyle}
-                scrollAnimationDuration={15000}
+                scrollAnimationDuration={10000}
             />
         </View>
     )
@@ -78,7 +78,7 @@ function CarouselCard(props: {
                 width: undefined,
                 height: undefined,
                 borderRadius: 10,
-                aspectRatio: 1.8,
+                aspectRatio: 2,
             }}
             source={{
                 uri: `https://image.tmdb.org/t/p/original${imageUrl}`,

@@ -1,39 +1,28 @@
 import {
-    Anchor,
     Button,
-    H1,
-    H2,
-    Input,
-    Paragraph,
-    ScrollView,
     Separator,
     Sheet,
     SizableText,
-    Spinner,
     useToastController,
-    XStack,
     YStack,
 } from '@my/ui'
-import {
-    makeProviders,
-    makeStandardFetcher,
-    RunOutput,
-    ScrapeMedia,
-    targets,
-} from '@movie-web/providers'
+import { RunOutput, ScrapeMedia } from '@movie-web/providers'
 import { AnimatePresence } from 'tamagui'
 import { ChevronDown, ChevronUp } from '@tamagui/lucide-icons'
 import { useEffect, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
-import { useLink } from 'solito/link'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
-import { Base, BaseMovieInfo, HeadingAndMovies } from 'app/@types/types'
+import { Base, HeadingAndMovies } from 'app/@types/types'
 import { getMovieByCategory } from 'app/lib/movies/genre'
 import { Cards, MovieCards } from 'app/components/card'
 import { PlayerWrapper, VideoPlayer } from 'app/components/av'
 import { HomeTopCarousel } from 'app/components/home-carousel'
-import { Greeting } from 'app/components/greeting'
-
+import { HeaderComponent, LargeHeaderComponent } from 'app/components/greeting'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
+import { SearchBar } from '@rneui/themed'
+import { Search, X } from '@tamagui/lucide-icons'
+import { useColorScheme } from 'react-native'
 export function HomeScreen() {
     const [data, setData] = useState<RunOutput | null>(null)
     const [searchQuery, setSearchQuery] = useState<string>('')
@@ -54,10 +43,8 @@ export function HomeScreen() {
     const [dramaMovies, setDramaMovies] = useState<Array<Base> | null>(null)
     const [documentaryMovies, setDocumentaryMovies] =
         useState<Array<Base> | null>(null)
-    const linkProps = useLink({
-        href: '/user/nate',
-    })
-
+    const { bottom } = useSafeAreaInsets()
+    const scheme = useColorScheme()
     useEffect(() => {
         const trendingToday = async () => await getMovieByCategory('TRENDING')
         trendingToday().then(out => {
@@ -157,69 +144,110 @@ export function HomeScreen() {
     ]
 
     return (
-        <ScrollView>
-            <YStack f={1} p="$4" space>
-                <YStack space="$4" pt={'4'} pb={'6'} maw={600}>
-                    <Greeting />
-                    {/*<H2 pt="$8">Good evening</H2>*/}
-                    <Input
-                        size="$4"
-                        borderWidth={1}
-                        onChangeText={text => setSearchQuery(text)}
-                        placeholder="What would you like to watch"
-                        onSubmitEditing={async () =>
-                            await getMetaAndPlay(searchQuery)
-                        }
-                    />
-                    {trendingToday && <HomeTopCarousel data={trendingToday} />}
+        <>
+            <ScrollViewWithHeaders
+                HeaderComponent={HeaderComponent}
+                LargeHeaderComponent={LargeHeaderComponent}
+                contentContainerStyle={{ paddingBottom: bottom }}
+            >
+                <YStack f={1} p="$2" space>
+                    <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
+                        <SearchBar
+                            ref={search => (this.search = search)}
+                            onChangeText={text => setSearchQuery(text)}
+                            value={searchQuery}
+                            placeholder="Search Shows and Movies"
+                            platform="ios"
+                            lightTheme={false}
+                            searchIcon={<Search size="$1" color="grey" />}
+                            clearIcon={null}
+                            showCancel={false}
+                            containerStyle={{
+                                backgroundColor: 'transparent',
+                                borderWidth: 0,
+                                padding: 0,
+                                margin: 0,
+                                paddingTop: 0,
+                            }}
+                            onSubmitEditing={async () =>
+                                await getMetaAndPlay(searchQuery)
+                            }
+                            pt={'$0'}
+                            showClearIcon={false}
+                            inputContainerStyle={
+                                scheme === 'dark'
+                                    ? { backgroundColor: '#1c1c1c' }
+                                    : {}
+                            }
+                            inputStyle={
+                                scheme === 'dark'
+                                    ? {
+                                          color: 'grey',
+                                          fontWeight: 'normal',
+                                          fontSize: 16,
+                                          fontFamily: 'System',
+                                      }
+                                    : {
+                                          fontSize: 16,
 
-                    {genre.map((item, index) => (
-                        <AnimatePresence key={index}>
-                            {item.movies && (
-                                <>
-                                    <SizableText
-                                        theme="alt2"
-                                        size="$1"
-                                        fontWeight={600}
-                                        p={2}
-                                        enterStyle={{
-                                            opacity: 0,
-                                            y: 10,
-                                            scale: 0.9,
-                                        }}
-                                        exitStyle={{
-                                            opacity: 0,
-                                            y: -10,
-                                            scale: 0.9,
-                                        }}
-                                    >
-                                        {' '}
-                                        {item.heading}
-                                    </SizableText>
-                                    <MovieCards
-                                        movies={item.movies}
-                                        onPress={getMetaAndPlay}
-                                    />
-                                </>
-                            )}
-                        </AnimatePresence>
-                    ))}
-                    <Separator />
+                                          fontWeight: 'normal',
+                                          fontFamily: 'System',
+                                      }
+                            }
+                        />
+                        {trendingToday && (
+                            <HomeTopCarousel data={trendingToday} />
+                        )}
 
-                    <PlayerWrapper
-                        data={data}
-                        searchQuery={searchQuery}
-                        loading={loading}
-                    />
+                        {genre.map((item, index) => (
+                            <AnimatePresence key={index}>
+                                {item.movies && (
+                                    <>
+                                        <SizableText
+                                            theme="alt1"
+                                            size="$1"
+                                            fontFamily={'System'}
+                                            fontWeight="bold"
+                                            p={2}
+                                            enterStyle={{
+                                                opacity: 0,
+                                                y: 10,
+                                                scale: 0.9,
+                                            }}
+                                            exitStyle={{
+                                                opacity: 0,
+                                                y: -10,
+                                                scale: 0.9,
+                                            }}
+                                        >
+                                            {' '}
+                                            {item.heading}
+                                        </SizableText>
+                                        <MovieCards
+                                            movies={item.movies}
+                                            onPress={getMetaAndPlay}
+                                        />
+                                    </>
+                                )}
+                            </AnimatePresence>
+                        ))}
+                        <Separator />
+
+                        <PlayerWrapper
+                            data={data}
+                            searchQuery={searchQuery}
+                            loading={loading}
+                        />
+                    </YStack>
+
+                    {/*<XStack>*/}
+                    {/*    <Button {...linkProps}>Link to user</Button>*/}
+                    {/*</XStack>*/}
+
+                    {/*<SheetDemo />*/}
                 </YStack>
-
-                {/*<XStack>*/}
-                {/*    <Button {...linkProps}>Link to user</Button>*/}
-                {/*</XStack>*/}
-
-                {/*<SheetDemo />*/}
-            </YStack>
-        </ScrollView>
+            </ScrollViewWithHeaders>
+        </>
     )
 }
 
