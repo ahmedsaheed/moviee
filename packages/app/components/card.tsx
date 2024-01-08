@@ -1,16 +1,6 @@
-import {
-    Button,
-    Card,
-    CardProps,
-    H2,
-    Paragraph,
-    XStack,
-    Image,
-    ScrollView,
-} from '@my/ui'
+import { Card, Image, ScrollView, XStack } from '@my/ui'
 import { Base, HomeScreenCardProps } from 'app/@types/types'
-import { useLink } from 'solito/link'
-import { Link } from 'solito/link'
+import { Link, useLink } from 'solito/link'
 import { Skeleton } from '@rneui/base'
 import { LinearGradient } from '@tamagui/linear-gradient'
 
@@ -37,6 +27,7 @@ export function Cards(props: HomeScreenCardProps) {
         </Card>
     )
 }
+
 export function MovieCards(
     props:
         | { movies: Array<Base> | null; onPress: (movieName: string) => void }

@@ -4,84 +4,33 @@ import { AnimatePresence } from 'tamagui'
 import { useEffect, useState } from 'react'
 import { StyleSheet, useColorScheme } from 'react-native'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
-import { Base, HeadingAndMovies } from 'app/@types/types'
-import { getMovieByCategory } from 'app/lib/movies/genre'
+import { HeadingAndMovies } from 'app/@types/types'
 import { MovieCards } from 'app/components/card'
 import { PlayerWrapper } from 'app/components/av'
 import { HomeTopCarousel } from 'app/components/home-carousel'
 import { HeaderComponent, LargeHeaderComponent } from 'app/components/greeting'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
 import { SearchBar } from '@rneui/themed'
 import { Search } from '@tamagui/lucide-icons'
+import { useMovieDataFromCategories } from 'app/hooks/useMovieDataFromCategory'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export function HomeScreen() {
     const [data, setData] = useState<RunOutput | null>(null)
     const [searchQuery, setSearchQuery] = useState<string>('')
     const [media, setMedia] = useState<ScrapeMedia | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
-    const [trendingToday, setTrendingToday] = useState<Array<Base> | null>(null)
-    const [trendingWeekly, setTrendingWeekly] = useState<Array<Base> | null>(
-        null
-    )
-    const [adventureMovies, setAdventureMovies] = useState<Array<Base> | null>(
-        null
-    )
-    const [comedyMovies, setComedyMovies] = useState<Array<Base> | null>(null)
-    const [animationMovies, setAnimationMovies] = useState<Array<Base> | null>(
-        null
-    )
-
-    const [dramaMovies, setDramaMovies] = useState<Array<Base> | null>(null)
-    const [documentaryMovies, setDocumentaryMovies] =
-        useState<Array<Base> | null>(null)
+    const {
+        trendingToday,
+        trendingWeekly,
+        adventureMovies,
+        comedyMovies,
+        animationMovies,
+        dramaMovies,
+        documentaryMovies,
+    } = useMovieDataFromCategories()
     const { bottom } = useSafeAreaInsets()
     const scheme = useColorScheme()
-    useEffect(() => {
-        const trendingToday = async () => await getMovieByCategory('TRENDING')
-        trendingToday().then(out => {
-            console.log('out', out)
-
-            // extract the
-            setTrendingToday(out)
-        })
-        const weeklyTrending = async () => await getMovieByCategory('ACTION')
-        weeklyTrending().then(out => {
-            console.log('out', out)
-            setTrendingWeekly(out)
-        })
-
-        const adventure = async () => await getMovieByCategory('ADVENTURE')
-        adventure().then(out => {
-            console.log('out', out)
-            setAdventureMovies(out)
-        })
-
-        const documentaries = async () =>
-            await getMovieByCategory('DOCUMENTARY')
-        documentaries().then(out => {
-            console.log('out', out)
-            setDocumentaryMovies(out)
-        })
-
-        const drama = async () => await getMovieByCategory('DRAMA')
-        drama().then(out => {
-            console.log('out', out)
-            setDramaMovies(out)
-        })
-
-        const comedy = async () => await getMovieByCategory('COMEDY')
-        comedy().then(out => {
-            console.log('out', out)
-            setComedyMovies(out)
-        })
-
-        const animation = async () => await getMovieByCategory('ANIMATION')
-        animation().then(out => {
-            console.log('out', out)
-            setAnimationMovies(out)
-        })
-    }, [])
 
     async function getMetaAndPlay(movieName: string) {
         setLoading(true)

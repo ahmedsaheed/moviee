@@ -17,10 +17,6 @@ export type Base = {
     logoUrl?: string
 }
 
-export type BaseMovieInfo = {
-    imageUrl: string
-} & ScrapeMedia
-
 type Genre = {
     id: number
     name: string
