@@ -15,13 +15,18 @@ export function UserDetailScreen() {
     const [media, setMedia] = useState<ScrapeMedia | null>(null)
     const [data, setData] = useState<RunOutput | null>(null)
     const [loading, setLoading] = useState(false)
+    const [showMore, setShowMore] = useState(false);
     const [id] = useParam('id')
     const link = useLink({
         href: '/',
     })
     const { width, height } = Dimensions.get('window')
     const movieData = useMovieData(Number(id!!))
-
+    function convertMinutesToHours(minutes) {
+        const hours = Math.floor(minutes / 60)
+        const remainingMinutes = minutes % 60
+        return hours + 'h ' + remainingMinutes + 'm '
+    }
     async function getMetaAndPlay(movieName: string) {
         setLoading(true)
         const res = await getMoviesMetadata(movieName)
@@ -44,7 +49,7 @@ export function UserDetailScreen() {
     }, [media])
     return (
         <ScrollView>
-            <YStack f={1} space>
+            <YStack f={1} space pb="$8">
                 {movieData === null && (
                     <>
                         <Spinner alignSelf={'center'} size="large" />
@@ -61,7 +66,7 @@ export function UserDetailScreen() {
                             width={'100%'}
                         />
 
-                        <H3 fontWeight={900} fontFamily="System">
+                        <H3 fontWeight={900} m="$4" fontFamily="System">
                             {movieData.title}
                         </H3>
                         <Button
@@ -72,7 +77,7 @@ export function UserDetailScreen() {
                             alignSelf="center"
                             onPress={() => getMetaAndPlay(movieData.title)}
                         >
-                            Play movie
+                            {loading ? 'Loading..' : 'Play Movie'}
                         </Button>
                         <Button
                             mt="$2"
@@ -94,29 +99,81 @@ export function UserDetailScreen() {
                             alignSelf="center"
                         >
                             <YStack alignItems="center" padding="$2">
-                                <Film size={30} />
-                                <SizableText fontFamily="System" theme={'alt2'}>
+                                <Film size={20} theme="alt1" />
+                                <SizableText fontFamily="System" theme={'alt1'}>
                                     Trailer
                                 </SizableText>
                             </YStack>
                             <YStack alignItems="center" padding="$2">
-                                <Plus size={30} />
+                                <Plus size={20} theme="alt1" />
 
-                                <SizableText fontFamily="System" theme={'alt2'}>
+                                <SizableText fontFamily="System" theme={'alt1'}>
                                     Watchlist
                                 </SizableText>
                             </YStack>
-                            <YStack alignItems="center" padding="$1">
-                                <MoreVertical size={30} />
-                                <SizableText fontFamily="System" theme={'alt2'}>
-                                    Watch
+                            <YStack alignItems="center" padding="$2">
+                                <MoreVertical size={20} theme="alt1" />
+                                <SizableText fontFamily="System" theme={'alt1'}>
+                                    More
                                 </SizableText>
                             </YStack>
                         </XStack>
                         <Separator />
-                        <Paragraph mt="$4" fontFamily="System" fontSize={16}>
-                            {movieData.overview}
+                        <Paragraph m="$4" fontFamily="System" fontSize={18}>
+                            {showMore ? movieData.overview : movieData.overview.slice(0, 100)}
+                            <SizableText
+                                onPress={() => setShowMore(!showMore)}
+                                fontFamily="System"
+                                theme={'alt1'}
+                                fontSize={18}
+                            >
+                            ...{showMore ? 'less' : 'more'}
+                            </SizableText>
+
                         </Paragraph>
+
+                        <XStack flex={1} m="$4">
+                            <>
+                                {movieData.genres.map((item, index) => {
+                                    return (
+                                        <>
+                                            <SizableText
+                                                key={index}
+                                                theme={'alt1'}
+                                                fontSize={18}
+                                                fontFamily="System"
+                                            >
+                                                {item.name}
+                                            </SizableText>
+                                            <Separator
+                                                alignSelf="stretch"
+                                                vertical
+                                                marginHorizontal={5}
+                                            />
+                                        </>
+                                    )
+                                })}
+                                <SizableText
+                                    theme={'alt1'}
+                                    fontSize={18}
+                                    fontFamily="System"
+                                >
+                                    {movieData.release_date.split('-')[0]}
+                                </SizableText>
+                                <Separator
+                                    alignSelf="stretch"
+                                    vertical
+                                    marginHorizontal={5}
+                                />
+                                <SizableText
+                                    theme={'alt1'}
+                                    fontSize={18}
+                                    fontFamily="System"
+                                >
+                                    {convertMinutesToHours(movieData.runtime)}
+                                </SizableText>
+                            </>
+                        </XStack>
                     </>
                 )}
             </YStack>
