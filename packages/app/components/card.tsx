@@ -59,7 +59,7 @@ export function MovieCards(
                 space
             >
                 {movies?.map((movie, index) => (
-                    <Link href={`/user/${movie.title}`}>
+                    <Link href={`/user/${movie.tmdbId}`}>
                         <Cards
                             animation="bouncy"
                             enterStyle={{

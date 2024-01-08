@@ -1,8 +1,10 @@
 import * as React from 'react'
 import { Dimensions, View } from 'react-native'
 import Animated, {
+    Extrapolate,
     interpolate,
     interpolateColor,
+    useSharedValue,
     useAnimatedStyle,
 } from 'react-native-reanimated'
 import Carousel from 'react-native-reanimated-carousel'
@@ -12,6 +14,7 @@ import { Card, Image, XStack } from '@my/ui'
 const { width } = Dimensions.get('window')
 
 export function HomeTopCarousel(props: { data: Array<Base> | null }) {
+    const progressValue = useSharedValue<number>(0)
     const { data } = props
     const animationStyle: TAnimationStyle = React.useCallback(
         (value: number) => {
@@ -29,28 +32,61 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
     )
 
     return (
-        <View>
-            <Carousel
-                loop={true}
-                autoPlay={true}
-                style={{ height: 200, borderRadius: 10 }}
-                width={width - 15}
-                data={[...data!!]}
-                renderItem={({ index, animationValue }) => {
-                    return (
-                        <CustomItem
-                            key={index}
-                            index={index}
-                            imageUrl={data!![index].imageUrl}
-                            animationValue={animationValue}
-                            name={data[index].title}
-                        />
-                    )
-                }}
-                customAnimation={animationStyle}
-                scrollAnimationDuration={10000}
-            />
-        </View>
+        <>
+            <View>
+                <Carousel
+                    mode="parallax"
+                    loop={true}
+                    autoPlay={true}
+                    style={{ height: 200, borderRadius: 10 }}
+                    width={width - 15}
+                    onProgressChange={(_, absoluteProgress) =>
+                        (progressValue.value = absoluteProgress)
+                    }
+                    modeConfig={{
+                        parallaxScrollingScale: 0.9,
+                        parallaxScrollingOffset: 50,
+                    }}
+                    data={[...data!!]}
+                    renderItem={({ index, animationValue }) => {
+                        return (
+                            <CustomItem
+                                key={index}
+                                index={index}
+                                imageUrl={data!![index].imageUrl}
+                                animationValue={animationValue}
+                                name={data[index].title}
+                            />
+                        )
+                    }}
+                    customAnimation={animationStyle}
+                    autoPlayInterval={1500}
+                />
+            </View>
+            {!!progressValue && (
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        width: 100,
+                        alignSelf: 'center',
+                    }}
+                >
+                    {/*{data?.map((backgroundColor, index) => {*/}
+                    {/*    return (*/}
+                    {/*        <PaginationItem*/}
+                    {/*            backgroundColor={'white'}*/}
+                    {/*            animValue={progressValue}*/}
+                    {/*            index={index}*/}
+                    {/*            key={index}*/}
+                    {/*            isRotate={false}*/}
+                    {/*            length={data.length}*/}
+                    {/*        />*/}
+                    {/*    )*/}
+                    {/*})}*/}
+                </View>
+            )}
+        </>
     )
 }
 
@@ -125,6 +161,68 @@ const CustomItem: React.FC<ItemProps> = ({
                         bottom: 0,
                     },
                     maskStyle,
+                ]}
+            />
+        </View>
+    )
+}
+
+const PaginationItem: React.FC<{
+    index: number
+    backgroundColor: string
+    length: number
+    animValue: Animated.SharedValue<number>
+    isRotate?: boolean
+}> = props => {
+    const { animValue, index, length, backgroundColor, isRotate } = props
+    const width = 10
+
+    const animStyle = useAnimatedStyle(() => {
+        let inputRange = [index - 1, index, index + 1]
+        let outputRange = [-width, 0, width]
+
+        if (index === 0 && animValue?.value > length - 1) {
+            inputRange = [length - 1, length, length + 1]
+            outputRange = [-width, 0, width]
+        }
+
+        return {
+            transform: [
+                {
+                    translateX: interpolate(
+                        animValue?.value,
+                        inputRange,
+                        outputRange,
+                        Extrapolate.CLAMP
+                    ),
+                },
+            ],
+        }
+    }, [animValue, index, length])
+    return (
+        <View
+            style={{
+                backgroundColor: 'rgba(0,0,0,0.3)',
+                width,
+                height: width,
+                borderRadius: 50,
+                overflow: 'hidden',
+                transform: [
+                    {
+                        rotateZ: isRotate ? '90deg' : '0deg',
+                    },
+                ],
+            }}
+        >
+            <Animated.View
+                style={[
+                    {
+                        borderRadius: 50,
+                        backgroundColor,
+                        flex: 1,
+                        padding: 2,
+                    },
+                    animStyle,
                 ]}
             />
         </View>

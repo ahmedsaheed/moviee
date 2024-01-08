@@ -4,13 +4,12 @@ import { Stack } from 'expo-router'
 export default function Screen() {
     return (
         <>
-            {/*<Stack.Screen*/}
-            {/*    options={{*/}
-            {/*        title: 'User',*/}
-            {/*        //show header when scroll up*/}
-            {/*        headerShown: false,*/}
-            {/*    }}*/}
-            {/*/>*/}
+            <Stack.Screen
+                options={{
+                    title: 'User',
+                    headerShown: false,
+                }}
+            />
             <UserDetailScreen />
         </>
     )

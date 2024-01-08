@@ -10,7 +10,7 @@ import { useColorScheme } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 export default function HomeLayout() {
-    const [loaded] = useFonts({
+const [loaded] = useFonts({
         Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
         InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
     })
@@ -19,7 +19,8 @@ export default function HomeLayout() {
     if (!loaded) {
         return null
     }
-    return (
+ 
+ return (
         <Provider>
             <SafeAreaProvider>
                 <ThemeProvider

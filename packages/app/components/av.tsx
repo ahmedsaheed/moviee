@@ -12,22 +12,24 @@ export const VideoPlayer = (props: { src: string }) => {
             source={{ uri: props.src, type: 'm3u8' }}
             style={styles.video}
             ref={videoRef}
-            useNativeControls
+            useNativeControls={true}
             resizeMode={ResizeMode.CONTAIN}
-            isLooping
+            isLooping={false}
             focusable={true}
             shouldPlay={true}
+            onReadyForDisplay={() => {
+                // present full screen
+                videoRef.current?.presentFullscreenPlayer()
+            }}
         />
     )
 }
 
 export function PlayerWrapper({
     data,
-    searchQuery,
     loading,
 }: {
     data: RunOutput | null
-    searchQuery: string
     loading: boolean
 }) {
     if (loading) {
@@ -36,5 +38,5 @@ export function PlayerWrapper({
     if (data) {
         return <VideoPlayer src={data.stream?.playlist} />
     }
-    return <Paragraph ta="center">No results found.</Paragraph>
+    return null
 }

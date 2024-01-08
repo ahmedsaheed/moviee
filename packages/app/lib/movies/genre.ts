@@ -2,6 +2,7 @@ import { fetcher } from 'app/lib/fetcher/fetcher'
 import {
     ApiResponse,
     Base,
+    DetailedMovieInfo,
     genresReverse,
     Movie,
     MovieCategories,
@@ -15,6 +16,9 @@ const MOVIE_GENRES_URI = (id: number | undefined) =>
         ? `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=${id}`
         : ''
 
+const MOVIE_DETAILS_URI = (id: number | undefined) =>
+    `https://api.themoviedb.org/3/movie/${id!!}?language=en-US`
+
 const getUriFromCategory = (category: MovieCategories): string => {
     const genreID = genresReverse[category]
     if (category === 'TRENDING') return TRENDING_URI
@@ -26,11 +30,20 @@ export const getMovieByCategory = async (
 ): Promise<Array<Base> | null> => {
     const uri = getUriFromCategory(category)
     const response = (await fetcher(uri)) as ApiResponse
-    const data = response.results
+    const data = response.results as Movie[]
     if (!data) return null
-    return data.map(movie => {
+    return data?.map(movie => {
         return extractToBase(movie)
     })
+}
+
+export const getMovieDetails = async (
+    id: number
+): Promise<DetailedMovieInfo | null> => {
+    const uri = MOVIE_DETAILS_URI(id)
+    console.log(uri)
+    const response = (await fetcher(uri)) as DetailedMovieInfo
+    return response ?? null
 }
 function extractToBase(movie: Movie): Base {
     return {
