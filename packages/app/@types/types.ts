@@ -14,6 +14,7 @@ export type Base = {
     title: string
     releaseYear: string
     backdropUrl?: string
+    logoUrl?: string
 }
 
 export type BaseMovieInfo = {
@@ -150,4 +151,35 @@ export const genresReverse: GenreReverseMap = {
     WAR: 10752,
     WESTERN: 37,
     TRENDING: -1,
+}
+
+export type ImageDetails = {
+    backdrops: Array<{
+        aspect_ratio: number
+        height: number
+        iso_639_1: string | null
+        file_path: string
+        vote_average: number
+        vote_count: number
+        width: number
+    }>
+    id: number
+    logos: Array<{
+        aspect_ratio: number
+        height: number
+        iso_639_1: string
+        file_path: string
+        vote_average: number
+        vote_count: number
+        width: number
+    }>
+    posters: Array<{
+        aspect_ratio: number
+        height: number
+        iso_639_1: string | null
+        file_path: string
+        vote_average: number
+        vote_count: number
+        width: number
+    }>
 }

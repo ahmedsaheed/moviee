@@ -35,7 +35,7 @@ export const providers = makeProviders({
 })
 
 export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
-    const output = await providers.runAll({
+    return await providers.runAll({
         media: media!!,
         sourceOrder: ['flixhq'],
         events: {
@@ -53,5 +53,4 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
             },
         },
     })
-    return output
 }

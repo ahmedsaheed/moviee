@@ -1,28 +1,20 @@
-import {
-    Button,
-    Separator,
-    Sheet,
-    SizableText,
-    useToastController,
-    YStack,
-} from '@my/ui'
+import { Separator, SizableText, YStack } from '@my/ui'
 import { RunOutput, ScrapeMedia } from '@movie-web/providers'
 import { AnimatePresence } from 'tamagui'
-import { ChevronDown, ChevronUp } from '@tamagui/lucide-icons'
-import { useEffect, useRef, useState } from 'react'
-import { StyleSheet } from 'react-native'
+import { useEffect, useState } from 'react'
+import { StyleSheet, useColorScheme } from 'react-native'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { Base, HeadingAndMovies } from 'app/@types/types'
 import { getMovieByCategory } from 'app/lib/movies/genre'
-import { Cards, MovieCards } from 'app/components/card'
-import { PlayerWrapper, VideoPlayer } from 'app/components/av'
+import { MovieCards } from 'app/components/card'
+import { PlayerWrapper } from 'app/components/av'
 import { HomeTopCarousel } from 'app/components/home-carousel'
 import { HeaderComponent, LargeHeaderComponent } from 'app/components/greeting'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
 import { SearchBar } from '@rneui/themed'
-import { Search, X } from '@tamagui/lucide-icons'
-import { useColorScheme } from 'react-native'
+import { Search } from '@tamagui/lucide-icons'
+
 export function HomeScreen() {
     const [data, setData] = useState<RunOutput | null>(null)
     const [searchQuery, setSearchQuery] = useState<string>('')
@@ -49,6 +41,8 @@ export function HomeScreen() {
         const trendingToday = async () => await getMovieByCategory('TRENDING')
         trendingToday().then(out => {
             console.log('out', out)
+
+            // extract the
             setTrendingToday(out)
         })
         const weeklyTrending = async () => await getMovieByCategory('ACTION')
@@ -154,6 +148,7 @@ export function HomeScreen() {
                     <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
                         <SearchBar
                             ref={search => (this.search = search)}
+                            //@ts-ignore
                             onChangeText={text => setSearchQuery(text)}
                             value={searchQuery}
                             placeholder="Search Shows and Movies"
@@ -189,7 +184,6 @@ export function HomeScreen() {
                                       }
                                     : {
                                           fontSize: 16,
-
                                           fontWeight: 'normal',
                                           fontFamily: 'System',
                                       }

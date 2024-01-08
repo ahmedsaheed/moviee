@@ -4,6 +4,7 @@ import {
     Base,
     DetailedMovieInfo,
     genresReverse,
+    ImageDetails,
     Movie,
     MovieCategories,
 } from 'app/@types/types'
@@ -35,6 +36,20 @@ export const getMovieByCategory = async (
     return data?.map(movie => {
         return extractToBase(movie)
     })
+}
+
+export const getMovieImagesAndLogo = async (id: number) => {
+    const uri = MOVIE_DETAILS_URI(id).split('?')[0] + '/images'
+    console.log(uri)
+    const response = (await fetcher(uri)) as ImageDetails
+    console.log(response)
+    return response
+}
+
+export const getMovieDataAndImages = async (id: number) => {
+    const data = await getMovieDetails(id)
+    const images = await getMovieImagesAndLogo(id)
+    return { data, images }
 }
 
 export const getMovieDetails = async (
