@@ -39,7 +39,9 @@ export const getMovieByCategory = async (
 }
 
 export const getMovieImagesAndLogo = async (id: number) => {
-    const uri = MOVIE_DETAILS_URI(id).split('?')[0] + '/images'
+    const uri =
+        MOVIE_DETAILS_URI(id).split('?')[0] +
+        '/images?include_image_language=en'
     console.log(uri)
     const response = (await fetcher(uri)) as ImageDetails
     console.log(response)

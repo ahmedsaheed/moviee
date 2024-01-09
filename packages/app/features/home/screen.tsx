@@ -14,7 +14,7 @@ import { SearchBar } from '@rneui/themed'
 import { Search } from '@tamagui/lucide-icons'
 import { useMovieDataFromCategories } from 'app/hooks/useMovieDataFromCategory'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
+import { router } from 'expo-router'
 export function HomeScreen() {
     const [data, setData] = useState<RunOutput | null>(null)
     const [searchQuery, setSearchQuery] = useState<string>('')
@@ -35,13 +35,9 @@ export function HomeScreen() {
     async function getMetaAndPlay(movieName: string) {
         setLoading(true)
         const res = await getMoviesMetadata(movieName)
-        setSearchQuery('')
-        if (res && res !== media) {
-            setLoading(false)
-            setMedia(res)
-        }
-        setLoading(false)
-        console.log('res', res)
+        const { tmdbId } = res!!
+        if (!tmdbId) return
+        router.push(`/user/${tmdbId}`)
     }
 
     useEffect(() => {

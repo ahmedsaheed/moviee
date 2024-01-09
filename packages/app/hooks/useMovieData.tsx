@@ -6,9 +6,13 @@ import {
     getMovieDetails,
 } from 'app/lib/movies/genre'
 
+/**
+ * Gets a specified movie details and images
+ * @param id - the movie IMDb id
+ */
 export function useMovieData(id: number): {
-    images: ImageDetails | null
     data: DetailedMovieInfo | null
+    images: ImageDetails | null
 } {
     const [data, setData] = useState<DetailedMovieInfo | null>(null)
     const [images, setImages] = useState<ImageDetails | null>(null)
@@ -19,11 +23,6 @@ export function useMovieData(id: number): {
             setData(out.data)
             setImages(out.images)
         })
-        // const { data, images } = await getMovieDataAndImages(id!!)
-        // setData(data)
-        //
-        // const datas = async () => await getMovieDetails(id)
-        // datas().then(res => setData(res))
     }, [])
 
     return { data, images }

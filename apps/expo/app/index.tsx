@@ -22,6 +22,7 @@ export default function Screen() {
                     options={{
                         title: 'Home',
                         headerShown: false,
+                        headerBackVisible: true,
                     }}
                 />
                 <HomeScreen />

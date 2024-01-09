@@ -15,10 +15,20 @@ import { RunOutput, ScrapeMedia } from '@movie-web/providers'
 import { createParam } from 'solito'
 import { useLink } from 'solito/link'
 import { useMovieData } from 'app/hooks/useMovieData'
-import { Dimensions, ScrollView, ImageBackground, View } from 'react-native'
-import { Download, Film, MoreVertical, Play, Plus } from '@tamagui/lucide-icons'
+import { Dimensions, ImageBackground, ScrollView, View } from 'react-native'
+import { useAsyncStorage } from '@react-native-async-storage/async-storage'
+import {
+    Download,
+    Film,
+    MoreVertical,
+    Play,
+    Plus,
+    Check,
+} from '@tamagui/lucide-icons'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { PlayerWrapper } from 'app/components/av'
+import { CannotPlayMovieDialog, convertMinutesToHours } from 'app/utils'
+import { useLocalStorage } from 'app/hooks/useLocalStorage'
 
 const { useParam } = createParam<{ id: string }>()
 
@@ -27,18 +37,32 @@ export function UserDetailScreen() {
     const [data, setData] = useState<RunOutput | null>(null)
     const [loading, setLoading] = useState(false)
     const [showMore, setShowMore] = useState(false)
+    const [wishedlisted, setWishedlisted] = useState(false)
     const [id] = useParam('id')
+
     const link = useLink({
         href: '/',
     })
     const { width, height } = Dimensions.get('window')
-    const { data: movieData, images } = useMovieData(Number(id!!))
 
-    function convertMinutesToHours(minutes) {
-        const hours = Math.floor(minutes / 60)
-        const remainingMinutes = minutes % 60
-        return hours + 'h ' + remainingMinutes + 'm '
+    const { data: movieData, images } = useMovieData(Number(id!!))
+    const { setItem, getItem } = useAsyncStorage(`WATCHLIST_${id}`)
+    const readItemFromStorage = async () => {
+        const item = await getItem()
+        if (item !== null) {
+            setWishedlisted(true)
+        }
     }
+
+    const writeItemToStorage = async newValue => {
+        await setItem(newValue)
+        if (newValue === 'true') {
+            setWishedlisted(true)
+        }
+    }
+    useEffect(() => {
+        readItemFromStorage()
+    }, [])
 
     async function getMetaAndPlay(movieName: string) {
         setLoading(true)
@@ -56,10 +80,16 @@ export function UserDetailScreen() {
         setLoading(true)
         out().then(out => {
             console.log('out', out)
+            if (out === null) {
+                CannotPlayMovieDialog()
+                return
+            }
+
             setData(out)
         })
         setLoading(false)
     }, [media])
+
     return (
         <ScrollView>
             <YStack f={1} space pb="$8">
@@ -139,8 +169,18 @@ export function UserDetailScreen() {
                                     Trailer
                                 </SizableText>
                             </YStack>
-                            <YStack alignItems="center" padding="$2">
-                                <Plus size={20} theme="alt1" />
+                            <YStack
+                                alignItems="center"
+                                padding="$2"
+                                onPress={() => {
+                                    writeItemToStorage('true')
+                                }}
+                            >
+                                {!wishedlisted ? (
+                                    <Plus size={20} theme="alt1" />
+                                ) : (
+                                    <Check size={20} theme="alt1" />
+                                )}
 
                                 <SizableText fontFamily="System" theme={'alt1'}>
                                     Watchlist
