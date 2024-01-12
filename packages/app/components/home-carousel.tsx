@@ -39,7 +39,7 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                     mode="parallax"
                     loop={true}
                     autoPlay={true}
-                    style={{ height: 200, borderRadius: 10 }}
+                    style={{ height: 250, borderRadius: 10 }}
                     width={width - 15}
                     onProgressChange={(_, absoluteProgress) =>
                         (progressValue.value = absoluteProgress)

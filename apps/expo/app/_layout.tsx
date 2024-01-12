@@ -35,7 +35,7 @@ export default function HomeLayout() {
                         hideTransitionAnimation="fade"
                         animated={true}
                     />
-                    <MyTabs />
+                    {/*<MyTabs />*/}
                     <Stack />
                 </ThemeProvider>
             </SafeAreaProvider>

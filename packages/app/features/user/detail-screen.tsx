@@ -28,7 +28,7 @@ import {
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { PlayerWrapper } from 'app/components/av'
 import { CannotPlayMovieDialog, convertMinutesToHours } from 'app/utils'
-import { useLocalStorage } from 'app/hooks/useLocalStorage'
+import { TabsAdvancedUnderline } from 'app/components/tabs'
 
 const { useParam } = createParam<{ id: string }>()
 
@@ -250,7 +250,8 @@ export function UserDetailScreen() {
                                 </SizableText>
                             </>
                         </XStack>
-                        <HorizontalTabs />
+                        {/*<HorizontalTabs />*/}
+                        {/*<TabsAdvancedUnderline /> */}
                     </>
                 )}
             </YStack>
