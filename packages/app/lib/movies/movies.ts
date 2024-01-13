@@ -5,6 +5,7 @@ import {
     targets,
 } from '@movie-web/providers'
 import { fetcher } from 'app/lib/fetcher/fetcher'
+import { router } from 'expo-router'
 
 const formatMovieName = (movieName: string) => {
     return movieName.replace(/\s/g, '%20')
@@ -53,4 +54,11 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
             },
         },
     })
+}
+
+export async function resolveMetaAndNavigateToDetails(movieName: string) {
+    const res = await getMoviesMetadata(movieName)
+    const { tmdbId } = res!!
+    if (!tmdbId) return
+    router.push(`/user/${tmdbId}`)
 }

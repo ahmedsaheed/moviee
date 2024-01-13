@@ -1,8 +1,8 @@
 import { useRef } from 'react'
 import { ResizeMode, Video } from 'expo-av'
-import { styles } from 'app/features/home/screen'
 import { RunOutput } from '@movie-web/providers'
 import { Paragraph, Spinner } from '@my/ui'
+import { StyleSheet } from 'react-native'
 
 export const VideoPlayer = (props: { src: string }) => {
     const videoRef = useRef(null)
@@ -40,3 +40,10 @@ export function PlayerWrapper({
     }
     return null
 }
+export const styles = StyleSheet.create({
+    video: {
+        alignSelf: 'center',
+        width: 320,
+        height: 200,
+    },
+})
