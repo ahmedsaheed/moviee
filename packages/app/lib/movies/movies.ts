@@ -11,21 +11,27 @@ const formatMovieName = (movieName: string) => {
     return movieName.replace(/\s/g, '%20')
 }
 const movieUrl = (movieName: string): string =>
-    `https://api.themoviedb.org/3/search/movie?query=${formatMovieName(
+    `https://api.themoviedb.org/3/search/multi?query=${formatMovieName(
         movieName
     )}&include_adult=false&language=en-US&page=1`
-
+const isMovieOrTV = meta =>
+    meta?.media_type === 'movie' || meta?.media_type === 'tv'
 export const getMoviesMetadata = async (
     movie: string
 ): Promise<ScrapeMedia | null> => {
     const getMeta = (await fetcher(movieUrl(movie))) as any
     const meta = getMeta?.results[0]
-    if (!meta) return null
+    console.log('meta', meta)
+    if (!meta || !isMovieOrTV(meta)) return null
+
+    const isTV = meta?.media_type === 'tv'
     return {
-        type: 'movie',
-        title: meta?.original_title,
+        type: isTV ? 'show' : meta?.media_type,
+        title: !isTV ? meta?.original_title : meta?.name,
         tmdbId: meta.id,
-        releaseYear: meta.release_date.split('-')[0],
+        releaseYear: !isTV
+            ? meta.release_date.split('-')[0]
+            : meta.first_air_date.split('-')[0],
     }
 }
 
@@ -58,7 +64,13 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
 
 export async function resolveMetaAndNavigateToDetails(movieName: string) {
     const res = await getMoviesMetadata(movieName)
-    const { tmdbId } = res!!
+    const { tmdbId, type } = res!!
     if (!tmdbId) return
-    router.push(`/user/${tmdbId}`)
+    //TODO: add to history
+    const hrefObj = {
+        pathname: `/user/${tmdbId}`,
+        params: { tmdbId, type },
+    }
+
+    router.push(hrefObj)
 }

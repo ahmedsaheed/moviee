@@ -29,8 +29,9 @@ import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { PlayerWrapper } from 'app/components/av'
 import { CannotPlayMovieDialog, convertMinutesToHours } from 'app/utils'
 import { TabsAdvancedUnderline } from 'app/components/tabs'
+import { ShowType } from 'app/@types/types'
 
-const { useParam } = createParam<{ id: string }>()
+const { useParam } = createParam<{ id: string; type: string }>()
 
 export function UserDetailScreen() {
     const [media, setMedia] = useState<ScrapeMedia | null>(null)
@@ -39,13 +40,15 @@ export function UserDetailScreen() {
     const [showMore, setShowMore] = useState(false)
     const [wishedlisted, setWishedlisted] = useState(false)
     const [id] = useParam('id')
+    const [type] = useParam('type') as unknown as [ShowType]
 
     const link = useLink({
         href: '/',
     })
-    const { width, height } = Dimensions.get('window')
+    const { height } = Dimensions.get('window')
+    console.log('params', id, type)
+    const { data: movieData, images } = useMovieData(type, Number(id!!))
 
-    const { data: movieData, images } = useMovieData(Number(id!!))
     const { setItem, getItem } = useAsyncStorage(`WATCHLIST_${id}`)
     const readItemFromStorage = async () => {
         const item = await getItem()
@@ -67,9 +70,29 @@ export function UserDetailScreen() {
     async function getMetaAndPlay(movieName: string) {
         setLoading(true)
         const res = await getMoviesMetadata(movieName)
-        if (res && res !== media) {
+        if (res?.type === 'show' && res && res !== media) {
+            const media: ScrapeMedia = {
+                ...res,
+                //TODO: use a hook to retrieve the episode and season from id
+                /*
+                episode: {
+                    number: 1,
+                    tmdbId: '770993',
+                },
+                season: {
+                    number: 1,
+                    tmdbId: '44098',
+                },
+                */
+            }
+            console.log('series', media)
             setLoading(false)
-            setMedia(res)
+            setMedia(media)
+        } else {
+            if (res && res !== media) {
+                setLoading(false)
+                setMedia(res)
+            }
         }
         setLoading(false)
         console.log('res', res)
@@ -130,7 +153,7 @@ export function UserDetailScreen() {
 
                         {images?.logos[0] === undefined && (
                             <H3 fontWeight={900} m="$4" fontFamily="System">
-                                {movieData.title}
+                                {movieData?.title ?? movieData.name}
                             </H3>
                         )}
 
@@ -140,7 +163,11 @@ export function UserDetailScreen() {
                             icon={Play}
                             width={'80%'}
                             alignSelf="center"
-                            onPress={() => getMetaAndPlay(movieData.title)}
+                            onPress={() =>
+                                getMetaAndPlay(
+                                    movieData?.title ?? movieData.original_name
+                                )
+                            }
                         >
                             {loading ? 'Loading..' : 'Play Movie'}
                         </Button>
@@ -234,7 +261,10 @@ export function UserDetailScreen() {
                                     fontSize={18}
                                     fontFamily="System"
                                 >
-                                    {movieData.release_date.split('-')[0]}
+                                    {movieData.release_date?.split('-')[0] ??
+                                        movieData?.seasons[0].air_date?.split(
+                                            '-'
+                                        )[0]}
                                 </SizableText>
                                 <Separator
                                     alignSelf="stretch"
@@ -246,7 +276,11 @@ export function UserDetailScreen() {
                                     fontSize={18}
                                     fontFamily="System"
                                 >
-                                    {convertMinutesToHours(movieData.runtime)}
+                                    {movieData?.runtime !== undefined
+                                        ? convertMinutesToHours(
+                                              movieData.runtime
+                                          )
+                                        : `${movieData?.number_of_seasons} Seasons`}
                                 </SizableText>
                             </>
                         </XStack>

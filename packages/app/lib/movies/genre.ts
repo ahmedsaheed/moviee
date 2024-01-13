@@ -3,22 +3,26 @@ import {
     ApiResponse,
     Base,
     DetailedMovieInfo,
+    DetailedSeriesInfo,
     genresReverse,
     ImageDetails,
     Movie,
     MovieCategories,
+    ShowType,
 } from 'app/@types/types'
 
-const TRENDING_URI =
-    'https://api.themoviedb.org/3/trending/movie/day?language=en-US'
-
+const PREFIX = 'https://api.themoviedb.org/3'
+const TRENDING_URI = `${PREFIX}/trending/movie/day?language=en-US`
 const MOVIE_GENRES_URI = (id: number | undefined) =>
     id !== undefined
-        ? `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=${id}`
+        ? `${PREFIX}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=${id}`
         : ''
 
 const MOVIE_DETAILS_URI = (id: number | undefined) =>
-    `https://api.themoviedb.org/3/movie/${id!!}?language=en-US`
+    `${PREFIX}/movie/${id!!}?language=en-US`
+
+const SERIES_DETAILS_URI = (id: number | undefined) =>
+    `${PREFIX}/tv/${id}?language=en-US`
 
 const getUriFromCategory = (category: MovieCategories): string => {
     const genreID = genresReverse[category]
@@ -38,10 +42,23 @@ export const getMovieByCategory = async (
     })
 }
 
-export const getMovieImagesAndLogo = async (id: number) => {
+const getTVSeriesDetails = async (id: number) => {
+    const uri = SERIES_DETAILS_URI(id)
+    const response = (await fetcher(uri)) as DetailedSeriesInfo
+    console.log(response)
+    return response
+}
+export const getTVDataAndImages = async (id: number) => {
+    const data = await getTVSeriesDetails(id)
+    const images = await getShowImagesAndLogo(id, 'show')
+    return { data, images }
+}
+const getShowImagesAndLogo = async (id: number, showType: ShowType) => {
+    const ext = '/images?include_image_language=en'
     const uri =
-        MOVIE_DETAILS_URI(id).split('?')[0] +
-        '/images?include_image_language=en'
+        showType === 'movie'
+            ? MOVIE_DETAILS_URI(id).split('?')[0] + ext
+            : SERIES_DETAILS_URI(id).split('?')[0] + ext
     console.log(uri)
     const response = (await fetcher(uri)) as ImageDetails
     console.log(response)
@@ -50,11 +67,11 @@ export const getMovieImagesAndLogo = async (id: number) => {
 
 export const getMovieDataAndImages = async (id: number) => {
     const data = await getMovieDetails(id)
-    const images = await getMovieImagesAndLogo(id)
+    const images = await getShowImagesAndLogo(id, 'movie')
     return { data, images }
 }
 
-export const getMovieDetails = async (
+const getMovieDetails = async (
     id: number
 ): Promise<DetailedMovieInfo | null> => {
     const uri = MOVIE_DETAILS_URI(id)

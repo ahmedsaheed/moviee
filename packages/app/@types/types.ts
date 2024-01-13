@@ -17,6 +17,8 @@ export type Base = {
     logoUrl?: string
 }
 
+export type ShowType = 'show' | 'movie'
+
 type Genre = {
     id: number
     name: string
@@ -67,6 +69,24 @@ export type DetailedMovieInfo = {
     vote_average: number
     vote_count: number
 }
+
+type SeriesInfo = {
+    name: string
+    number_of_seasons: number
+    number_of_episodes: number
+    seasons: Array<{
+        air_date: string
+        episode_count: number
+        id: number
+        name: string
+        overview: string
+        poster_path: string
+        season_number: number
+        vote_average: number
+    }>
+}
+
+export type DetailedSeriesInfo = Omit<DetailedMovieInfo, 'title'> & SeriesInfo
 
 export type Movie = {
     adult: boolean

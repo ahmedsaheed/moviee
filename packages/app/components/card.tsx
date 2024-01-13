@@ -7,7 +7,7 @@ import { LinearGradient } from '@tamagui/linear-gradient'
 export function Cards(props: HomeScreenCardProps) {
     const { title, releaseYear, onPress, imageUrl, ...rest } = props
     return (
-        <Card disabled elevate size="$4" bordered {...rest} onPress={onPress}>
+        <Card elevate size="$4" bordered {...rest} onPress={onPress}>
             <Card.Header padded></Card.Header>
             <Card.Footer padded>
                 <XStack flex={1} />
@@ -36,11 +36,7 @@ export function MovieCards(
     if (!props) {
         return null
     }
-    const linkProps = useLink({
-        href: '/user/nate',
-    })
-    const { onPress } = linkProps
-    const { movies } = props
+    const { movies, onPress } = props
     return (
         <ScrollView horizontal={true}>
             <XStack
@@ -50,33 +46,31 @@ export function MovieCards(
                 space
             >
                 {movies?.map((movie, index) => (
-                    <Link href={`/user/${movie.tmdbId}`}>
-                        <Cards
-                            animation="bouncy"
-                            enterStyle={{
-                                opacity: 0,
-                                y: 10,
-                                scale: 0.9,
-                            }}
-                            exitStyle={{
-                                opacity: 0,
-                                y: -10,
-                                scale: 0.9,
-                            }}
-                            size="$4"
-                            width={100}
-                            height={140}
-                            scale={0.9}
-                            hoverStyle={{ scale: 0.925 }}
-                            pressStyle={{ scale: 0.875 }}
-                            imageUrl={movie.imageUrl}
-                            key={index}
-                            onPress={() => onPress}
-                            releaseYear={movie.releaseYear}
-                            title={movie.title}
-                            tmdbId={movie.tmdbId}
-                        />
-                    </Link>
+                    <Cards
+                        animation="bouncy"
+                        enterStyle={{
+                            opacity: 0,
+                            y: 10,
+                            scale: 0.9,
+                        }}
+                        exitStyle={{
+                            opacity: 0,
+                            y: -10,
+                            scale: 0.9,
+                        }}
+                        size="$4"
+                        width={100}
+                        height={140}
+                        scale={0.9}
+                        hoverStyle={{ scale: 0.925 }}
+                        pressStyle={{ scale: 0.875 }}
+                        imageUrl={movie.imageUrl}
+                        key={index}
+                        onPress={() => onPress(movie.title)}
+                        releaseYear={movie.releaseYear}
+                        title={movie.title}
+                        tmdbId={movie.tmdbId}
+                    />
                 ))}
             </XStack>
         </ScrollView>

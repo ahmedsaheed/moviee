@@ -1,28 +1,49 @@
-import { Base, DetailedMovieInfo, ImageDetails } from 'app/@types/types'
+import {
+    Base,
+    DetailedMovieInfo,
+    DetailedSeriesInfo,
+    ImageDetails,
+    ShowType,
+} from 'app/@types/types'
 import { useEffect, useState } from 'react'
 import {
     getMovieByCategory,
     getMovieDataAndImages,
-    getMovieDetails,
+    getTVDataAndImages,
 } from 'app/lib/movies/genre'
 
 /**
  * Gets a specified movie details and images
+ * @param movieType
  * @param id - the movie IMDb id
  */
-export function useMovieData(id: number): {
-    data: DetailedMovieInfo | null
+export function useMovieData(
+    movieType: ShowType,
+    id: number
+): {
+    data: DetailedMovieInfo | DetailedSeriesInfo | null
     images: ImageDetails | null
 } {
-    const [data, setData] = useState<DetailedMovieInfo | null>(null)
+    const [data, setData] = useState<
+        DetailedMovieInfo | DetailedSeriesInfo | null
+    >(null)
     const [images, setImages] = useState<ImageDetails | null>(null)
+
     useEffect(() => {
-        const out = async () => await getMovieDataAndImages(id!!)
-        out().then(out => {
-            console.log('out', out)
-            setData(out.data)
-            setImages(out.images)
-        })
+        const resolve = async () => {
+            if (movieType === 'movie') {
+                const out = await getMovieDataAndImages(id!!)
+                const { data, images } = out
+                setData(data)
+                setImages(images)
+            } else {
+                const out = await getTVDataAndImages(id!!)
+                const { data, images } = out
+                setData(data)
+                setImages(images)
+            }
+        }
+        resolve()
     }, [])
 
     return { data, images }
