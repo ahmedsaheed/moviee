@@ -21,12 +21,10 @@ export function useMovieData(
     movieType: ShowType,
     id: number
 ): {
-    data: DetailedMovieInfo | DetailedSeriesInfo | null
+    data: DetailedSeriesInfo | null
     images: ImageDetails | null
 } {
-    const [data, setData] = useState<
-        DetailedMovieInfo | DetailedSeriesInfo | null
-    >(null)
+    const [data, setData] = useState<DetailedSeriesInfo | null>(null)
     const [images, setImages] = useState<ImageDetails | null>(null)
 
     useEffect(() => {
@@ -34,7 +32,7 @@ export function useMovieData(
             if (movieType === 'movie') {
                 const out = await getMovieDataAndImages(id!!)
                 const { data, images } = out
-                setData(data)
+                setData(data as DetailedSeriesInfo)
                 setImages(images)
             } else {
                 const out = await getTVDataAndImages(id!!)

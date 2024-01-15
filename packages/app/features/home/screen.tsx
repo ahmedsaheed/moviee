@@ -11,6 +11,7 @@ import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
 import { useMovieDataFromCategories } from 'app/hooks/useMovieDataFromCategory'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Searchbar } from 'app/components/searchbar'
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 
 export function HomeScreen() {
     const {
@@ -24,6 +25,7 @@ export function HomeScreen() {
     } = useMovieDataFromCategories()
     const { bottom } = useSafeAreaInsets()
     const scheme = useColorScheme()
+    const bottomTabBarHeight = useBottomTabBarHeight()
 
     const genre: HeadingAndMovies[] = [
         {
@@ -58,11 +60,11 @@ export function HomeScreen() {
     ]
 
     return (
-        <>
+        <YStack style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}>
             <ScrollViewWithHeaders
                 HeaderComponent={HeaderComponent}
                 LargeHeaderComponent={LargeHeaderComponent}
-                contentContainerStyle={{ paddingBottom: bottom }}
+                contentContainerStyle={{}}
             >
                 <YStack f={1} p="$2" space>
                     <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
@@ -107,6 +109,6 @@ export function HomeScreen() {
                     </YStack>
                 </YStack>
             </ScrollViewWithHeaders>
-        </>
+        </YStack>
     )
 }

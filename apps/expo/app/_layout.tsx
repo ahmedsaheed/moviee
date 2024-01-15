@@ -42,11 +42,3 @@ export default function HomeLayout() {
         </Provider>
     )
 }
-export function MyTabs() {
-    return (
-        <Tabs.Navigator>
-            <Tabs.Screen name="Home" component={HomeScreen} />
-            <Tabs.Screen name="Settings" component={UserDetailScreen} />
-        </Tabs.Navigator>
-    )
-}

@@ -18,18 +18,22 @@ import { useMovieData } from 'app/hooks/useMovieData'
 import { Dimensions, ImageBackground, ScrollView, View } from 'react-native'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 import {
+    Check,
     Download,
     Film,
     MoreVertical,
     Play,
     Plus,
-    Check,
+    ChevronLeft,
+    Share,
 } from '@tamagui/lucide-icons'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { PlayerWrapper } from 'app/components/av'
 import { CannotPlayMovieDialog, convertMinutesToHours } from 'app/utils'
-import { TabsAdvancedUnderline } from 'app/components/tabs'
 import { ShowType } from 'app/@types/types'
+import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
+import { BlurView } from 'expo-blur'
+import { router } from 'expo-router'
 
 const { useParam } = createParam<{ id: string; type: string }>()
 
@@ -46,14 +50,21 @@ export function UserDetailScreen() {
         href: '/',
     })
     const { height } = Dimensions.get('window')
-    console.log('params', id, type)
     const { data: movieData, images } = useMovieData(type, Number(id!!))
-
-    const { setItem, getItem } = useAsyncStorage(`WATCHLIST_${id}`)
+    const info = useSeasonsAndEpisodes(type, Number(id!!))
+    const { setItem, getItem, removeItem } = useAsyncStorage(`WATCHLIST_${id}`)
     const readItemFromStorage = async () => {
         const item = await getItem()
         if (item !== null) {
             setWishedlisted(true)
+        }
+    }
+
+    const removeItemFromStorage = async () => {
+        const item = await getItem()
+        if (item !== null) {
+            await removeItem()
+            setWishedlisted(false)
         }
     }
 
@@ -66,34 +77,31 @@ export function UserDetailScreen() {
     useEffect(() => {
         readItemFromStorage()
     }, [])
-
+    function playButtonText() {
+        if (loading) {
+            return 'Loading...'
+        }
+        if (type === 'movie') {
+            return 'Play Movie'
+        }
+        if (type === 'show') {
+            return `Play S${info!!.season.number} E${info!!.episode.number}`
+        }
+    }
     async function getMetaAndPlay(movieName: string) {
         setLoading(true)
-        const res = await getMoviesMetadata(movieName)
-        if (res?.type === 'show' && res && res !== media) {
-            const media: ScrapeMedia = {
+        let res = await getMoviesMetadata(movieName)
+        if (res === null) {
+            return
+        }
+        if (res && res?.type === 'show') {
+            res = {
                 ...res,
-                //TODO: use a hook to retrieve the episode and season from id
-                /*
-                episode: {
-                    number: 1,
-                    tmdbId: '770993',
-                },
-                season: {
-                    number: 1,
-                    tmdbId: '44098',
-                },
-                */
-            }
-            console.log('series', media)
-            setLoading(false)
-            setMedia(media)
-        } else {
-            if (res && res !== media) {
-                setLoading(false)
-                setMedia(res)
+                episode: info!!.episode,
+                season: info!!.season,
             }
         }
+        setMedia(res)
         setLoading(false)
         console.log('res', res)
     }
@@ -130,23 +138,135 @@ export function UserDetailScreen() {
                                 }}
                                 style={{
                                     width: '100%',
-                                    height: height / 1.8,
+                                    height: height / 1.7,
                                     alignItems: 'center',
                                     position: 'relative',
                                 }}
                                 resizeMode="cover"
                             >
-                                {images?.logos[0] !== undefined && (
-                                    <Image
-                                        source={{
-                                            uri: `https://image.tmdb.org/t/p/original/${images?.logos[0].file_path}`,
+                                <XStack
+                                    flex={1}
+                                    width={'100%'}
+                                    space="$8"
+                                    padding="$2"
+                                >
+                                    {/*@ts-ignore*/}
+                                    <BlurView
+                                        intensity={40}
+                                        tint="dark"
+                                        mt="$10"
+                                        style={{
+                                            width: '7%',
+                                            height: 30,
+                                            position: 'absolute',
+                                            top: 60,
+                                            left: 10,
+                                            borderRadius: '50%',
+                                            overflow: 'hidden',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            display: 'flex',
                                         }}
-                                        width="100%"
-                                        height={100}
-                                        resizeMode="contain"
-                                        bottom={0}
-                                        position="absolute"
-                                    />
+                                    >
+                                        <ChevronLeft
+                                            size="$1"
+                                            onPress={router.back}
+                                        />
+                                    </BlurView>
+                                    {/*@ts-ignore*/}
+                                    <BlurView
+                                        intensity={10}
+                                        tint="dark"
+                                        style={{
+                                            width: '7%',
+                                            height: 30,
+                                            position: 'absolute',
+                                            top: 60,
+                                            right: 10,
+                                            borderRadius: '50%',
+                                            overflow: 'hidden',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <Share
+                                            size="$1"
+                                            onPress={router.back}
+                                        />
+                                    </BlurView>
+
+                                    {/*@ts-ignore*/}
+                                    <BlurView
+                                        intensity={10}
+                                        tint="dark"
+                                        style={{
+                                            width: '7%',
+                                            height: 30,
+                                            position: 'absolute',
+                                            top: 60,
+                                            right: 50,
+                                            borderRadius: '50%',
+                                            overflow: 'hidden',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        {!wishedlisted ? (
+                                            <Plus
+                                                size="$1"
+                                                onPress={() =>
+                                                    writeItemToStorage('true')
+                                                }
+                                            />
+                                        ) : (
+                                            <Check
+                                                size="$1"
+                                                onPress={() =>
+                                                    removeItemFromStorage()
+                                                }
+                                            />
+                                        )}
+                                    </BlurView>
+                                </XStack>
+                                {images?.logos[0] !== undefined && (
+                                    // <Image
+                                    //     source={{
+                                    //         uri: `https://image.tmdb.org/t/p/original/${images?.logos[0].file_path}`,
+                                    //     }}
+                                    //     width="100%"
+                                    //     height={100}
+                                    //     resizeMode="contain"
+                                    //     bottom={0}
+                                    //     position="absolute"
+                                    // />
+                                    // @ts-ignore
+                                    <BlurView
+                                        intensity={10}
+                                        tint="dark"
+                                        mt="$10"
+                                        style={{
+                                            width: '100%',
+                                            height: '20%',
+                                            position: 'absolute',
+                                            bottom: 0,
+                                            //fade top of blur
+                                        }}
+                                    >
+                                        <Image
+                                            source={{
+                                                uri: `https://image.tmdb.org/t/p/original/${images?.logos[0].file_path}`,
+                                            }}
+                                            width="100%"
+                                            height={100}
+                                            resizeMode="contain"
+                                            bottom={5}
+                                            position="absolute"
+
+                                            // px="$8"
+                                        />
+                                    </BlurView>
                                 )}
                             </ImageBackground>
                         </View>
@@ -165,11 +285,11 @@ export function UserDetailScreen() {
                             alignSelf="center"
                             onPress={() =>
                                 getMetaAndPlay(
-                                    movieData?.title ?? movieData.original_name
+                                    movieData?.title ?? movieData.name
                                 )
                             }
                         >
-                            {loading ? 'Loading..' : 'Play Movie'}
+                            {playButtonText()}
                         </Button>
                         <Button
                             mt="$2"
@@ -262,7 +382,7 @@ export function UserDetailScreen() {
                                     fontFamily="System"
                                 >
                                     {movieData.release_date?.split('-')[0] ??
-                                        movieData?.seasons[0].air_date?.split(
+                                        movieData.seasons[0]!!.air_date.split(
                                             '-'
                                         )[0]}
                                 </SizableText>

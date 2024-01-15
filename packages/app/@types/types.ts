@@ -86,7 +86,7 @@ type SeriesInfo = {
     }>
 }
 
-export type DetailedSeriesInfo = Omit<DetailedMovieInfo, 'title'> & SeriesInfo
+export type DetailedSeriesInfo = DetailedMovieInfo & SeriesInfo
 
 export type Movie = {
     adult: boolean
@@ -199,3 +199,55 @@ export type ImageDetails = {
         width: number
     }>
 }
+
+export type SeasonAndEpisode = {
+    id: string
+    airDate: Date
+    episodes: Episode[]
+    name: string
+    overview: string
+    welcomeID: number
+    posterPath: string
+    seasonNumber: number
+    voteAverage: number
+}
+
+export type Episode = {
+    airDate: Date
+    episodeNumber: number
+    episodeType: EpisodeType
+    id: number
+    name: string
+    overview: string
+    productionCode: string
+    runtime: number
+    seasonNumber: number
+    showID: number
+    stillPath: string
+    voteAverage: number
+    voteCount: number
+    crew: Crew[]
+    guestStars: Crew[]
+}
+
+export type Crew = {
+    department?: Department
+    job?: Job
+    creditID: string
+    adult: boolean
+    gender: number
+    id: number
+    knownForDepartment: Department
+    name: string
+    originalName: string
+    popularity: number
+    profilePath: null | string
+    character?: string
+    order?: number
+}
+
+export type Department = 'Directing' | 'Writing' | 'Production' | 'Acting'
+
+export type Job = 'Director' | 'Writer'
+
+export type EpisodeType = 'standard' | 'finale'

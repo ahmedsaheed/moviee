@@ -8,6 +8,7 @@ import {
     ImageDetails,
     Movie,
     MovieCategories,
+    SeasonAndEpisode,
     ShowType,
 } from 'app/@types/types'
 
@@ -61,6 +62,16 @@ const getShowImagesAndLogo = async (id: number, showType: ShowType) => {
             : SERIES_DETAILS_URI(id).split('?')[0] + ext
     console.log(uri)
     const response = (await fetcher(uri)) as ImageDetails
+    console.log(response)
+    return response
+}
+
+export const getSeasonAndEpisodeDetails = async (
+    seasonTmdbId: number,
+    seasonNumber: number
+): Promise<SeasonAndEpisode> => {
+    const url = `${PREFIX}tv/${seasonTmdbId}/season/${seasonNumber}?language=en-US`
+    const response = (await fetcher(url)) as SeasonAndEpisode
     console.log(response)
     return response
 }
