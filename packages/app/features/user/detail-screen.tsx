@@ -62,8 +62,12 @@ export function UserDetailScreen() {
     }
 
     const BadgesUrl: Array<string> = [
-        'https://tv.apple.com/assets/badges/MetadataBadge%204K%20OnLight-fd5ab493fc53505d27ea2c770bae7129.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%204K%20OnDark-c90195dae0171c69694b4d7386421ad8.svg',
         'https://tv.apple.com/assets/badges/MetadataBadge%20AD%20OnDark-4731d380509cdd9c3e59e73cb9dc09d5.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%20SDH%20OnDark-45f29ce5e07128bf67d924a31a003cf3.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%20CC%20OnDark-7b5b00df263bfee5af843510f708c307.svg',
+        // 'https://tv.apple.com/assets/badges/MetadataBadge%20Atmos%20OnDark-007278edac4076aaf1bc01dedf68e3cd.svg',
+        // 'https://tv.apple.com/assets/badges/MetadataBadge%20Dolby%20OnDark-2c6afeb5b02b2c48655606bd9d178bfd.svg',
     ]
 
     const removeItemFromWishlistStorage = async () => {
@@ -300,21 +304,31 @@ export function UserDetailScreen() {
                             {playButtonText()}
                         </Button>
                         <ExtraInfo {...movieData} />
-                        {BadgesUrl.map((item, index) => {
-                            return (
-                                <SvgUri
-                                    key={index}
-                                    width="100%"
-                                    height={100}
-                                    uri={item}
-                                    style={{
-                                        position: 'relative',
-                                        bottom: 0,
-                                        left: 0,
-                                    }}
-                                />
-                            )
-                        })}
+
+                        <XStack
+                            flex={1}
+                            space="$2"
+                            borderWidth={2}
+                            borderColor="transparent"
+                            padding="$2"
+                            alignSelf="center"
+                        >
+                            {BadgesUrl.map((item, index) => {
+                                return (
+                                    <YStack
+                                        alignItems="center"
+                                        padding="$0"
+                                        backgroundColor="$transparent"
+                                        theme={'alt2'}
+                                    >
+                                        <SvgUri
+                                            uri={item}
+                                            style={{ opacity: 0.8 }}
+                                        />
+                                    </YStack>
+                                )
+                            })}
+                        </XStack>
 
                         <XStack
                             flex={1}
@@ -374,8 +388,8 @@ export function UserDetailScreen() {
                             </SizableText>
                         </Paragraph>
 
-                        {/*<HorizontalTabs />*/}
-                        {/*<TabsAdvancedUnderline /> */}
+                        <HorizontalTabs />
+                        {/*<TabsAdvancedUnderline />*/}
                     </>
                 )}
             </YStack>
@@ -395,13 +409,14 @@ function ExtraInfo(movieData) {
             flex={1}
             style={{
                 fontSize: 18,
+                opacity: 0.8,
             }}
             alignSelf="center"
         >
             <>
                 <SizableText fontFamily="System">
                     {movieData.release_date?.split('-')[0] ??
-                        movieData.seasons[0]!!.air_date.split('-')[0]}
+                        movieData.seasons[0]!!.air_date?.split('-')[0]}
                 </SizableText>
                 <SizableText theme={'alt1'} fontFamily="System">
                     {''} • {''}
@@ -418,24 +433,27 @@ function ExtraInfo(movieData) {
                 </SizableText>
                 {movieData.genres.map((item, index) => {
                     return (
-                        <>
-                            <SizableText
-                                key={index}
-                                fontSize={18}
-                                fontFamily="System"
-                            >
-                                {item.name}
-                            </SizableText>
-                            {index !== movieData.genres.length - 1 && (
+                        // return only first 3 genres
+                        index < 2 && (
+                            <>
                                 <SizableText
-                                    theme={'alt1'}
+                                    key={index}
                                     fontSize={18}
                                     fontFamily="System"
                                 >
-                                    {''},{' '}
+                                    {item.name}
                                 </SizableText>
-                            )}
-                        </>
+                                {index !== 1 && (
+                                    <SizableText
+                                        theme={'alt1'}
+                                        fontSize={18}
+                                        fontFamily="System"
+                                    >
+                                        {''},{' '}
+                                    </SizableText>
+                                )}
+                            </>
+                        )
                     )
                 })}
             </>
@@ -489,7 +507,7 @@ const TabsContent = (props: TabsContentProps) => {
             justifyContent="center"
             flex={1}
             borderColor="none"
-            borderRadius="$"
+            borderRadius="$0"
             borderTopLeftRadius={0}
             borderTopRightRadius={0}
             borderWidth={0}

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Base } from 'app/@types/types'
-import { getMovieByCategory } from 'app/lib/movies/genre'
+import { getMovieByCategory, getTVByCategory } from 'app/lib/movies/genre'
 
 export function useMovieDataFromCategories() {
     const [trendingToday, setTrendingToday] = useState<Array<Base> | null>(null)
+    const [trendingSeriesToday, setTrendingSeriesToday] =
+        useState<Array<Base> | null>(null)
     const [trendingWeekly, setTrendingWeekly] = useState<Array<Base> | null>(
         null
     )
@@ -18,12 +20,17 @@ export function useMovieDataFromCategories() {
     const [dramaMovies, setDramaMovies] = useState<Array<Base> | null>(null)
     const [documentaryMovies, setDocumentaryMovies] =
         useState<Array<Base> | null>(null)
-
     useEffect(() => {
         const trendingToday = async () => await getMovieByCategory('TRENDING')
         trendingToday().then(out => {
             console.log('out', out)
             setTrendingToday(out)
+        })
+
+        const trendingSeriesToday = async () => await getTVByCategory()
+        trendingSeriesToday().then(out => {
+            console.log('out', out)
+            setTrendingSeriesToday(out)
         })
         const weeklyTrending = async () => await getMovieByCategory('ACTION')
         weeklyTrending().then(out => {
@@ -71,5 +78,6 @@ export function useMovieDataFromCategories() {
         animationMovies,
         dramaMovies,
         documentaryMovies,
+        trendingSeriesToday,
     }
 }

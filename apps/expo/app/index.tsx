@@ -12,6 +12,10 @@ import { NavigationContainer } from '@react-navigation/native'
 import { BlurView } from 'expo-blur'
 import { BottomTabBar } from '@react-navigation/bottom-tabs'
 import { View } from 'react-native'
+import { Home, Search, Tv2 } from '@tamagui/lucide-icons'
+import React from 'react'
+import { StyleSheet } from 'react-native'
+import { SearchScreen } from 'app/features/search/search'
 
 const Tab = createBottomTabNavigator()
 export default function Screen() {
@@ -74,10 +78,36 @@ export function MyTabs() {
                     backgroundColor: 'transparent',
                     elevation: 0,
                 },
+                tabBarBackground: () => (
+                    // @ts-ignore
+                    <BlurView
+                        tint="dark"
+                        intensity={80}
+                        style={StyleSheet.absoluteFill}
+                    />
+                ),
             }}
         >
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Settings" component={UserDetailScreen} />
+            <Tab.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{
+                    tabBarLabel: 'Home',
+                    tabBarIcon: ({ color, size }) => (
+                        <Tv2 color={color} size={size} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Settings"
+                component={SearchScreen}
+                options={{
+                    tabBarLabel: 'Search',
+                    tabBarIcon: ({ color, size }) => (
+                        <Search color={color} size={size} />
+                    ),
+                }}
+            />
         </Tab.Navigator>
     )
 }

@@ -11,7 +11,19 @@ import { useState } from 'react'
 export const HeaderComponent = ({ showNavBar }) => (
     <Header headerStyle={{}} noBottomBorder={true} showNavBar={showNavBar} />
 )
+export const SearchHeaderComponent = ({ showNavBar }) => (
+    <Header headerStyle={{}} noBottomBorder={true} showNavBar={showNavBar} />
+)
 
+export const LargeSearchHeaderComponent = ({ scrollY }) => (
+    <LargeHeader>
+        <ScalingView scrollY={scrollY} pb="$0">
+            <H2 fontFamily="System" fontWeight={'bold'} p="$2" pb="$0">
+                Search
+            </H2>
+        </ScalingView>
+    </LargeHeader>
+)
 export const LargeHeaderComponent = ({ scrollY }) => (
     <LargeHeader>
         <ScalingView scrollY={scrollY} pb="$0">
