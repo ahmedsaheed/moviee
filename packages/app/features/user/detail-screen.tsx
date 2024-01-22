@@ -19,12 +19,10 @@ import { Dimensions, ImageBackground, ScrollView, View } from 'react-native'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 import {
     Check,
+    ChevronLeft,
     Download,
-    Film,
-    MoreVertical,
     Play,
     Plus,
-    ChevronLeft,
     Share,
 } from '@tamagui/lucide-icons'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
@@ -34,6 +32,7 @@ import { ShowType } from 'app/@types/types'
 import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 import { BlurView } from 'expo-blur'
 import { router } from 'expo-router'
+import { SvgUri } from 'react-native-svg'
 
 const { useParam } = createParam<{ id: string; type: string }>()
 
@@ -49,18 +48,25 @@ export function UserDetailScreen() {
     const link = useLink({
         href: '/',
     })
+
+    const IMAGE_URL_PRFIX = 'https://image.tmdb.org/t/p/original/'
     const { height } = Dimensions.get('window')
     const { data: movieData, images } = useMovieData(type, Number(id!!))
     const info = useSeasonsAndEpisodes(type, Number(id!!))
     const { setItem, getItem, removeItem } = useAsyncStorage(`WATCHLIST_${id}`)
-    const readItemFromStorage = async () => {
+    const readItemFromWishlistStorage = async () => {
         const item = await getItem()
         if (item !== null) {
             setWishedlisted(true)
         }
     }
 
-    const removeItemFromStorage = async () => {
+    const BadgesUrl: Array<string> = [
+        'https://tv.apple.com/assets/badges/MetadataBadge%204K%20OnLight-fd5ab493fc53505d27ea2c770bae7129.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%20AD%20OnDark-4731d380509cdd9c3e59e73cb9dc09d5.svg',
+    ]
+
+    const removeItemFromWishlistStorage = async () => {
         const item = await getItem()
         if (item !== null) {
             await removeItem()
@@ -75,19 +81,21 @@ export function UserDetailScreen() {
         }
     }
     useEffect(() => {
-        readItemFromStorage()
+        readItemFromWishlistStorage()
     }, [])
+
     function playButtonText() {
         if (loading) {
             return 'Loading...'
         }
         if (type === 'movie') {
-            return 'Play Movie'
+            return 'PLAY'
         }
         if (type === 'show') {
             return `Play S${info!!.season.number} E${info!!.episode.number}`
         }
     }
+
     async function getMetaAndPlay(movieName: string) {
         setLoading(true)
         let res = await getMoviesMetadata(movieName)
@@ -134,7 +142,10 @@ export function UserDetailScreen() {
                         <View style={{ flex: 1, position: 'relative' }}>
                             <ImageBackground
                                 source={{
-                                    uri: `https://image.tmdb.org/t/p/original/${movieData.backdrop_path}`,
+                                    uri: `${
+                                        IMAGE_URL_PRFIX +
+                                        movieData.backdrop_path
+                                    }`,
                                 }}
                                 style={{
                                     width: '100%',
@@ -148,7 +159,7 @@ export function UserDetailScreen() {
                                     flex={1}
                                     width={'100%'}
                                     space="$8"
-                                    padding="$2"
+                                    padding="$4"
                                 >
                                     {/*@ts-ignore*/}
                                     <BlurView
@@ -224,23 +235,13 @@ export function UserDetailScreen() {
                                             <Check
                                                 size="$1"
                                                 onPress={() =>
-                                                    removeItemFromStorage()
+                                                    removeItemFromWishlistStorage()
                                                 }
                                             />
                                         )}
                                     </BlurView>
                                 </XStack>
                                 {images?.logos[0] !== undefined && (
-                                    // <Image
-                                    //     source={{
-                                    //         uri: `https://image.tmdb.org/t/p/original/${images?.logos[0].file_path}`,
-                                    //     }}
-                                    //     width="100%"
-                                    //     height={100}
-                                    //     resizeMode="contain"
-                                    //     bottom={0}
-                                    //     position="absolute"
-                                    // />
                                     // @ts-ignore
                                     <BlurView
                                         intensity={10}
@@ -251,17 +252,23 @@ export function UserDetailScreen() {
                                             height: '20%',
                                             position: 'absolute',
                                             bottom: 0,
-                                            //fade top of blur
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            maskImage:
+                                                'linear-gradient(to bottom,transparent,rgba(0,0,0,.068) 3.3%,rgba(0,0,0,.145) 5.9%,rgba(0,0,0,.227) 8.1%,rgba(0,0,0,.313) 10.1%,rgba(0,0,0,.401) 12.1%,rgba(0,0,0,.49) 14.6%,rgba(0,0,0,.578) 17.7%,rgba(0,0,0,.661) 21.8%,rgba(0,0,0,.74) 27.1%,rgba(0,0,0,.812) 33.9%,rgba(0,0,0,.875) 42.4%,rgba(0,0,0,.927) 53%,rgba(0,0,0,.966) 66%,rgba(0,0,0,.991) 81.5%,rgba(0,0,0,.991) 100%)',
                                         }}
                                     >
                                         <Image
                                             source={{
-                                                uri: `https://image.tmdb.org/t/p/original/${images?.logos[0].file_path}`,
+                                                uri: `${
+                                                    IMAGE_URL_PRFIX +
+                                                    images?.logos[0].file_path
+                                                }`,
                                             }}
                                             width="100%"
                                             height={100}
                                             resizeMode="contain"
-                                            bottom={5}
+                                            bottom={3}
                                             position="absolute"
 
                                             // px="$8"
@@ -272,7 +279,7 @@ export function UserDetailScreen() {
                         </View>
 
                         {images?.logos[0] === undefined && (
-                            <H3 fontWeight={900} m="$4" fontFamily="System">
+                            <H3 fontWeight="bold" m="$4" fontFamily="System">
                                 {movieData?.title ?? movieData.name}
                             </H3>
                         )}
@@ -283,6 +290,7 @@ export function UserDetailScreen() {
                             icon={Play}
                             width={'80%'}
                             alignSelf="center"
+                            style={{ textTransform: 'uppercase' }}
                             onPress={() =>
                                 getMetaAndPlay(
                                     movieData?.title ?? movieData.name
@@ -291,16 +299,22 @@ export function UserDetailScreen() {
                         >
                             {playButtonText()}
                         </Button>
-                        <Button
-                            mt="$2"
-                            alignSelf="center"
-                            fontFamily="System"
-                            {...link}
-                            icon={Download}
-                            width={'80%'}
-                        >
-                            Download
-                        </Button>
+                        <ExtraInfo {...movieData} />
+                        {BadgesUrl.map((item, index) => {
+                            return (
+                                <SvgUri
+                                    key={index}
+                                    width="100%"
+                                    height={100}
+                                    uri={item}
+                                    style={{
+                                        position: 'relative',
+                                        bottom: 0,
+                                        left: 0,
+                                    }}
+                                />
+                            )
+                        })}
 
                         <XStack
                             flex={1}
@@ -310,12 +324,6 @@ export function UserDetailScreen() {
                             padding="$2"
                             alignSelf="center"
                         >
-                            <YStack alignItems="center" padding="$2">
-                                <Film size={20} theme="alt1" />
-                                <SizableText fontFamily="System" theme={'alt1'}>
-                                    Trailer
-                                </SizableText>
-                            </YStack>
                             <YStack
                                 alignItems="center"
                                 padding="$2"
@@ -329,14 +337,24 @@ export function UserDetailScreen() {
                                     <Check size={20} theme="alt1" />
                                 )}
 
-                                <SizableText fontFamily="System" theme={'alt1'}>
+                                <SizableText
+                                    fontFamily="System"
+                                    size="$2"
+                                    theme={'alt1'}
+                                    style={{ textTransform: 'uppercase' }}
+                                >
                                     Watchlist
                                 </SizableText>
                             </YStack>
                             <YStack alignItems="center" padding="$2">
-                                <MoreVertical size={20} theme="alt1" />
-                                <SizableText fontFamily="System" theme={'alt1'}>
-                                    More
+                                <Download size={20} theme="alt1" />
+                                <SizableText
+                                    size="$2"
+                                    style={{ textTransform: 'uppercase' }}
+                                    fontFamily="System"
+                                    theme={'alt1'}
+                                >
+                                    Download
                                 </SizableText>
                             </YStack>
                         </XStack>
@@ -345,6 +363,7 @@ export function UserDetailScreen() {
                             {showMore
                                 ? movieData.overview
                                 : movieData.overview.slice(0, 100)}
+                            {}
                             <SizableText
                                 onPress={() => setShowMore(!showMore)}
                                 fontFamily="System"
@@ -355,62 +374,72 @@ export function UserDetailScreen() {
                             </SizableText>
                         </Paragraph>
 
-                        <XStack flex={1} m="$4">
-                            <>
-                                {movieData.genres.map((item, index) => {
-                                    return (
-                                        <>
-                                            <SizableText
-                                                key={index}
-                                                theme={'alt1'}
-                                                fontSize={18}
-                                                fontFamily="System"
-                                            >
-                                                {item.name}
-                                            </SizableText>
-                                            <Separator
-                                                alignSelf="stretch"
-                                                vertical
-                                                marginHorizontal={5}
-                                            />
-                                        </>
-                                    )
-                                })}
-                                <SizableText
-                                    theme={'alt1'}
-                                    fontSize={18}
-                                    fontFamily="System"
-                                >
-                                    {movieData.release_date?.split('-')[0] ??
-                                        movieData.seasons[0]!!.air_date.split(
-                                            '-'
-                                        )[0]}
-                                </SizableText>
-                                <Separator
-                                    alignSelf="stretch"
-                                    vertical
-                                    marginHorizontal={5}
-                                />
-                                <SizableText
-                                    theme={'alt1'}
-                                    fontSize={18}
-                                    fontFamily="System"
-                                >
-                                    {movieData?.runtime !== undefined
-                                        ? convertMinutesToHours(
-                                              movieData.runtime
-                                          )
-                                        : `${movieData?.number_of_seasons} Seasons`}
-                                </SizableText>
-                            </>
-                        </XStack>
                         {/*<HorizontalTabs />*/}
                         {/*<TabsAdvancedUnderline /> */}
                     </>
                 )}
             </YStack>
-            <PlayerWrapper data={data} loading={loading} />
+            <PlayerWrapper
+                data={data}
+                loading={loading}
+                id={id!!}
+                mediaType={type}
+            />
         </ScrollView>
+    )
+}
+
+function ExtraInfo(movieData) {
+    return (
+        <XStack
+            flex={1}
+            style={{
+                fontSize: 18,
+            }}
+            alignSelf="center"
+        >
+            <>
+                <SizableText fontFamily="System">
+                    {movieData.release_date?.split('-')[0] ??
+                        movieData.seasons[0]!!.air_date.split('-')[0]}
+                </SizableText>
+                <SizableText theme={'alt1'} fontFamily="System">
+                    {''} • {''}
+                </SizableText>
+
+                <SizableText fontSize={18} fontFamily="System">
+                    {movieData?.runtime !== undefined
+                        ? convertMinutesToHours(movieData.runtime)
+                        : `${movieData?.number_of_seasons} Seasons`}
+                </SizableText>
+
+                <SizableText theme={'alt1'} fontSize={18} fontFamily="System">
+                    {''} • {''}
+                </SizableText>
+                {movieData.genres.map((item, index) => {
+                    return (
+                        <>
+                            <SizableText
+                                key={index}
+                                fontSize={18}
+                                fontFamily="System"
+                            >
+                                {item.name}
+                            </SizableText>
+                            {index !== movieData.genres.length - 1 && (
+                                <SizableText
+                                    theme={'alt1'}
+                                    fontSize={18}
+                                    fontFamily="System"
+                                >
+                                    {''},{' '}
+                                </SizableText>
+                            )}
+                        </>
+                    )
+                })}
+            </>
+        </XStack>
     )
 }
 

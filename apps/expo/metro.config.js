@@ -11,14 +11,17 @@ const workspaceRoot = path.resolve(__dirname, '../..')
 const config = getDefaultConfig(projectRoot)
 
 config.watchFolders = [workspaceRoot]
+config.resolver.disableHierarchicalLookup = true
 config.resolver.nodeModulesPaths = [
-  path.resolve(projectRoot, 'node_modules'),
-  path.resolve(workspaceRoot, 'node_modules'),
+    path.resolve(projectRoot, 'node_modules'),
+    path.resolve(workspaceRoot, 'node_modules'),
 ]
-
-config.transformer = { ...config.transformer, unstable_allowRequireContext: true }
+config.transformer = {
+    ...config.transformer,
+    unstable_allowRequireContext: true,
+}
 config.transformer.minifierPath = require.resolve('metro-minify-terser')
 config.resolver = {
-  extraNodeModules: require('node-libs-react-native'),
+    extraNodeModules: require('node-libs-react-native'),
 }
 module.exports = config
