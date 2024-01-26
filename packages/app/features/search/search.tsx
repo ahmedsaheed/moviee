@@ -56,8 +56,9 @@ export const SearchScreen = () => {
                                         resizeMode={'cover'}
                                         style={{
                                             width: '100%',
-                                            height: '100%',
+                                            height: '90%',
                                             borderRadius: 10,
+                                            padding: 10,
                                         }}
                                     />
                                 </View>

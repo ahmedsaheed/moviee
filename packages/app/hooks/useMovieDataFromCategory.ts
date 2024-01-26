@@ -23,49 +23,41 @@ export function useMovieDataFromCategories() {
     useEffect(() => {
         const trendingToday = async () => await getMovieByCategory('TRENDING')
         trendingToday().then(out => {
-            console.log('out', out)
             setTrendingToday(out)
         })
 
         const trendingSeriesToday = async () => await getTVByCategory()
         trendingSeriesToday().then(out => {
-            console.log('out', out)
             setTrendingSeriesToday(out)
         })
         const weeklyTrending = async () => await getMovieByCategory('ACTION')
         weeklyTrending().then(out => {
-            console.log('out', out)
             setTrendingWeekly(out)
         })
 
         const adventure = async () => await getMovieByCategory('ADVENTURE')
         adventure().then(out => {
-            console.log('out', out)
             setAdventureMovies(out)
         })
 
         const documentaries = async () =>
             await getMovieByCategory('DOCUMENTARY')
         documentaries().then(out => {
-            console.log('out', out)
             setDocumentaryMovies(out)
         })
 
         const drama = async () => await getMovieByCategory('DRAMA')
         drama().then(out => {
-            console.log('out', out)
             setDramaMovies(out)
         })
 
         const comedy = async () => await getMovieByCategory('COMEDY')
         comedy().then(out => {
-            console.log('out', out)
             setComedyMovies(out)
         })
 
         const animation = async () => await getMovieByCategory('ANIMATION')
         animation().then(out => {
-            console.log('out', out)
             setAnimationMovies(out)
         })
     }, [])

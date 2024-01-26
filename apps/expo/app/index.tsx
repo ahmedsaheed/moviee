@@ -12,10 +12,11 @@ import { NavigationContainer } from '@react-navigation/native'
 import { BlurView } from 'expo-blur'
 import { BottomTabBar } from '@react-navigation/bottom-tabs'
 import { View } from 'react-native'
-import { Home, Search, Tv2 } from '@tamagui/lucide-icons'
+import { GalleryVerticalEnd, Home, Search, Tv2 } from '@tamagui/lucide-icons'
 import React from 'react'
 import { StyleSheet } from 'react-native'
 import { SearchScreen } from 'app/features/search/search'
+import { Wishlist } from 'app/features/library/wishlist'
 
 const Tab = createBottomTabNavigator()
 export default function Screen() {
@@ -82,7 +83,7 @@ export function MyTabs() {
                     // @ts-ignore
                     <BlurView
                         tint="dark"
-                        intensity={80}
+                        intensity={90}
                         style={StyleSheet.absoluteFill}
                     />
                 ),
@@ -95,6 +96,16 @@ export function MyTabs() {
                     tabBarLabel: 'Home',
                     tabBarIcon: ({ color, size }) => (
                         <Tv2 color={color} size={size} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Library"
+                component={Wishlist}
+                options={{
+                    tabBarLabel: 'Library',
+                    tabBarIcon: ({ color, size }) => (
+                        <GalleryVerticalEnd color={color} size={size} />
                     ),
                 }}
             />

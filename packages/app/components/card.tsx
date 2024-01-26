@@ -7,7 +7,7 @@ import { LinearGradient } from '@tamagui/linear-gradient'
 export function Cards(props: HomeScreenCardProps) {
     const { title, releaseYear, onPress, imageUrl, ...rest } = props
     return (
-        <Card elevate size="$4" bordered {...rest} onPress={onPress}>
+        <Card elevate size="$6" bordered {...rest} onPress={onPress}>
             <Card.Header padded></Card.Header>
             <Card.Footer padded>
                 <XStack flex={1} />
@@ -18,8 +18,8 @@ export function Cards(props: HomeScreenCardProps) {
                     bordered
                     borderRadius="$4"
                     source={{
-                        width: 100,
-                        height: 145,
+                        width: '100%',
+                        height: '100%',
                         uri: `https://image.tmdb.org/t/p/original/${imageUrl}`,
                     }}
                 />
@@ -41,9 +41,9 @@ export function MovieCards(
         <ScrollView horizontal={true}>
             <XStack
                 $sm={{ flexDirection: 'row' }}
-                paddingHorizontal="$1"
+                paddingHorizontal="$0"
                 backgroundColor={'transparent'}
-                space
+                // space
             >
                 {movies?.map((movie, index) => (
                     <Cards
@@ -58,9 +58,9 @@ export function MovieCards(
                             y: -10,
                             scale: 0.9,
                         }}
-                        size="$4"
-                        width={100}
-                        height={140}
+                        size="$6"
+                        width={130}
+                        height={180}
                         scale={0.9}
                         hoverStyle={{ scale: 0.925 }}
                         pressStyle={{ scale: 0.875 }}

@@ -52,7 +52,6 @@ export const getTVByCategory = async (): Promise<Array<Base> | null> => {
     const uri = TRENDING_URI('show')
     const response = (await fetcher(uri)) as TvShowAPIResponse
     const data = response.results
-    console.log('trending show', data)
     if (!data) return null
     return data?.map(movie => {
         return extractToBase(movie)

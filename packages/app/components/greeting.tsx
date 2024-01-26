@@ -24,6 +24,17 @@ export const LargeSearchHeaderComponent = ({ scrollY }) => (
         </ScalingView>
     </LargeHeader>
 )
+
+export const LargeLibraryHeaderComponent = ({ scrollY }) => (
+    <LargeHeader>
+        <ScalingView scrollY={scrollY} pb="$0">
+            <H2 fontFamily="System" fontWeight={'bold'} p="$2" pb="$0">
+                Library
+            </H2>
+        </ScalingView>
+    </LargeHeader>
+)
+
 export const LargeHeaderComponent = ({ scrollY }) => (
     <LargeHeader>
         <ScalingView scrollY={scrollY} pb="$0">

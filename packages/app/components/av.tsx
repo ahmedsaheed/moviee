@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AVPlaybackStatus, ResizeMode, Video } from 'expo-av'
 import { RunOutput } from '@movie-web/providers'
 import { Spinner } from '@my/ui'
@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native'
 import { ShowType } from 'app/@types/types'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 
-type ProgressInfo = {
+export type ProgressInfo = {
     positionMillis: number
     uri: string
     completed: boolean
@@ -33,20 +33,47 @@ export const VideoPlayer = (props: {
     }
 
     function updatePlaybackStatus(status: AVPlaybackStatus) {
-        if (status.isLoaded) {
-            console.log(status.positionMillis)
-            // setPosition(status.positionMillis)
-            // updateProgress({
-            //     positionMillis: position,
-            //     uri: status.uri,
-            //     completed: status.didJustFinish,
-            // })
+        if (!status.isLoaded) {
+            if (status.error) {
+                console.log(
+                    `Encountered a fatal error during playback: ${status.error}`
+                )
+            }
+        } else {
+            if (status.isPlaying) {
+                // Update your UI for the playing state
+                updateProgress({
+                    positionMillis: status.positionMillis,
+                    uri: props.src,
+                    completed: false,
+                })
+
+            } else {
+                updateProgress({
+                    positionMillis: status.positionMillis,
+                    uri: props.src,
+                    completed: false,
+                })
+            }
+
+            if (status.isBuffering) {
+                // Update your UI for the buffering state
+            }
+
+            if (status.didJustFinish && !status.isLooping) {
+                // The player has just finished playing and will stop. Maybe you want to play something else?
+                updateProgress({
+                    positionMillis: 0,
+                    uri: props.src,
+                    completed: true,
+                })
+            }
         }
     }
 
-    // useEffect(() => {
-    //     getProgress()
-    // }, [])
+    useEffect(() => {
+        getProgress()
+    }, [])
     return (
         <Video
             source={{ uri: props.src, type: 'm3u8' }}
@@ -58,6 +85,7 @@ export const VideoPlayer = (props: {
             focusable={true}
             shouldPlay={true}
             positionMillis={position}
+            progressUpdateIntervalMillis={500}
             //@ts-ignore
             onPlaybackStatusUpdate={status => updatePlaybackStatus(status)}
             onReadyForDisplay={() => {

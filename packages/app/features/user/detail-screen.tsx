@@ -9,7 +9,16 @@ import {
     XStack,
     YStack,
 } from '@my/ui'
-import { Image, Separator, SizableText } from 'tamagui'
+import {
+    AnimatePresence,
+    Image,
+    Separator,
+    SizableText,
+    StackProps,
+    styled,
+    TabLayout,
+    TabsTabProps,
+} from 'tamagui'
 import { useEffect, useState } from 'react'
 import { RunOutput, ScrapeMedia } from '@movie-web/providers'
 import { createParam } from 'solito'
@@ -26,7 +35,7 @@ import {
     Share,
 } from '@tamagui/lucide-icons'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
-import { PlayerWrapper } from 'app/components/av'
+import { PlayerWrapper, ProgressInfo } from 'app/components/av'
 import { CannotPlayMovieDialog, convertMinutesToHours } from 'app/utils'
 import { ShowType } from 'app/@types/types'
 import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
@@ -42,6 +51,7 @@ export function UserDetailScreen() {
     const [loading, setLoading] = useState(false)
     const [showMore, setShowMore] = useState(false)
     const [wishedlisted, setWishedlisted] = useState(false)
+    const [progress, setProgress] = useState<ProgressInfo | null>(null)
     const [id] = useParam('id')
     const [type] = useParam('type') as unknown as [ShowType]
 
@@ -54,12 +64,23 @@ export function UserDetailScreen() {
     const { data: movieData, images } = useMovieData(type, Number(id!!))
     const info = useSeasonsAndEpisodes(type, Number(id!!))
     const { setItem, getItem, removeItem } = useAsyncStorage(`WATCHLIST_${id}`)
+    const { setItem: setProgressInfo, getItem: getProgressInfo } = useAsyncStorage(
+        `PROGRESS_INFO_${type}_${id}`
+    )
     const readItemFromWishlistStorage = async () => {
         const item = await getItem()
         if (item !== null) {
             setWishedlisted(true)
         }
     }
+
+ const getProgress = async () => {
+        const progressInfo = await getProgressInfo()
+        if (!progressInfo) return
+        const res = JSON.parse(progressInfo) as ProgressInfo
+        setProgress(res)
+    }
+
 
     const BadgesUrl: Array<string> = [
         'https://tv.apple.com/assets/badges/MetadataBadge%204K%20OnDark-c90195dae0171c69694b4d7386421ad8.svg',
@@ -86,6 +107,7 @@ export function UserDetailScreen() {
     }
     useEffect(() => {
         readItemFromWishlistStorage()
+        getProgress()
     }, [])
 
     function playButtonText() {
@@ -93,6 +115,11 @@ export function UserDetailScreen() {
             return 'Loading...'
         }
         if (type === 'movie') {
+            if (progress !== null) {
+                if (progress.positionMillis > 0) {
+                    return 'CONTINUE'
+                }
+            }
             return 'PLAY'
         }
         if (type === 'show') {
@@ -387,8 +414,9 @@ export function UserDetailScreen() {
                                 ...{showMore ? 'less' : 'more'}
                             </SizableText>
                         </Paragraph>
+                        <TabsAdvancedUnderline />
 
-                        <HorizontalTabs />
+                        {/*<HorizontalTabs />*/}
                         {/*<TabsAdvancedUnderline />*/}
                     </>
                 )}
@@ -461,59 +489,201 @@ function ExtraInfo(movieData) {
     )
 }
 
-const HorizontalTabs = () => {
+const TabsAdvancedUnderline = () => {
+    const [tabState, setTabState] = useState<{
+        currentTab: string
+        /**
+         * Layout of the Tab user might intend to select (hovering / focusing)
+         */
+        intentAt: TabLayout | null
+        /**
+         * Layout of the Tab user selected
+         */
+        activeAt: TabLayout | null
+        /**
+         * Used to get the direction of activation for animating the active indicator
+         */
+        prevActiveAt: TabLayout | null
+    }>({
+        activeAt: null,
+        currentTab: 'tab1',
+        intentAt: null,
+        prevActiveAt: null,
+    })
+
+    const setCurrentTab = (currentTab: string) =>
+        setTabState({ ...tabState, currentTab })
+    const setIntentIndicator = intentAt =>
+        setTabState({ ...tabState, intentAt })
+    const setActiveIndicator = activeAt =>
+        setTabState({ ...tabState, prevActiveAt: tabState.activeAt, activeAt })
+    const { activeAt, intentAt, prevActiveAt, currentTab } = tabState
+
+    /**
+     * -1: from left
+     *  0: n/a
+     *  1: from right
+     */
+    const direction = (() => {
+        if (!activeAt || !prevActiveAt || activeAt.x === prevActiveAt.x) {
+            return 0
+        }
+        return activeAt.x > prevActiveAt.x ? -1 : 1
+    })()
+
+    const enterVariant =
+        direction === 1
+            ? 'isLeft'
+            : direction === -1
+            ? 'isRight'
+            : 'defaultFade'
+    const exitVariant =
+        direction === 1
+            ? 'isRight'
+            : direction === -1
+            ? 'isLeft'
+            : 'defaultFade'
+
+    const handleOnInteraction: TabsTabProps['onInteraction'] = (
+        type,
+        layout
+    ) => {
+        if (type === 'select') {
+            setActiveIndicator(layout)
+        } else {
+            setIntentIndicator(layout)
+        }
+    }
+
     return (
         <Tabs
-            defaultValue="tab1"
+            value={currentTab}
+            onValueChange={setCurrentTab}
             orientation="horizontal"
-            flexDirection="column"
-            width={'100%'}
+            size="$4"
             height={150}
+            flexDirection="column"
+            backgroundColor="transparent"
             borderRadius="$4"
-            borderWidth="$0.25"
-            overflow="hidden"
-            borderColor="$borderColor"
         >
-            <Tabs.List
-                separator={<Separator vertical />}
-                disablePassBorderRadius="bottom"
-                aria-label="Manage your account"
-            >
-                <Tabs.Tab flex={1} value="tab1">
-                    <SizableText fontFamily="$body">Profile</SizableText>
-                </Tabs.Tab>
-                <Tabs.Tab flex={1} value="tab2">
-                    <SizableText fontFamily="$body">Connections</SizableText>
-                </Tabs.Tab>
-            </Tabs.List>
-            <Separator />
-            <TabsContent value="tab1">
-                <H5>Profile</H5>
-            </TabsContent>
+            <YStack>
+                <AnimatePresence>
+                    {intentAt && (
+                        <TabsRovingIndicator
+                            width={intentAt.width}
+                            height="$0.5"
+                            x={intentAt.x}
+                            bottom={0}
+                        />
+                    )}
+                </AnimatePresence>
+                <AnimatePresence>
+                    {activeAt && (
+                        <TabsRovingIndicator
+                            theme="active"
+                            active
+                            width={activeAt.width}
+                            height="$0.5"
+                            x={activeAt.x}
+                            bottom={0}
+                        />
+                    )}
+                </AnimatePresence>
+                <Tabs.List
+                    disablePassBorderRadius
+                    loop={false}
+                    aria-label="Manage your account"
+                    borderBottomLeftRadius={0}
+                    borderBottomRightRadius={0}
+                    paddingBottom="$1.5"
+                    borderColor="$color3"
+                    borderBottomWidth="$0.5"
+                    backgroundColor="transparent"
+                >
+                    <Tabs.Tab
+                        unstyled
+                        padding="$5"
+                        transparent
+                        value="tab1"
+                        onInteraction={handleOnInteraction}
+                        flex={1}
+                        justifyContent="center"
+                    >
+                        <H3 style={{ color: 'white', opacity: 1 }}>
+                            SUGGESTED
+                        </H3>
+                    </Tabs.Tab>
+                    <Tabs.Tab
+                        unstyled
+                        padding="$5"
+                        value="tab2"
+                        onInteraction={handleOnInteraction}
+                    >
+                        <SizableText>DETAILS</SizableText>
+                    </Tabs.Tab>
+                    <Tabs.Tab
+                        unstyled
+                        padding="$5"
+                        value="tab3"
+                        onInteraction={handleOnInteraction}
+                    >
+                        <SizableText>Notifications</SizableText>
+                    </Tabs.Tab>
+                </Tabs.List>
+            </YStack>
 
-            <TabsContent value="tab2">
-                <H5>Connections</H5>
-            </TabsContent>
+            <AnimatePresence
+                exitBeforeEnter
+                enterVariant={enterVariant}
+                exitVariant={exitVariant}
+            >
+                <AnimatedYStack
+                    key={currentTab}
+                    animation="100ms"
+                    x={0}
+                    opacity={1}
+                    flex={1}
+                >
+                    <Tabs.Content
+                        value={currentTab}
+                        forceMount
+                        flex={1}
+                        justifyContent="center"
+                    >
+                        <H5 textAlign="center">{currentTab}</H5>
+                    </Tabs.Content>
+                </AnimatedYStack>
+            </AnimatePresence>
         </Tabs>
     )
 }
-const TabsContent = (props: TabsContentProps) => {
+
+const TabsRovingIndicator = ({
+    active,
+    ...props
+}: { active?: boolean } & StackProps) => {
     return (
-        <Tabs.Content
-            backgroundColor="transparent"
-            key="tab3"
-            padding="$2"
-            alignItems="center"
-            justifyContent="center"
-            flex={1}
-            borderColor="none"
-            borderRadius="$0"
-            borderTopLeftRadius={0}
-            borderTopRightRadius={0}
-            borderWidth={0}
+        <YStack
+            position="absolute"
+            backgroundColor="$color5"
+            opacity={0.7}
+            animation="100ms"
+            enterStyle={{
+                opacity: 0,
+            }}
+            exitStyle={{
+                opacity: 0,
+            }}
+            {...(active && { backgroundColor: '$color8', opacity: 0.6 })}
             {...props}
-        >
-            {props.children}
-        </Tabs.Content>
+        />
     )
 }
+
+const AnimatedYStack = styled(YStack, {
+    variants: {
+        isLeft: { true: { x: -25, opacity: 0 } },
+        isRight: { true: { x: 25, opacity: 0 } },
+        defaultFade: { true: { opacity: 0 } },
+    } as const,
+})
