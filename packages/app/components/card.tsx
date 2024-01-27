@@ -38,7 +38,9 @@ export function MovieCards(
     }
     const { movies, onPress } = props
     return (
-        <ScrollView horizontal={true}>
+        <ScrollView horizontal={true}
+            showsHorizontalScrollIndicator={false}
+        >
             <XStack
                 $sm={{ flexDirection: 'row' }}
                 paddingHorizontal="$0"
