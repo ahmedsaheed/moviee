@@ -37,7 +37,7 @@ const getUriFromCategory = (category: MovieCategories): string => {
     return MOVIE_GENRES_URI(genreID)
 }
 
-const storeToCache = async (key: string, value: any) => {
+export const storeToCache = async (key: string, value: any) => {
     try {
         const now = new Date()
         const time = now.getTime()
@@ -52,7 +52,7 @@ const storeToCache = async (key: string, value: any) => {
     }
 }
 
-const isCached = async (key: string) => {
+export const isCached = async (key: string) => {
     try {
         const value = await AsyncStorage.getItem(key)
         if (value === null) return { isCached: false }
@@ -94,8 +94,6 @@ export const getMovieByCategory = async (
     })
 }
 
-
-
 export const getTVByCategory = async (): Promise<Array<Base> | null> => {
     const uri = TRENDING_URI('show')
     const cached = await isCached(uri)
@@ -122,6 +120,7 @@ const getTVSeriesDetails = async (id: number) => {
     console.log(response)
     return response
 }
+
 export const getTVDataAndImages = async (id: number) => {
     const cacheKey = imagesuri(id, 'show')
     const cached = await isCached(cacheKey)
@@ -143,8 +142,8 @@ const imagesuri = (id: number, showType: ShowType) => {
     return showType === 'movie'
             ? MOVIE_DETAILS_URI(id).split('?')[0] + ext
             : SERIES_DETAILS_URI(id).split('?')[0] + ext
-
 }
+
 const getShowImagesAndLogo = async (id: number, showType: ShowType) => {
     const uri = imagesuri(id, showType)
     console.log(uri)
@@ -157,8 +156,17 @@ export const getSeasonAndEpisodeDetails = async (
     seasonTmdbId: number,
     seasonNumber: number
 ): Promise<SeasonAndEpisode> => {
-    const url = `${PREFIX}tv/${seasonTmdbId}/season/${seasonNumber}?language=en-US`
+    const url = `${PREFIX}/tv/${seasonTmdbId}/season/${seasonNumber}?language=en-US`
+    const cached = await isCached(url)
+    if (cached?.isCached) {
+        console.log('season and episode details cached: returning cached data')
+        const data = cached!!.value
+        console.log(data)
+        return data as SeasonAndEpisode
+    }
+    console.log('season and episode details not cached: storing data')
     const response = (await fetcher(url)) as SeasonAndEpisode
+    storeToCache(url, response)
     console.log(response)
     return response
 }
