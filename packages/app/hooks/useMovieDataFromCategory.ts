@@ -26,28 +26,10 @@ export function useMovieDataFromCategories() {
         documentaryMovies: null,
     } as MovieData)
 
-    // const [trendingToday, setTrendingToday] = useState<Array<Base> | null>(null)
-    // const [trendingSeriesToday, setTrendingSeriesToday] =
-    //     useState<Array<Base> | null>(null)
-    // const [trendingWeekly, setTrendingWeekly] = useState<Array<Base> | null>(
-    //     null
-    // )
-    // const [adventureMovies, setAdventureMovies] = useState<Array<Base> | null>(
-    //     null
-    // )
-    // const [comedyMovies, setComedyMovies] = useState<Array<Base> | null>(null)
-    // const [animationMovies, setAnimationMovies] = useState<Array<Base> | null>(
-    //     null
-    // )
-
-    // const [dramaMovies, setDramaMovies] = useState<Array<Base> | null>(null)
-    // const [documentaryMovies, setDocumentaryMovies] =
-    //     useState<Array<Base> | null>(null)
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const trendingToday = await getMovieByCategory('TRENDING')
-                // setTrendingToday(trendingToday)
 
                 const data = await Promise.all([
                     getMovieByCategory('TRENDING'),
@@ -72,28 +54,6 @@ export function useMovieDataFromCategories() {
                 })
 
                 setIsLoading(false)
-
-                // const trendingSeriesToday = await getTVByCategory()
-                // setTrendingSeriesToday(trendingSeriesToday)
-
-                // const weeklyTrending = await getMovieByCategory('ACTION')
-                // setTrendingWeekly(weeklyTrending)
-
-                // const adventure = await getMovieByCategory('ADVENTURE')
-                // setAdventureMovies(adventure)
-
-                // const documentaries = await getMovieByCategory('DOCUMENTARY')
-                // setDocumentaryMovies(documentaries)
-
-                // const drama = await getMovieByCategory('DRAMA')
-                // setDramaMovies(drama)
-
-                // const comedy = await getMovieByCategory('COMEDY')
-                // setComedyMovies(comedy)
-
-                // const animation = await getMovieByCategory('ANIMATION')
-                // setAnimationMovies(animation)
-                // setIsLoading(false)
             } catch (error) {
                 console.error('Error fetching data:', error)
                 setIsLoading(false)
@@ -105,13 +65,5 @@ export function useMovieDataFromCategories() {
     return {
         isLoading,
         ...movieData,
-        // trendingToday,
-        // trendingWeekly,
-        // adventureMovies,
-        // comedyMovies,
-        // animationMovies,
-        // dramaMovies,
-        // documentaryMovies,
-        // trendingSeriesToday,
     }
 }
