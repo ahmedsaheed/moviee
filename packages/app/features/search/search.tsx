@@ -13,7 +13,10 @@ import { Image } from 'react-native'
 export const SearchScreen = () => {
     const bottomTabBarHeight = useBottomTabBarHeight()
     return (
-        <YStack style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}>
+        <YStack
+            backgroundColor={'$background'}
+            style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}
+        >
             <ScrollViewWithHeaders
                 HeaderComponent={SearchHeaderComponent}
                 LargeHeaderComponent={LargeSearchHeaderComponent}

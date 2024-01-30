@@ -9,7 +9,10 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 export type ProgressInfo = {
     positionMillis: number
     uri: string
+    percentCompleted?: number
     completed: boolean
+    episode?: number
+    season?: number
 }
 
 export const VideoPlayer = (props: {
@@ -22,6 +25,11 @@ export const VideoPlayer = (props: {
         `PROGRESS_INFO_${props.mediaType}_${props.id}`
     )
     const [position, setPosition] = useState(0)
+    const [seasonInfo, setSeasonInfo] = useState<{
+        season: number
+        episode: number
+    } | null>(null)
+    const { season, episode } = seasonInfo ?? { season: 1, episode: 1 }
     const updateProgress = async (progressInfo: ProgressInfo) => {
         await setItem(JSON.stringify(progressInfo))
     }
@@ -30,6 +38,18 @@ export const VideoPlayer = (props: {
         if (!progressInfo) return
         const res = JSON.parse(progressInfo) as ProgressInfo
         setPosition(res.positionMillis)
+        if (props.mediaType === 'show') {
+            setSeasonInfo({
+                season: res.season ?? 1,
+                episode: res.episode ?? 1,
+            })
+        }
+    }
+
+    const rex = async () => {
+        const progressInfo = await getItem()
+        const res = JSON.parse(progressInfo!!) as ProgressInfo
+        console.log('xxsw', res)
     }
 
     function updatePlaybackStatus(status: AVPlaybackStatus) {
@@ -44,15 +64,32 @@ export const VideoPlayer = (props: {
                 // Update your UI for the playing state
                 updateProgress({
                     positionMillis: status.positionMillis,
+                    //percentage in a range ong 0-100
+                    percentCompleted: Math.round(
+                        (status.positionMillis / status.durationMillis!!) * 100
+                    ),
                     uri: props.src,
                     completed: false,
+                    ...(props.mediaType === 'show' && {
+                        episode: episode,
+                        //TODO: if is last episode of season, increment season
+                        season: season,
+                    }),
                 })
-
             } else {
+                // Update your UI for the paused state
                 updateProgress({
                     positionMillis: status.positionMillis,
+                    percentCompleted: Math.round(
+                        (status.positionMillis / status.durationMillis!!) * 100
+                    ),
                     uri: props.src,
                     completed: false,
+                    ...(props.mediaType === 'show' && {
+                        episode: episode,
+                        //TODO: if is last episode of season, increment season
+                        season: season,
+                    }),
                 })
             }
 
@@ -62,11 +99,19 @@ export const VideoPlayer = (props: {
 
             if (status.didJustFinish && !status.isLooping) {
                 // The player has just finished playing and will stop. Maybe you want to play something else?
+                console.log('finished')
                 updateProgress({
                     positionMillis: 0,
+                    percentCompleted: 100,
                     uri: props.src,
                     completed: true,
+                    ...(props.mediaType === 'show' && {
+                        episode: episode + 1,
+                        //TODO: if is last episode of season, increment season
+                        season: season,
+                    }),
                 })
+                rex()
             }
         }
     }

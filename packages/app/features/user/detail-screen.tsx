@@ -1,14 +1,4 @@
-import {
-    Button,
-    H3,
-    H5,
-    Paragraph,
-    Spinner,
-    Tabs,
-    TabsContentProps,
-    XStack,
-    YStack,
-} from '@my/ui'
+import { H3, H5, Spinner, Tabs, TabsContentProps, Text } from '@my/ui'
 import {
     AnimatePresence,
     Image,
@@ -42,7 +32,16 @@ import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 import { BlurView } from 'expo-blur'
 import { router } from 'expo-router'
 import { SvgUri } from 'react-native-svg'
-
+import type {} from 'tamagui'
+import {
+    Button,
+    Paragraph,
+    SizeTokens,
+    Progress,
+    Slider,
+    XStack,
+    YStack,
+} from 'tamagui'
 const { useParam } = createParam<{ id: string; type: string }>()
 
 export function UserDetailScreen() {
@@ -64,9 +63,8 @@ export function UserDetailScreen() {
     const { data: movieData, images } = useMovieData(type, Number(id!!))
     const info = useSeasonsAndEpisodes(type, Number(id!!))
     const { setItem, getItem, removeItem } = useAsyncStorage(`WATCHLIST_${id}`)
-    const { setItem: setProgressInfo, getItem: getProgressInfo } = useAsyncStorage(
-        `PROGRESS_INFO_${type}_${id}`
-    )
+    const { setItem: setProgressInfo, getItem: getProgressInfo } =
+        useAsyncStorage(`PROGRESS_INFO_${type}_${id}`)
     const readItemFromWishlistStorage = async () => {
         const item = await getItem()
         if (item !== null) {
@@ -74,13 +72,17 @@ export function UserDetailScreen() {
         }
     }
 
- const getProgress = async () => {
+    const getProgress = async () => {
         const progressInfo = await getProgressInfo()
-        if (!progressInfo) return
+        if (!progressInfo) {
+            setProgress(null)
+            return
+        }
+
         const res = JSON.parse(progressInfo) as ProgressInfo
+        console.log('progrssInfo', res)
         setProgress(res)
     }
-
 
     const BadgesUrl: Array<string> = [
         'https://tv.apple.com/assets/badges/MetadataBadge%204K%20OnDark-c90195dae0171c69694b4d7386421ad8.svg',
@@ -123,6 +125,11 @@ export function UserDetailScreen() {
             return 'PLAY'
         }
         if (type === 'show') {
+            if (progress !== null) {
+                if (progress.positionMillis > 0) {
+                    return `Continue S${progress.season} E${progress.episode}`
+                }
+            }
             return `Play S${info!!.season.number} E${info!!.episode.number}`
         }
     }
@@ -160,14 +167,23 @@ export function UserDetailScreen() {
         setLoading(false)
     }, [media])
 
+    if (movieData === null) {
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                }}
+            >
+                <Spinner size="large" />
+            </View>
+        )
+    }
     return (
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
             <YStack f={1} space pb="$8">
-                {movieData === null && (
-                    <>
-                        <Spinner alignSelf={'center'} size="large" />
-                    </>
-                )}
                 {!!movieData && (
                     <>
                         <View style={{ flex: 1, position: 'relative' }}>
@@ -285,8 +301,6 @@ export function UserDetailScreen() {
                                             bottom: 0,
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            maskImage:
-                                                'linear-gradient(to bottom,transparent,rgba(0,0,0,.068) 3.3%,rgba(0,0,0,.145) 5.9%,rgba(0,0,0,.227) 8.1%,rgba(0,0,0,.313) 10.1%,rgba(0,0,0,.401) 12.1%,rgba(0,0,0,.49) 14.6%,rgba(0,0,0,.578) 17.7%,rgba(0,0,0,.661) 21.8%,rgba(0,0,0,.74) 27.1%,rgba(0,0,0,.812) 33.9%,rgba(0,0,0,.875) 42.4%,rgba(0,0,0,.927) 53%,rgba(0,0,0,.966) 66%,rgba(0,0,0,.991) 81.5%,rgba(0,0,0,.991) 100%)',
                                         }}
                                     >
                                         <Image
@@ -310,18 +324,28 @@ export function UserDetailScreen() {
                         </View>
 
                         {images?.logos[0] === undefined && (
-                            <H3 fontWeight="bold" m="$4" fontFamily="System">
+                            <H3
+                                fontWeight="bold"
+                                m="$4"
+                                style={{ fontFamily: 'System' }}
+                            >
                                 {movieData?.title ?? movieData.name}
                             </H3>
                         )}
-
+                        {progress?.percentCompleted !== undefined && (
+                            <ProgressDemo
+                                progressVal={progress?.percentCompleted}
+                            />
+                        )}
                         <Button
                             mt="$2"
-                            fontFamily="System"
                             icon={Play}
                             width={'80%'}
                             alignSelf="center"
-                            style={{ textTransform: 'uppercase' }}
+                            style={{
+                                textTransform: 'uppercase',
+                                fontFamily: 'System',
+                            }}
                             onPress={() =>
                                 getMetaAndPlay(
                                     movieData?.title ?? movieData.name
@@ -379,10 +403,12 @@ export function UserDetailScreen() {
                                 )}
 
                                 <SizableText
-                                    fontFamily="System"
                                     size="$2"
                                     theme={'alt1'}
-                                    style={{ textTransform: 'uppercase' }}
+                                    style={{
+                                        textTransform: 'uppercase',
+                                        fontFamily: 'System',
+                                    }}
                                 >
                                     Watchlist
                                 </SizableText>
@@ -391,8 +417,10 @@ export function UserDetailScreen() {
                                 <Download size={20} theme="alt1" />
                                 <SizableText
                                     size="$2"
-                                    style={{ textTransform: 'uppercase' }}
-                                    fontFamily="System"
+                                    style={{
+                                        textTransform: 'uppercase',
+                                        fontFamily: 'System',
+                                    }}
                                     theme={'alt1'}
                                 >
                                     Download
@@ -400,14 +428,22 @@ export function UserDetailScreen() {
                             </YStack>
                         </XStack>
                         <Separator />
-                        <Paragraph m="$4" fontFamily="System" fontSize={18}>
+                        <Paragraph
+                            m="$4"
+                            style={{
+                                fontFamily: 'System',
+                            }}
+                            fontSize={18}
+                        >
                             {showMore
                                 ? movieData.overview
                                 : movieData.overview.slice(0, 100)}
                             {}
                             <SizableText
                                 onPress={() => setShowMore(!showMore)}
-                                fontFamily="System"
+                                style={{
+                                    fontFamily: 'System',
+                                }}
                                 theme={'alt1'}
                                 fontSize={18}
                             >
@@ -415,9 +451,6 @@ export function UserDetailScreen() {
                             </SizableText>
                         </Paragraph>
                         <TabsAdvancedUnderline />
-
-                        {/*<HorizontalTabs />*/}
-                        {/*<TabsAdvancedUnderline />*/}
                     </>
                 )}
             </YStack>
@@ -442,21 +475,25 @@ function ExtraInfo(movieData) {
             alignSelf="center"
         >
             <>
-                <SizableText fontFamily="System">
+                <SizableText style={{ fontFamily: 'System' }}>
                     {movieData.release_date?.split('-')[0] ??
                         movieData.seasons[0]!!.air_date?.split('-')[0]}
                 </SizableText>
-                <SizableText theme={'alt1'} fontFamily="System">
+                <SizableText theme={'alt1'} style={{ fontFamily: 'System' }}>
                     {''} • {''}
                 </SizableText>
 
-                <SizableText fontSize={18} fontFamily="System">
+                <SizableText fontSize={18} style={{ fontFamily: 'System' }}>
                     {movieData?.runtime !== undefined
                         ? convertMinutesToHours(movieData.runtime)
                         : `${movieData?.number_of_seasons} Seasons`}
                 </SizableText>
 
-                <SizableText theme={'alt1'} fontSize={18} fontFamily="System">
+                <SizableText
+                    theme={'alt1'}
+                    fontSize={18}
+                    style={{ fontFamily: 'System' }}
+                >
                     {''} • {''}
                 </SizableText>
                 {movieData.genres.map((item, index) => {
@@ -467,7 +504,7 @@ function ExtraInfo(movieData) {
                                 <SizableText
                                     key={index}
                                     fontSize={18}
-                                    fontFamily="System"
+                                    style={{ fontFamily: 'System' }}
                                 >
                                     {item.name}
                                 </SizableText>
@@ -475,7 +512,7 @@ function ExtraInfo(movieData) {
                                     <SizableText
                                         theme={'alt1'}
                                         fontSize={18}
-                                        fontFamily="System"
+                                        style={{ fontFamily: 'System' }}
                                     >
                                         {''},{' '}
                                     </SizableText>
@@ -687,3 +724,38 @@ const AnimatedYStack = styled(YStack, {
         defaultFade: { true: { opacity: 0 } },
     } as const,
 })
+interface Props {
+    progressVal?: number
+}
+function ProgressDemo({ progressVal = 0 }: Props) {
+    const [progress, setProgress] = useState(progressVal)
+    const sizeProp = `$${1}` as SizeTokens
+
+    useEffect(() => {
+        setProgress(progressVal)
+    }, [progressVal])
+
+    return (
+        <>
+            <Paragraph height={10} opacity={0.5}></Paragraph>
+            <XStack
+                flex={1}
+                borderWidth={2}
+                borderColor="transparent"
+                padding="$2"
+                height="$3"
+                alignSelf="center"
+                alignItems="center"
+            >
+                <YStack padding="$1">
+                    <Progress size={sizeProp} value={progress}>
+                        <Progress.Indicator animation="medium" />
+                    </Progress>
+                </YStack>
+                <YStack padding="$1" opacity={0.8}>
+                    <Text> {progressVal}% Completed </Text>
+                </YStack>
+            </XStack>
+        </>
+    )
+}
