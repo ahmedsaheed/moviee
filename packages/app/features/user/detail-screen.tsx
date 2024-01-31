@@ -332,11 +332,7 @@ export function UserDetailScreen() {
                                 {movieData?.title ?? movieData.name}
                             </H3>
                         )}
-                        {progress?.percentCompleted !== undefined && (
-                            <ProgressDemo
-                                progressVal={progress?.percentCompleted}
-                            />
-                        )}
+
                         <Button
                             mt="$2"
                             icon={Play}
@@ -354,6 +350,11 @@ export function UserDetailScreen() {
                         >
                             {playButtonText()}
                         </Button>
+                        {progress?.percentCompleted !== undefined && (
+                            <ShowProgressIndicator
+                                progressVal={progress?.percentCompleted}
+                            />
+                        )}
                         <ExtraInfo {...movieData} />
 
                         <XStack
@@ -427,7 +428,7 @@ export function UserDetailScreen() {
                                 </SizableText>
                             </YStack>
                         </XStack>
-                        <Separator />
+                        <Separator px="$4" />
                         <Paragraph
                             m="$4"
                             style={{
@@ -450,7 +451,7 @@ export function UserDetailScreen() {
                                 ...{showMore ? 'less' : 'more'}
                             </SizableText>
                         </Paragraph>
-                        <TabsAdvancedUnderline />
+                        <DetailedTabView movieType={type} movieId={id!!} />
                     </>
                 )}
             </YStack>
@@ -483,17 +484,13 @@ function ExtraInfo(movieData) {
                     {''} • {''}
                 </SizableText>
 
-                <SizableText fontSize={18} style={{ fontFamily: 'System' }}>
+                <SizableText style={{ fontFamily: 'System' }}>
                     {movieData?.runtime !== undefined
                         ? convertMinutesToHours(movieData.runtime)
                         : `${movieData?.number_of_seasons} Seasons`}
                 </SizableText>
 
-                <SizableText
-                    theme={'alt1'}
-                    fontSize={18}
-                    style={{ fontFamily: 'System' }}
-                >
+                <SizableText theme={'alt1'} style={{ fontFamily: 'System' }}>
                     {''} • {''}
                 </SizableText>
                 {movieData.genres.map((item, index) => {
@@ -503,7 +500,6 @@ function ExtraInfo(movieData) {
                             <>
                                 <SizableText
                                     key={index}
-                                    fontSize={18}
                                     style={{ fontFamily: 'System' }}
                                 >
                                     {item.name}
@@ -511,7 +507,6 @@ function ExtraInfo(movieData) {
                                 {index !== 1 && (
                                     <SizableText
                                         theme={'alt1'}
-                                        fontSize={18}
                                         style={{ fontFamily: 'System' }}
                                     >
                                         {''},{' '}
@@ -526,7 +521,7 @@ function ExtraInfo(movieData) {
     )
 }
 
-const TabsAdvancedUnderline = () => {
+const DetailedTabView = ({ movieType: ShowType, movieId: string }) => {
     const [tabState, setTabState] = useState<{
         currentTab: string
         /**
@@ -592,6 +587,19 @@ const TabsAdvancedUnderline = () => {
         }
     }
 
+    const renderByTab = (tab: string) => {
+        switch (tab) {
+            case 'tab1':
+                return <H5>Related</H5>
+            case 'tab2':
+                return <H5>More Details</H5>
+            case 'tab3':
+                return <H5>Notifications</H5>
+            default:
+                return <H5>Related</H5>
+        }
+    }
+
     return (
         <Tabs
             value={currentTab}
@@ -602,6 +610,7 @@ const TabsAdvancedUnderline = () => {
             flexDirection="column"
             backgroundColor="transparent"
             borderRadius="$4"
+            px="$4"
         >
             <YStack>
                 <AnimatePresence>
@@ -629,7 +638,6 @@ const TabsAdvancedUnderline = () => {
                 <Tabs.List
                     disablePassBorderRadius
                     loop={false}
-                    aria-label="Manage your account"
                     borderBottomLeftRadius={0}
                     borderBottomRightRadius={0}
                     paddingBottom="$1.5"
@@ -640,15 +648,11 @@ const TabsAdvancedUnderline = () => {
                     <Tabs.Tab
                         unstyled
                         padding="$5"
-                        transparent
                         value="tab1"
                         onInteraction={handleOnInteraction}
                         flex={1}
-                        justifyContent="center"
                     >
-                        <H3 style={{ color: 'white', opacity: 1 }}>
-                            SUGGESTED
-                        </H3>
+                        <SizableText h="$2">Related</SizableText>
                     </Tabs.Tab>
                     <Tabs.Tab
                         unstyled
@@ -656,7 +660,7 @@ const TabsAdvancedUnderline = () => {
                         value="tab2"
                         onInteraction={handleOnInteraction}
                     >
-                        <SizableText>DETAILS</SizableText>
+                        <SizableText h="$2">More Details</SizableText>
                     </Tabs.Tab>
                     <Tabs.Tab
                         unstyled
@@ -664,7 +668,9 @@ const TabsAdvancedUnderline = () => {
                         value="tab3"
                         onInteraction={handleOnInteraction}
                     >
-                        <SizableText>Notifications</SizableText>
+                        <SizableText style={{ fontFamily: 'System' }} h="$2">
+                            Notifications
+                        </SizableText>
                     </Tabs.Tab>
                 </Tabs.List>
             </YStack>
@@ -686,8 +692,9 @@ const TabsAdvancedUnderline = () => {
                         forceMount
                         flex={1}
                         justifyContent="center"
+                        w="100%"
                     >
-                        <H5 textAlign="center">{currentTab}</H5>
+                        <H5>{renderByTab(currentTab)}</H5>
                     </Tabs.Content>
                 </AnimatedYStack>
             </AnimatePresence>
@@ -727,7 +734,7 @@ const AnimatedYStack = styled(YStack, {
 interface Props {
     progressVal?: number
 }
-function ProgressDemo({ progressVal = 0 }: Props) {
+function ShowProgressIndicator({ progressVal = 0 }: Props) {
     const [progress, setProgress] = useState(progressVal)
     const sizeProp = `$${1}` as SizeTokens
 
