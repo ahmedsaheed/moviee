@@ -21,7 +21,8 @@ export function useSeasonsAndEpisodes(
             number: 1,
             tmdbId: String(data?.id!!),
         },
-        episode: {
+        episodes: data?.episodes,
+        currentEpisode: {
             number: 1,
             tmdbId: String(data?.episodes[0]!!.id!!),
         },

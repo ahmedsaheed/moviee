@@ -1,25 +1,41 @@
 import {
-    AnimatePresence,
-    Image,
+    ChevronRight,
+    Cloud,
+    Moon,
+    Play,
+    Star,
+    Sun,
+} from '@tamagui/lucide-icons'
+import { useEffect, useState } from 'react'
+import {
+    YStack,
+    ListItem,
     Separator,
+    YGroup,
+    AnimatePresence,
     SizableText,
     StackProps,
     styled,
     TabLayout,
     TabsTabProps,
 } from 'tamagui'
-import { useEffect, useState } from 'react'
-import {
-    Button,
-    Paragraph,
-    SizeTokens,
-    Progress,
-    Slider,
-    XStack,
-    YStack,
-} from 'tamagui'
-import { H3, H5, Spinner, Tabs, TabsContentProps, Text } from '@my/ui'
-export const DetailedTabView = ({ movieType: ShowType, movieId: string }) => {
+import { H5, Spinner, Tabs, TabsContentProps, Text } from '@my/ui'
+import { Episode, ShowType } from 'app/@types/types'
+interface MoreDetailsTabProps {
+    genre?: string
+    director?: string
+    starring?: string
+    studio?: string
+}
+
+interface DetailedTabViewProps {
+    movieType: ShowType
+    movieId: string
+    episodes?: Episode[]
+    moreDetails?: MoreDetailsTabProps
+}
+export const DetailedTabView = (props: DetailedTabViewProps) => {
+    const { movieId, movieType, episodes, moreDetails } = props
     const [tabState, setTabState] = useState<{
         currentTab: string
         /**
@@ -88,9 +104,13 @@ export const DetailedTabView = ({ movieType: ShowType, movieId: string }) => {
     const renderByTab = (tab: string) => {
         switch (tab) {
             case 'tab1':
-                return <H5>Related</H5>
+                return episodes ? (
+                    <EpisodeList episodes={episodes!!} />
+                ) : (
+                    <H5>Related</H5>
+                )
             case 'tab2':
-                return <H5>More Details</H5>
+                return <MoreDetailsTab {...moreDetails} />
             case 'tab3':
                 return <H5>Notifications</H5>
             default:
@@ -104,7 +124,6 @@ export const DetailedTabView = ({ movieType: ShowType, movieId: string }) => {
             onValueChange={setCurrentTab}
             orientation="horizontal"
             size="$4"
-            height={150}
             flexDirection="column"
             backgroundColor="transparent"
             borderRadius="$4"
@@ -148,9 +167,10 @@ export const DetailedTabView = ({ movieType: ShowType, movieId: string }) => {
                         padding="$5"
                         value="tab1"
                         onInteraction={handleOnInteraction}
-                        flex={1}
                     >
-                        <SizableText h="$2">Related</SizableText>
+                        <SizableText style={{ fontFamily: 'System' }} h="$2">
+                            {movieType === 'movie' ? 'Related' : 'Episodes'}
+                        </SizableText>
                     </Tabs.Tab>
                     <Tabs.Tab
                         unstyled
@@ -158,7 +178,9 @@ export const DetailedTabView = ({ movieType: ShowType, movieId: string }) => {
                         value="tab2"
                         onInteraction={handleOnInteraction}
                     >
-                        <SizableText h="$2">More Details</SizableText>
+                        <SizableText style={{ fontFamily: 'System' }} h="$2">
+                            More Details
+                        </SizableText>
                     </Tabs.Tab>
                     <Tabs.Tab
                         unstyled
@@ -229,3 +251,94 @@ const AnimatedYStack = styled(YStack, {
         defaultFade: { true: { opacity: 0 } },
     } as const,
 })
+
+interface EpisodeListProps {
+    episodes: Episode[]
+}
+
+function EpisodeList({ episodes }: EpisodeListProps): JSX.Element {
+    return (
+        <YGroup
+            alignSelf="center"
+            width={'100%'}
+            size="$5"
+            separator={<Separator />}
+            backgroundColor="$transparent"
+        >
+            {episodes.map((episode, index) => (
+                <YGroup.Item backgroundColor="$transparent">
+                    <ListItem
+                        backgroundColor="$transparent"
+                        title={`Episode ${index + 1}`}
+                        subTitle={episode.name}
+                        icon={Play}
+                        iconAfter={ChevronRight}
+                        style={{ fontFamily: 'System' }}
+                    />
+                </YGroup.Item>
+            ))}
+        </YGroup>
+    )
+}
+
+function MoreDetailsTab({
+    genre,
+    director,
+    starring,
+    studio,
+}: MoreDetailsTabProps = {}) {
+    return (
+        <YGroup
+            alignSelf="center"
+            width={'100%'}
+            size="$5"
+            separator={<Separator />}
+            backgroundColor="$transparent"
+        >
+            <YGroup.Item backgroundColor="$transparent">
+                <ListItem
+                    backgroundColor="$transparent"
+                    // hoverTheme
+                    // pressTheme
+                    title="Genre"
+                    subTitle={genre}
+                    icon={null}
+                    iconAfter={null}
+                />
+            </YGroup.Item>
+            <YGroup.Item backgroundColor="$transparent">
+                <ListItem
+                    backgroundColor="$transparent"
+                    // hoverTheme
+                    // pressTheme
+                    title="Director"
+                    subTitle={director}
+                    icon={null}
+                    iconAfter={null}
+                />
+            </YGroup.Item>
+            <YGroup.Item backgroundColor="$transparent">
+                <ListItem
+                    backgroundColor="$transparent"
+                    // hoverTheme
+                    // pressTheme
+                    title="Starring"
+                    subTitle={starring}
+                    icon={null}
+                    iconAfter={null}
+                />
+            </YGroup.Item>
+            <YGroup.Item backgroundColor="$transparent">
+                <ListItem
+                    backgroundColor="$transparent"
+                    // hoverTheme
+                    // pressTheme
+                    title="Studio"
+                    subTitle={studio}
+                    icon={null}
+                    iconAfter={null}
+                />
+            </YGroup.Item>
+        </YGroup>
+    )
+}

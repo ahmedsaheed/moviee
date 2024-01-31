@@ -1,4 +1,5 @@
 import { H3, H5, Spinner, Tabs, TabsContentProps, Text } from '@my/ui'
+import { Stack } from 'expo-router'
 import {
     AnimatePresence,
     Image,
@@ -14,7 +15,13 @@ import { RunOutput, ScrapeMedia } from '@movie-web/providers'
 import { createParam } from 'solito'
 import { useLink } from 'solito/link'
 import { useMovieData } from 'app/hooks/useMovieData'
-import { Dimensions, ImageBackground, ScrollView, View } from 'react-native'
+import {
+    Dimensions,
+    ImageBackground,
+    SafeAreaView,
+    ScrollView,
+    View,
+} from 'react-native'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 import {
     Check,
@@ -111,6 +118,15 @@ export function UserDetailScreen() {
         getProgress()
     }, [])
 
+    const moreDetails = {
+        genre: movieData?.genres.map(item => item.name).join(', '),
+        director: 'unknown',
+        starring: 'unknown',
+        studio: movieData?.production_companies
+            .map(item => item.name)
+            .join(', '),
+    }
+
     function playButtonText() {
         if (loading) {
             return 'Loading...'
@@ -129,7 +145,9 @@ export function UserDetailScreen() {
                     return `Continue S${progress.season} E${progress.episode}`
                 }
             }
-            return `Play S${info!!.season.number} E${info!!.episode.number}`
+            return `Play S${info!!.season.number} E${
+                info!!.currentEpisode.number
+            }`
         }
     }
 
@@ -142,7 +160,7 @@ export function UserDetailScreen() {
         if (res && res?.type === 'show') {
             res = {
                 ...res,
-                episode: info!!.episode,
+                episode: info!!.currentEpisode,
                 season: info!!.season,
             }
         }
@@ -181,8 +199,11 @@ export function UserDetailScreen() {
         )
     }
     return (
-        <ScrollView showsVerticalScrollIndicator={false}>
-            <YStack f={1} space pb="$8">
+        <YStack pb="$2" style={{ height: 'auto' }}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ flexGrow: 1 }}
+            >
                 {!!movieData && (
                     <>
                         <View style={{ flex: 1, position: 'relative' }}>
@@ -450,73 +471,90 @@ export function UserDetailScreen() {
                                 ...{showMore ? 'less' : 'more'}
                             </SizableText>
                         </Paragraph>
-                        <DetailedTabView movieType={type} movieId={id!!} />
+                        <DetailedTabView
+                            movieType={type}
+                            movieId={id!!}
+                            episodes={info?.episodes}
+                            moreDetails={moreDetails}
+                        />
                     </>
                 )}
-            </YStack>
-            <PlayerWrapper
-                data={data}
-                loading={loading}
-                id={id!!}
-                mediaType={type}
-            />
-        </ScrollView>
+
+                <PlayerWrapper
+                    data={data}
+                    loading={loading}
+                    id={id!!}
+                    mediaType={type}
+                />
+            </ScrollView>
+        </YStack>
     )
 }
 
 function ExtraInfo(movieData) {
     return (
-        <XStack
-            flex={1}
+        <View
             style={{
-                fontSize: 18,
-                opacity: 0.8,
+                marginHorizontal: 20,
             }}
-            alignSelf="center"
         >
-            <>
-                <SizableText style={{ fontFamily: 'System' }}>
-                    {movieData.release_date?.split('-')[0] ??
-                        movieData.seasons[0]!!.air_date?.split('-')[0]}
-                </SizableText>
-                <SizableText theme={'alt1'} style={{ fontFamily: 'System' }}>
-                    {''} • {''}
-                </SizableText>
+            <XStack
+                flex={1}
+                style={{
+                    opacity: 0.8,
+                }}
+                alignSelf="center"
+            >
+                <>
+                    <SizableText style={{ fontFamily: 'System' }}>
+                        {movieData.release_date?.split('-')[0] ??
+                            movieData.seasons[0]!!.air_date?.split('-')[0]}
+                    </SizableText>
+                    <SizableText
+                        theme={'alt1'}
+                        style={{ fontFamily: 'System' }}
+                    >
+                        {''} • {''}
+                    </SizableText>
 
-                <SizableText style={{ fontFamily: 'System' }}>
-                    {movieData?.runtime !== undefined
-                        ? convertMinutesToHours(movieData.runtime)
-                        : `${movieData?.number_of_seasons} Seasons`}
-                </SizableText>
+                    <SizableText style={{ fontFamily: 'System' }}>
+                        {movieData?.runtime !== undefined
+                            ? convertMinutesToHours(movieData.runtime)
+                            : `${movieData?.number_of_seasons} Seasons`}
+                    </SizableText>
 
-                <SizableText theme={'alt1'} style={{ fontFamily: 'System' }}>
-                    {''} • {''}
-                </SizableText>
-                {movieData.genres.map((item, index) => {
-                    return (
-                        // return only first 3 genres
-                        index < 2 && (
-                            <>
-                                <SizableText
-                                    key={index}
-                                    style={{ fontFamily: 'System' }}
-                                >
-                                    {item.name}
-                                </SizableText>
-                                {index !== 1 && (
+                    <SizableText
+                        theme={'alt1'}
+                        style={{ fontFamily: 'System' }}
+                    >
+                        {''} • {''}
+                    </SizableText>
+                    {movieData.genres.map((item, index) => {
+                        return (
+                            // return only first 3 genres
+                            index < 2 && (
+                                <>
                                     <SizableText
-                                        theme={'alt1'}
+                                        key={index}
                                         style={{ fontFamily: 'System' }}
                                     >
-                                        {''},{' '}
+                                        {item.name}
                                     </SizableText>
-                                )}
-                            </>
+                                    {index !== 1 && (
+                                        <SizableText
+                                            theme={'alt1'}
+                                            style={{ fontFamily: 'System' }}
+                                        >
+                                            {''},{' '}
+                                        </SizableText>
+                                    )}
+                                </>
+                            )
                         )
-                    )
-                })}
-            </>
-        </XStack>
+                    })}
+                </>
+            </XStack>
+        </View>
     )
 }
 
