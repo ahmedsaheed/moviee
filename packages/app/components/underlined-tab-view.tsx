@@ -1,12 +1,5 @@
-import {
-    ChevronRight,
-    Cloud,
-    Moon,
-    Play,
-    Star,
-    Sun,
-} from '@tamagui/lucide-icons'
-import { useEffect, useState } from 'react'
+import { ChevronRight, Play, Star, Sun } from '@tamagui/lucide-icons'
+import { useState } from 'react'
 import {
     YStack,
     ListItem,
@@ -19,7 +12,7 @@ import {
     TabLayout,
     TabsTabProps,
 } from 'tamagui'
-import { H5, Spinner, Tabs, TabsContentProps, Text } from '@my/ui'
+import { H5, Tabs } from '@my/ui'
 import { Episode, ShowType } from 'app/@types/types'
 interface MoreDetailsTabProps {
     genre?: string

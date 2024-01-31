@@ -1,15 +1,5 @@
-import { H3, H5, Spinner, Tabs, TabsContentProps, Text } from '@my/ui'
-import { Stack } from 'expo-router'
-import {
-    AnimatePresence,
-    Image,
-    Separator,
-    SizableText,
-    StackProps,
-    styled,
-    TabLayout,
-    TabsTabProps,
-} from 'tamagui'
+import { H3, Spinner, Text } from '@my/ui'
+import { Image, Separator, SizableText } from 'tamagui'
 import { useEffect, useState } from 'react'
 import { RunOutput, ScrapeMedia } from '@movie-web/providers'
 import { createParam } from 'solito'
@@ -39,7 +29,7 @@ import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 import { BlurView } from 'expo-blur'
 import { router } from 'expo-router'
 import { SvgUri } from 'react-native-svg'
-import type {} from 'tamagui'
+
 import {
     Button,
     Paragraph,
