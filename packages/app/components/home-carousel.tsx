@@ -56,9 +56,9 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                             <CustomItem
                                 key={index}
                                 index={index}
-                                imageUrl={data[index].backdropUrl!!}
+                                imageUrl={data[index]!!.backdropUrl!!}
                                 animationValue={animationValue}
-                                name={data[index].title}
+                                name={data[index]!!.title}
                             />
                         )
                     }}
