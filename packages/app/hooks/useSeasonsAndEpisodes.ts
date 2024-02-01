@@ -4,14 +4,22 @@ import { SeasonAndEpisode, ShowType } from 'app/@types/types'
 import { getSeasonAndEpisodeDetails } from 'app/lib/movies/genre'
 
 export function useSeasonsAndEpisodes(
-    movieType: ShowType,
-    seasonTmdbId: number
+    movieType,
+    seasonTmdbId,
+    seasonNumber?,
+    episodeNumber?
 ) {
-    const [data, setData] = useState<SeasonAndEpisode | null>(null)
     if (movieType === 'movie') return null
+    const [data, setData] = useState<SeasonAndEpisode | null>(null)
+    seasonNumber = seasonNumber ?? 1
+    episodeNumber = episodeNumber ?? 1
+
     useEffect(() => {
         const getSeasonsAndEpisodes = async () => {
-            const response = await getSeasonAndEpisodeDetails(seasonTmdbId, 1)
+            const response = await getSeasonAndEpisodeDetails(
+                seasonTmdbId,
+                seasonNumber!!
+            )
             setData(response)
         }
         getSeasonsAndEpisodes()

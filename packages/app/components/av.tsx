@@ -19,7 +19,9 @@ export const VideoPlayer = (props: {
     src: string
     id: string
     mediaType: ShowType
+    videoType: string
 }) => {
+    console.log('xx', props.src)
     const videoRef = useRef(null)
     const { setItem, getItem, removeItem } = useAsyncStorage(
         `PROGRESS_INFO_${props.mediaType}_${props.id}`
@@ -37,7 +39,7 @@ export const VideoPlayer = (props: {
         const progressInfo = await getItem()
         if (!progressInfo) return
         const res = JSON.parse(progressInfo) as ProgressInfo
-        setPosition(res.positionMillis)
+        setPosition(res.positionMillis ?? 0)
         if (props.mediaType === 'show') {
             setSeasonInfo({
                 season: res.season ?? 1,
@@ -134,7 +136,7 @@ export const VideoPlayer = (props: {
             //@ts-ignore
             onPlaybackStatusUpdate={status => updatePlaybackStatus(status)}
             onReadyForDisplay={() => {
-                // present full screen
+                // present full seen
                 //@ts-ignore
                 videoRef.current?.presentFullscreenPlayer()
             }}
@@ -163,6 +165,7 @@ export function PlayerWrapper({
                 src={data.stream?.playlist}
                 id={id}
                 mediaType={mediaType}
+                videoType={data.stream?.type}
             />
         )
     }

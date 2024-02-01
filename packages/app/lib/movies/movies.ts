@@ -7,7 +7,7 @@ import {
 import { fetcher } from 'app/lib/fetcher/fetcher'
 import { router } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { isCached, storeToCache } from './genre'
+import { getSeasonAndEpisodeDetails, isCached, storeToCache } from './genre'
 
 const formatMovieName = (movieName: string) => {
     return movieName.replace(/\s/g, '%20')
@@ -21,22 +21,42 @@ const movieUrl = (movieName: string): string =>
 const isMovieOrTV = meta =>
     meta?.media_type === 'movie' || meta?.media_type === 'tv'
 
-
 export const getMoviesMetadata = async (
-    movie: string
+    movie: string,
+    seriesOptions?: { seasonNumber: number; episodeNumber: number }
 ): Promise<ScrapeMedia | null> => {
     let meta
+    let seriesInfo
     const url = movieUrl(movie)
     const cached = await isCached(url)
-    if (cached?.isCached){
+    if (cached?.isCached) {
         const initialData = cached!!.value as any
         meta = initialData?.results[0]
-    }else{
+    } else {
         const getMeta = (await fetcher(url)) as any
         meta = getMeta?.results[0]
         await storeToCache(url, getMeta)
     }
-    
+
+    if (seriesOptions) {
+        const { seasonNumber, episodeNumber } = seriesOptions
+        const moreSeriesInfo = await getSeasonAndEpisodeDetails(
+            meta.id,
+            seasonNumber
+        )
+
+        seriesInfo = {
+            season: {
+                number: seasonNumber,
+                tmdbId: String(moreSeriesInfo?.id!!),
+            },
+            episodes: {
+                number: episodeNumber,
+                tmdbId: String(moreSeriesInfo?.episodes[episodeNumber]!!.id!!),
+            },
+        }
+    }
+
     console.log('meta', meta)
     if (!meta || !isMovieOrTV(meta)) return null
 
@@ -48,6 +68,8 @@ export const getMoviesMetadata = async (
         releaseYear: !isTV
             ? meta.release_date.split('-')[0]
             : meta.first_air_date.split('-')[0],
+        // if is tv show spread season and episode
+        ...(seriesInfo ?? {}),
     }
 }
 
