@@ -1,20 +1,17 @@
-import { H3, H5, Spinner, Tabs, TabsContentProps, Text } from '@my/ui'
-import {
-    AnimatePresence,
-    Image,
-    Separator,
-    SizableText,
-    StackProps,
-    styled,
-    TabLayout,
-    TabsTabProps,
-} from 'tamagui'
+import { H3, Spinner, Text } from '@my/ui'
+import { Image, Separator, SizableText } from 'tamagui'
 import { useEffect, useState } from 'react'
 import { RunOutput, ScrapeMedia } from '@movie-web/providers'
 import { createParam } from 'solito'
 import { useLink } from 'solito/link'
 import { useMovieData } from 'app/hooks/useMovieData'
-import { Dimensions, ImageBackground, ScrollView, View } from 'react-native'
+import {
+    Dimensions,
+    ImageBackground,
+    SafeAreaView,
+    ScrollView,
+    View,
+} from 'react-native'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 import {
     Check,
@@ -32,7 +29,7 @@ import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 import { BlurView } from 'expo-blur'
 import { router } from 'expo-router'
 import { SvgUri } from 'react-native-svg'
-import type {} from 'tamagui'
+
 import {
     Button,
     Paragraph,
@@ -42,6 +39,7 @@ import {
     XStack,
     YStack,
 } from 'tamagui'
+import { DetailedTabView } from 'app/components/underlined-tab-view'
 const { useParam } = createParam<{ id: string; type: string }>()
 
 export function UserDetailScreen() {
@@ -89,8 +87,6 @@ export function UserDetailScreen() {
         'https://tv.apple.com/assets/badges/MetadataBadge%20AD%20OnDark-4731d380509cdd9c3e59e73cb9dc09d5.svg',
         'https://tv.apple.com/assets/badges/MetadataBadge%20SDH%20OnDark-45f29ce5e07128bf67d924a31a003cf3.svg',
         'https://tv.apple.com/assets/badges/MetadataBadge%20CC%20OnDark-7b5b00df263bfee5af843510f708c307.svg',
-        // 'https://tv.apple.com/assets/badges/MetadataBadge%20Atmos%20OnDark-007278edac4076aaf1bc01dedf68e3cd.svg',
-        // 'https://tv.apple.com/assets/badges/MetadataBadge%20Dolby%20OnDark-2c6afeb5b02b2c48655606bd9d178bfd.svg',
     ]
 
     const removeItemFromWishlistStorage = async () => {
@@ -112,6 +108,15 @@ export function UserDetailScreen() {
         getProgress()
     }, [])
 
+    const moreDetails = {
+        genre: movieData?.genres.map(item => item.name).join(', '),
+        director: 'unknown',
+        starring: 'unknown',
+        studio: movieData?.production_companies
+            .map(item => item.name)
+            .join(', '),
+    }
+
     function playButtonText() {
         if (loading) {
             return 'Loading...'
@@ -130,7 +135,9 @@ export function UserDetailScreen() {
                     return `Continue S${progress.season} E${progress.episode}`
                 }
             }
-            return `Play S${info!!.season.number} E${info!!.episode.number}`
+            return `Play S${info!!.season.number} E${
+                info!!.currentEpisode.number
+            }`
         }
     }
 
@@ -143,7 +150,7 @@ export function UserDetailScreen() {
         if (res && res?.type === 'show') {
             res = {
                 ...res,
-                episode: info!!.episode,
+                episode: info!!.currentEpisode,
                 season: info!!.season,
             }
         }
@@ -182,8 +189,11 @@ export function UserDetailScreen() {
         )
     }
     return (
-        <ScrollView showsVerticalScrollIndicator={false}>
-            <YStack f={1} space pb="$8">
+        <YStack pb="$2" style={{ height: 'auto' }}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ flexGrow: 1 }}
+            >
                 {!!movieData && (
                     <>
                         <View style={{ flex: 1, position: 'relative' }}>
@@ -332,11 +342,7 @@ export function UserDetailScreen() {
                                 {movieData?.title ?? movieData.name}
                             </H3>
                         )}
-                        {progress?.percentCompleted !== undefined && (
-                            <ProgressDemo
-                                progressVal={progress?.percentCompleted}
-                            />
-                        )}
+
                         <Button
                             mt="$2"
                             icon={Play}
@@ -354,6 +360,11 @@ export function UserDetailScreen() {
                         >
                             {playButtonText()}
                         </Button>
+                        {progress?.percentCompleted !== undefined && (
+                            <ShowProgressIndicator
+                                progressVal={progress?.percentCompleted}
+                            />
+                        )}
                         <ExtraInfo {...movieData} />
 
                         <XStack
@@ -427,7 +438,7 @@ export function UserDetailScreen() {
                                 </SizableText>
                             </YStack>
                         </XStack>
-                        <Separator />
+                        <Separator px="$4" />
                         <Paragraph
                             m="$4"
                             style={{
@@ -450,284 +461,97 @@ export function UserDetailScreen() {
                                 ...{showMore ? 'less' : 'more'}
                             </SizableText>
                         </Paragraph>
-                        <TabsAdvancedUnderline />
+                        <DetailedTabView
+                            movieType={type}
+                            movieId={id!!}
+                            episodes={info?.episodes}
+                            moreDetails={moreDetails}
+                        />
                     </>
                 )}
-            </YStack>
-            <PlayerWrapper
-                data={data}
-                loading={loading}
-                id={id!!}
-                mediaType={type}
-            />
-        </ScrollView>
+
+                <PlayerWrapper
+                    data={data}
+                    loading={loading}
+                    id={id!!}
+                    mediaType={type}
+                />
+            </ScrollView>
+        </YStack>
     )
 }
 
 function ExtraInfo(movieData) {
     return (
-        <XStack
-            flex={1}
+        <View
             style={{
-                fontSize: 18,
-                opacity: 0.8,
+                marginHorizontal: 20,
             }}
-            alignSelf="center"
         >
-            <>
-                <SizableText style={{ fontFamily: 'System' }}>
-                    {movieData.release_date?.split('-')[0] ??
-                        movieData.seasons[0]!!.air_date?.split('-')[0]}
-                </SizableText>
-                <SizableText theme={'alt1'} style={{ fontFamily: 'System' }}>
-                    {''} • {''}
-                </SizableText>
+            <XStack
+                flex={1}
+                style={{
+                    opacity: 0.8,
+                }}
+                alignSelf="center"
+            >
+                <>
+                    <SizableText style={{ fontFamily: 'System' }}>
+                        {movieData.release_date?.split('-')[0] ??
+                            movieData.seasons[0]!!.air_date?.split('-')[0]}
+                    </SizableText>
+                    <SizableText
+                        theme={'alt1'}
+                        style={{ fontFamily: 'System' }}
+                    >
+                        {''} • {''}
+                    </SizableText>
 
-                <SizableText fontSize={18} style={{ fontFamily: 'System' }}>
-                    {movieData?.runtime !== undefined
-                        ? convertMinutesToHours(movieData.runtime)
-                        : `${movieData?.number_of_seasons} Seasons`}
-                </SizableText>
+                    <SizableText style={{ fontFamily: 'System' }}>
+                        {movieData?.runtime !== undefined
+                            ? convertMinutesToHours(movieData.runtime)
+                            : `${movieData?.number_of_seasons} Seasons`}
+                    </SizableText>
 
-                <SizableText
-                    theme={'alt1'}
-                    fontSize={18}
-                    style={{ fontFamily: 'System' }}
-                >
-                    {''} • {''}
-                </SizableText>
-                {movieData.genres.map((item, index) => {
-                    return (
-                        // return only first 3 genres
-                        index < 2 && (
-                            <>
-                                <SizableText
-                                    key={index}
-                                    fontSize={18}
-                                    style={{ fontFamily: 'System' }}
-                                >
-                                    {item.name}
-                                </SizableText>
-                                {index !== 1 && (
+                    <SizableText
+                        theme={'alt1'}
+                        style={{ fontFamily: 'System' }}
+                    >
+                        {''} • {''}
+                    </SizableText>
+                    {movieData.genres.map((item, index) => {
+                        return (
+                            // return only first 3 genres
+                            index < 2 && (
+                                <>
                                     <SizableText
-                                        theme={'alt1'}
-                                        fontSize={18}
+                                        key={index}
                                         style={{ fontFamily: 'System' }}
                                     >
-                                        {''},{' '}
+                                        {item.name}
                                     </SizableText>
-                                )}
-                            </>
+                                    {index !== 1 && (
+                                        <SizableText
+                                            theme={'alt1'}
+                                            style={{ fontFamily: 'System' }}
+                                        >
+                                            {''},{' '}
+                                        </SizableText>
+                                    )}
+                                </>
+                            )
                         )
-                    )
-                })}
-            </>
-        </XStack>
+                    })}
+                </>
+            </XStack>
+        </View>
     )
 }
 
-const TabsAdvancedUnderline = () => {
-    const [tabState, setTabState] = useState<{
-        currentTab: string
-        /**
-         * Layout of the Tab user might intend to select (hovering / focusing)
-         */
-        intentAt: TabLayout | null
-        /**
-         * Layout of the Tab user selected
-         */
-        activeAt: TabLayout | null
-        /**
-         * Used to get the direction of activation for animating the active indicator
-         */
-        prevActiveAt: TabLayout | null
-    }>({
-        activeAt: null,
-        currentTab: 'tab1',
-        intentAt: null,
-        prevActiveAt: null,
-    })
-
-    const setCurrentTab = (currentTab: string) =>
-        setTabState({ ...tabState, currentTab })
-    const setIntentIndicator = intentAt =>
-        setTabState({ ...tabState, intentAt })
-    const setActiveIndicator = activeAt =>
-        setTabState({ ...tabState, prevActiveAt: tabState.activeAt, activeAt })
-    const { activeAt, intentAt, prevActiveAt, currentTab } = tabState
-
-    /**
-     * -1: from left
-     *  0: n/a
-     *  1: from right
-     */
-    const direction = (() => {
-        if (!activeAt || !prevActiveAt || activeAt.x === prevActiveAt.x) {
-            return 0
-        }
-        return activeAt.x > prevActiveAt.x ? -1 : 1
-    })()
-
-    const enterVariant =
-        direction === 1
-            ? 'isLeft'
-            : direction === -1
-            ? 'isRight'
-            : 'defaultFade'
-    const exitVariant =
-        direction === 1
-            ? 'isRight'
-            : direction === -1
-            ? 'isLeft'
-            : 'defaultFade'
-
-    const handleOnInteraction: TabsTabProps['onInteraction'] = (
-        type,
-        layout
-    ) => {
-        if (type === 'select') {
-            setActiveIndicator(layout)
-        } else {
-            setIntentIndicator(layout)
-        }
-    }
-
-    return (
-        <Tabs
-            value={currentTab}
-            onValueChange={setCurrentTab}
-            orientation="horizontal"
-            size="$4"
-            height={150}
-            flexDirection="column"
-            backgroundColor="transparent"
-            borderRadius="$4"
-        >
-            <YStack>
-                <AnimatePresence>
-                    {intentAt && (
-                        <TabsRovingIndicator
-                            width={intentAt.width}
-                            height="$0.5"
-                            x={intentAt.x}
-                            bottom={0}
-                        />
-                    )}
-                </AnimatePresence>
-                <AnimatePresence>
-                    {activeAt && (
-                        <TabsRovingIndicator
-                            theme="active"
-                            active
-                            width={activeAt.width}
-                            height="$0.5"
-                            x={activeAt.x}
-                            bottom={0}
-                        />
-                    )}
-                </AnimatePresence>
-                <Tabs.List
-                    disablePassBorderRadius
-                    loop={false}
-                    aria-label="Manage your account"
-                    borderBottomLeftRadius={0}
-                    borderBottomRightRadius={0}
-                    paddingBottom="$1.5"
-                    borderColor="$color3"
-                    borderBottomWidth="$0.5"
-                    backgroundColor="transparent"
-                >
-                    <Tabs.Tab
-                        unstyled
-                        padding="$5"
-                        transparent
-                        value="tab1"
-                        onInteraction={handleOnInteraction}
-                        flex={1}
-                        justifyContent="center"
-                    >
-                        <H3 style={{ color: 'white', opacity: 1 }}>
-                            SUGGESTED
-                        </H3>
-                    </Tabs.Tab>
-                    <Tabs.Tab
-                        unstyled
-                        padding="$5"
-                        value="tab2"
-                        onInteraction={handleOnInteraction}
-                    >
-                        <SizableText>DETAILS</SizableText>
-                    </Tabs.Tab>
-                    <Tabs.Tab
-                        unstyled
-                        padding="$5"
-                        value="tab3"
-                        onInteraction={handleOnInteraction}
-                    >
-                        <SizableText>Notifications</SizableText>
-                    </Tabs.Tab>
-                </Tabs.List>
-            </YStack>
-
-            <AnimatePresence
-                exitBeforeEnter
-                enterVariant={enterVariant}
-                exitVariant={exitVariant}
-            >
-                <AnimatedYStack
-                    key={currentTab}
-                    animation="100ms"
-                    x={0}
-                    opacity={1}
-                    flex={1}
-                >
-                    <Tabs.Content
-                        value={currentTab}
-                        forceMount
-                        flex={1}
-                        justifyContent="center"
-                    >
-                        <H5 textAlign="center">{currentTab}</H5>
-                    </Tabs.Content>
-                </AnimatedYStack>
-            </AnimatePresence>
-        </Tabs>
-    )
-}
-
-const TabsRovingIndicator = ({
-    active,
-    ...props
-}: { active?: boolean } & StackProps) => {
-    return (
-        <YStack
-            position="absolute"
-            backgroundColor="$color5"
-            opacity={0.7}
-            animation="100ms"
-            enterStyle={{
-                opacity: 0,
-            }}
-            exitStyle={{
-                opacity: 0,
-            }}
-            {...(active && { backgroundColor: '$color8', opacity: 0.6 })}
-            {...props}
-        />
-    )
-}
-
-const AnimatedYStack = styled(YStack, {
-    variants: {
-        isLeft: { true: { x: -25, opacity: 0 } },
-        isRight: { true: { x: 25, opacity: 0 } },
-        defaultFade: { true: { opacity: 0 } },
-    } as const,
-})
 interface Props {
     progressVal?: number
 }
-function ProgressDemo({ progressVal = 0 }: Props) {
+function ShowProgressIndicator({ progressVal = 0 }: Props) {
     const [progress, setProgress] = useState(progressVal)
     const sizeProp = `$${1}` as SizeTokens
 
