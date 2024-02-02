@@ -12,8 +12,13 @@ import {
     TabLayout,
     TabsTabProps,
 } from 'tamagui'
-import { H5, Tabs } from '@my/ui'
-import { Episode, ShowType } from 'app/@types/types'
+import { H5, Tabs, View } from '@my/ui'
+import { Base, Episode, ShowType } from 'app/@types/types'
+import { MovieCards } from './card'
+import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
+import { Image, Pressable, StyleSheet } from 'react-native'
+import { GridView } from 'app/features/search/search'
+
 interface MoreDetailsTabProps {
     genre?: string
     director?: string
@@ -26,9 +31,10 @@ interface DetailedTabViewProps {
     movieId: string
     episodes?: Episode[]
     moreDetails?: MoreDetailsTabProps
+    similarMovies?: Base[] | null
 }
 export const DetailedTabView = (props: DetailedTabViewProps) => {
-    const { movieId, movieType, episodes, moreDetails } = props
+    const { movieId, movieType, episodes, moreDetails, similarMovies } = props
     const [tabState, setTabState] = useState<{
         currentTab: string
         /**
@@ -100,7 +106,11 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
                 return episodes ? (
                     <EpisodeList episodes={episodes!!} />
                 ) : (
-                    <H5>Related</H5>
+                    similarMovies && (
+                        <View pt="$2">
+                            <SimilarMovies similarMovies={similarMovies} />
+                        </View>
+                    )
                 )
             case 'tab2':
                 return <MoreDetailsTab {...moreDetails} />
@@ -335,3 +345,42 @@ function MoreDetailsTab({
         </YGroup>
     )
 }
+
+const SimilarMovies = ({ similarMovies }: { similarMovies: Base[] | null }) => {
+    similarMovies = similarMovies?.slice(0, 10)!!
+    if (!similarMovies) return
+    return (
+        <GridView
+            gap={1}
+            data={similarMovies!!}
+            renderItem={item => (
+                <View
+                    style={styles.itemContainer}
+                    onPress={() => resolveMetaAndNavigateToDetails(item.title)}
+                >
+                    <Image
+                        source={{ uri: item.imageUrl }}
+                        resizeMode={'cover'}
+                        style={{
+                            width: '90%',
+                            height: '100%',
+                            borderRadius: 10,
+                            padding: 5,
+                        }}
+                    />
+                </View>
+            )}
+            numColumns={2}
+        />
+    )
+}
+
+const styles = StyleSheet.create({
+    itemContainer: {
+        borderRadius: 10,
+        height: 250,
+        marginBottom: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+})

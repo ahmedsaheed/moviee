@@ -31,6 +31,9 @@ const MOVIE_DETAILS_URI = (id: number | undefined) =>
 const SERIES_DETAILS_URI = (id: number | undefined) =>
     `${PREFIX}/tv/${id}?language=en-US`
 
+const SIMILAR_MOVIES_URI = (id: number | undefined) =>
+    `${PREFIX}/movie/${id}/similar?language=en-US&page=1`
+
 const getUriFromCategory = (category: MovieCategories): string => {
     const genreID = genresReverse[category]
     if (category === 'TRENDING') return TRENDING_URI('movie')
@@ -60,7 +63,7 @@ export const isCached = async (key: string) => {
         const now = new Date()
         const time = now.getTime()
         const expireDate = new Date(data.expireDate).getTime()
-        const isExpired = time > expireDate 
+        const isExpired = time > expireDate
         console.log('isExpired', isExpired, time, expireDate)
         if (isExpired) {
             console.log('data expired')
@@ -88,6 +91,28 @@ export const getMovieByCategory = async (
     const data = response.results as Movie[]
     if (!data) return null
     console.log('not cached: storing data')
+    storeToCache(uri, data)
+    return data?.map(movie => {
+        return extractToBase(movie)
+    })
+}
+
+export const getSimilarMovies = async (
+    id: number
+): Promise<Array<Base> | null> => {
+    const uri = SIMILAR_MOVIES_URI(id)
+    const cached = await isCached(uri)
+    if (cached?.isCached) {
+        console.log('similar cached: returning cached data')
+        const data = cached!!.value as Array<Movie>
+        return data?.map(movie => {
+            return extractToBase(movie)
+        })
+    }
+    const response = (await fetcher(uri)) as ApiResponse
+    const data = response.results as Movie[]
+    if (!data) return null
+    console.log('similar not cached: storing data')
     storeToCache(uri, data)
     return data?.map(movie => {
         return extractToBase(movie)
@@ -140,8 +165,8 @@ export const getTVDataAndImages = async (id: number) => {
 const imagesuri = (id: number, showType: ShowType) => {
     const ext = '/images?include_image_language=en'
     return showType === 'movie'
-            ? MOVIE_DETAILS_URI(id).split('?')[0] + ext
-            : SERIES_DETAILS_URI(id).split('?')[0] + ext
+        ? MOVIE_DETAILS_URI(id).split('?')[0] + ext
+        : SERIES_DETAILS_URI(id).split('?')[0] + ext
 }
 
 const getShowImagesAndLogo = async (id: number, showType: ShowType) => {

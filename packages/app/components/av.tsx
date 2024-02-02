@@ -37,7 +37,7 @@ export const VideoPlayer = (props: {
         const progressInfo = await getItem()
         if (!progressInfo) return
         const res = JSON.parse(progressInfo) as ProgressInfo
-        setPosition(res.positionMillis)
+        setPosition(res.positionMillis ?? 0)
         if (props.mediaType === 'show') {
             setSeasonInfo({
                 season: res.season ?? 1,
@@ -49,7 +49,6 @@ export const VideoPlayer = (props: {
     const rex = async () => {
         const progressInfo = await getItem()
         const res = JSON.parse(progressInfo!!) as ProgressInfo
-        console.log('xxsw', res)
     }
 
     function updatePlaybackStatus(status: AVPlaybackStatus) {
@@ -99,7 +98,6 @@ export const VideoPlayer = (props: {
 
             if (status.didJustFinish && !status.isLooping) {
                 // The player has just finished playing and will stop. Maybe you want to play something else?
-                console.log('finished')
                 updateProgress({
                     positionMillis: 0,
                     percentCompleted: 100,
@@ -134,7 +132,7 @@ export const VideoPlayer = (props: {
             //@ts-ignore
             onPlaybackStatusUpdate={status => updatePlaybackStatus(status)}
             onReadyForDisplay={() => {
-                // present full screen
+                // present full seen
                 //@ts-ignore
                 videoRef.current?.presentFullscreenPlayer()
             }}

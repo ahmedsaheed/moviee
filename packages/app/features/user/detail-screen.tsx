@@ -1,17 +1,16 @@
 import { H3, Spinner, Text } from '@my/ui'
 import { Image, Separator, SizableText } from 'tamagui'
 import { useEffect, useState } from 'react'
-import { RunOutput, ScrapeMedia } from '@movie-web/providers'
+import {
+    MovieMedia,
+    RunOutput,
+    ScrapeMedia,
+    ShowMedia,
+} from '@movie-web/providers'
 import { createParam } from 'solito'
 import { useLink } from 'solito/link'
 import { useMovieData } from 'app/hooks/useMovieData'
-import {
-    Dimensions,
-    ImageBackground,
-    SafeAreaView,
-    ScrollView,
-    View,
-} from 'react-native'
+import { Dimensions, ImageBackground, ScrollView, View } from 'react-native'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 import {
     Check,
@@ -29,13 +28,11 @@ import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 import { BlurView } from 'expo-blur'
 import { router } from 'expo-router'
 import { SvgUri } from 'react-native-svg'
-
 import {
     Button,
     Paragraph,
     SizeTokens,
     Progress,
-    Slider,
     XStack,
     YStack,
 } from 'tamagui'
@@ -58,11 +55,16 @@ export function UserDetailScreen() {
 
     const IMAGE_URL_PRFIX = 'https://image.tmdb.org/t/p/original/'
     const { height } = Dimensions.get('window')
-    const { data: movieData, images } = useMovieData(type, Number(id!!))
+    const {
+        data: movieData,
+        images,
+        similarMovies,
+    } = useMovieData(type, Number(id!!))
     const info = useSeasonsAndEpisodes(type, Number(id!!))
     const { setItem, getItem, removeItem } = useAsyncStorage(`WATCHLIST_${id}`)
-    const { setItem: setProgressInfo, getItem: getProgressInfo } =
-        useAsyncStorage(`PROGRESS_INFO_${type}_${id}`)
+    const { getItem: getProgressInfo } = useAsyncStorage(
+        `PROGRESS_INFO_${type}_${id}`
+    )
     const readItemFromWishlistStorage = async () => {
         const item = await getItem()
         if (item !== null) {
@@ -141,27 +143,23 @@ export function UserDetailScreen() {
         }
     }
 
-    async function getMetaAndPlay(movieName: string) {
+    const internalPlay = async (
+        movieName: string,
+        seriesOptions?: { seasonNumber: number; episodeNumber: number }
+    ) => {
         setLoading(true)
-        let res = await getMoviesMetadata(movieName)
-        if (res === null) {
-            return
+        const res = await getMetaAndPlay(movieName, seriesOptions)
+        if (res === null) return
+        if (res && res?.type === 'show' && seriesOptions === undefined) {
+            res.episode = info!!.currentEpisode
+            res.season = info!!.season
         }
-        if (res && res?.type === 'show') {
-            res = {
-                ...res,
-                episode: info!!.currentEpisode,
-                season: info!!.season,
-            }
-        }
+        console.log('resB4Play', res)
         setMedia(res)
-        setLoading(false)
-        console.log('res', res)
     }
 
     useEffect(() => {
         const out = async () => await retrieveFromProvider(media)
-        setLoading(true)
         out().then(out => {
             console.log('out', out)
             if (out === null) {
@@ -189,11 +187,8 @@ export function UserDetailScreen() {
         )
     }
     return (
-        <YStack pb="$2" style={{ height: 'auto' }}>
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ flexGrow: 1 }}
-            >
+        <ScrollView showsVerticalScrollIndicator={false}>
+            <YStack pb="$2" style={{ height: '100%' }}>
                 {!!movieData && (
                     <>
                         <View style={{ flex: 1, position: 'relative' }}>
@@ -353,9 +348,7 @@ export function UserDetailScreen() {
                                 fontFamily: 'System',
                             }}
                             onPress={() =>
-                                getMetaAndPlay(
-                                    movieData?.title ?? movieData.name
-                                )
+                                internalPlay(movieData?.title ?? movieData.name)
                             }
                         >
                             {playButtonText()}
@@ -466,18 +459,18 @@ export function UserDetailScreen() {
                             movieId={id!!}
                             episodes={info?.episodes}
                             moreDetails={moreDetails}
+                            similarMovies={similarMovies}
+                        />
+                        <PlayerWrapper
+                            data={data}
+                            loading={loading}
+                            id={id!!}
+                            mediaType={type}
                         />
                     </>
                 )}
-
-                <PlayerWrapper
-                    data={data}
-                    loading={loading}
-                    id={id!!}
-                    mediaType={type}
-                />
-            </ScrollView>
-        </YStack>
+            </YStack>
+        </ScrollView>
     )
 }
 
@@ -510,7 +503,11 @@ function ExtraInfo(movieData) {
                     <SizableText style={{ fontFamily: 'System' }}>
                         {movieData?.runtime !== undefined
                             ? convertMinutesToHours(movieData.runtime)
-                            : `${movieData?.number_of_seasons} Seasons`}
+                            : `${movieData?.number_of_seasons} ${
+                                  movieData?.number_of_seasons === 1
+                                      ? 'Season'
+                                      : 'Seasons'
+                              }`}
                     </SizableText>
 
                     <SizableText
@@ -582,4 +579,13 @@ function ShowProgressIndicator({ progressVal = 0 }: Props) {
             </XStack>
         </>
     )
+}
+type BothMedia = ShowMedia | MovieMedia
+
+export async function getMetaAndPlay(
+    movieName: string,
+    seriesOptions?: { seasonNumber: number; episodeNumber: number }
+): Promise<BothMedia | null> {
+    let res = await getMoviesMetadata(movieName, seriesOptions)
+    return res === null ? null : res
 }
