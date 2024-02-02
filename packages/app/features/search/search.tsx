@@ -13,10 +13,7 @@ import { Image } from 'react-native'
 export const SearchScreen = () => {
     const bottomTabBarHeight = useBottomTabBarHeight()
     return (
-        <YStack
-            backgroundColor={'$background'}
-            style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}
-        >
+        <YStack style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}>
             <ScrollViewWithHeaders
                 HeaderComponent={SearchHeaderComponent}
                 LargeHeaderComponent={LargeSearchHeaderComponent}
@@ -25,14 +22,16 @@ export const SearchScreen = () => {
                 <YStack f={1} p="$2" space>
                     <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
                         <Searchbar />
-                        <H6
+                        <H3
                             px="$2"
-                            fontFamily="System"
+                            style={{
+                                fontFamily: 'System',
+                                opacity: 0.9,
+                            }}
                             fontWeight="bold"
-                            style={{ opacity: 0.9 }}
                         >
                             Explore Popular Series, Films, and More
-                        </H6>
+                        </H3>
                         <GridView
                             data={[
                                 {
@@ -79,10 +78,11 @@ interface Props<T> {
     data: T[]
     renderItem: (item: T) => React.ReactNode
     numColumns: number
+    gap?: number
 }
 
-const GridView = <T extends any>(props: Props<T>) => {
-    const { data, renderItem, numColumns } = props
+export const GridView = <T extends any>(props: Props<T>) => {
+    const { data, renderItem, numColumns, gap = 5 } = props
     return (
         <View style={styles.container}>
             {data.map(item => {
@@ -92,7 +92,7 @@ const GridView = <T extends any>(props: Props<T>) => {
                             width: 100 / numColumns + '%',
                         }}
                     >
-                        <View style={{ padding: 5 }}>{renderItem(item)}</View>
+                        <View style={{ padding: gap }}>{renderItem(item)}</View>
                     </View>
                 )
             })}

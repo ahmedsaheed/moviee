@@ -55,7 +55,11 @@ export function UserDetailScreen() {
 
     const IMAGE_URL_PRFIX = 'https://image.tmdb.org/t/p/original/'
     const { height } = Dimensions.get('window')
-    const { data: movieData, images } = useMovieData(type, Number(id!!))
+    const {
+        data: movieData,
+        images,
+        similarMovies,
+    } = useMovieData(type, Number(id!!))
     const info = useSeasonsAndEpisodes(type, Number(id!!))
     const { setItem, getItem, removeItem } = useAsyncStorage(`WATCHLIST_${id}`)
     const { getItem: getProgressInfo } = useAsyncStorage(
@@ -455,6 +459,7 @@ export function UserDetailScreen() {
                             movieId={id!!}
                             episodes={info?.episodes}
                             moreDetails={moreDetails}
+                            similarMovies={similarMovies}
                         />
                         <PlayerWrapper
                             data={data}

@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import {
     getMovieByCategory,
     getMovieDataAndImages,
+    getSimilarMovies,
     getTVDataAndImages,
 } from 'app/lib/movies/genre'
 
@@ -23,16 +24,20 @@ export function useMovieData(
 ): {
     data: DetailedSeriesInfo | null
     images: ImageDetails | null
+    similarMovies?: Base[] | null
 } {
     const [data, setData] = useState<DetailedSeriesInfo | null>(null)
     const [images, setImages] = useState<ImageDetails | null>(null)
+    const [similarMovies, setSimilarMovies] = useState<Base[] | null>(null)
 
     useEffect(() => {
         const resolve = async () => {
             if (movieType === 'movie') {
                 const out = await getMovieDataAndImages(id!!)
+                const similar = await getSimilarMovies(id!!)
                 const { data, images } = out
                 setData(data as DetailedSeriesInfo)
+                setSimilarMovies(similar)
                 setImages(images)
             } else {
                 const out = await getTVDataAndImages(id!!)
@@ -44,5 +49,5 @@ export function useMovieData(
         resolve()
     }, [])
 
-    return { data, images }
+    return { data, images, similarMovies }
 }
