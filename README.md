@@ -1,95 +1,22 @@
-# Tamagui + Solito + Next + Expo Monorepo
+## 🎞️ Moviee
 
-```sh
-npm create tamagui
-```
+Moviee is a no nonsense, zero ads platform for streaming movies and tv show for free.
+The video files are obtained from the `movie-web` provider for react-native by displaying video files from third-party providers inside an intuitive and aesthetic user interface.
 
-## 🔦 About
+<img width="32%" alt="Screenshot 2024-02-02 at 03 38 46" src="https://private-user-images.githubusercontent.com/87912847/301719718-bd962d6d-1d31-475f-91a2-dfbf622709c0.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MDY4NDU2NzMsIm5iZiI6MTcwNjg0NTM3MywicGF0aCI6Ii84NzkxMjg0Ny8zMDE3MTk3MTgtYmQ5NjJkNmQtMWQzMS00NzVmLTkxYTItZGZiZjYyMjcwOWMwLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDAyMDIlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwMjAyVDAzNDI1M1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTU3MGNlZTc4OWQ2N2JjOGVmNzBjMWQyOGY2NDdjZTBlMGMyNjc0NWQxYzZiNjZmNzAxMmFlZTdkOWNkYTBhYmImWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.4OOaifvrmK6y-ZTkfH9RpfyGx2JGrRpD_CRgMNmj0Lg"> <img width="32%" alt="Screenshot 2024-02-02 at 03 38 38" src="https://private-user-images.githubusercontent.com/87912847/301719806-8494eaaa-3be9-406f-831d-2d6ca0d8ad28.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MDY4NDU3MjUsIm5iZiI6MTcwNjg0NTQyNSwicGF0aCI6Ii84NzkxMjg0Ny8zMDE3MTk4MDYtODQ5NGVhYWEtM2JlOS00MDZmLTgzMWQtMmQ2Y2EwZDhhZDI4LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDAyMDIlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwMjAyVDAzNDM0NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTMwZjMwMzkzYTEzOThkMzNmOTgyODI2M2ExNTU1MWFlOGM0ZDAzNzgzMTdkMGVhNWM1Y2NhNzI0MTEyZmVlOGYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.NTi7NxJvodFdft2f28sbOYbbxJkra13T4twwE4WxtdE"> <img width="32%" alt="Screenshot 2024-02-02 at 03 37 57" src="https://private-user-images.githubusercontent.com/87912847/301719886-32c0f33f-8662-48ce-bd6e-b8bdb0e34e15.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MDY4NDU3MjUsIm5iZiI6MTcwNjg0NTQyNSwicGF0aCI6Ii84NzkxMjg0Ny8zMDE3MTk4ODYtMzJjMGYzM2YtODY2Mi00OGNlLWJkNmUtYjhiZGIwZTM0ZTE1LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDAyMDIlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwMjAyVDAzNDM0NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTBiNDY2NjM2OTM3NTcxOTIzMjEyOTY3NjZmNzI3ZGYzNmEwNzdhNDFlNzM4YzliNjYzOWEwNmIxMGFkYzNlNzgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.eAf2K5sDBBwwFN5oOmUGgfZs7T9CwpIDSC8CEjHmAFE">
 
-This monorepo is a starter for an Expo + Next.js + Tamagui + Solito app.
+## 🏁 Start the app in dev
 
-Many thanks to [@FernandoTheRojo](https://twitter.com/fernandotherojo) for the Solito starter monorepo which this was forked from. Check out his [talk about using expo + next together at Next.js Conf 2021](https://www.youtube.com/watch?v=0lnbdRweJtA).
-
-## 📦 Included packages
-
-- [Tamagui](https://tamagui.dev) 🪄
-- [solito](https://solito.dev) for cross-platform navigation
-- Expo SDK
-- Next.js
-- Expo Router
-
-## 🗂 Folder layout
-
-The main apps are:
-
-- `expo` (native)
-- `next` (web)
-
-- `packages` shared packages across apps
-  - `ui` includes your custom UI kit that will be optimized by Tamagui
-  - `app` you'll be importing most files from `app/`
-    - `features` (don't use a `screens` folder. organize by feature.)
-    - `provider` (all the providers that wrap the app, and some no-ops for Web.)
-
-You can add other folders inside of `packages/` if you know what you're doing and have a good reason to.
-
-## 🏁 Start the app
-
-- Install dependencies: `yarn`
-
-- Next.js local dev: `yarn web`
-
-To run with optimizer on in dev mode (just for testing, it's faster to leave it off): `yarn web:extract`. To build for production `yarn web:prod`.
-
-To see debug output to verify the compiler, add `// debug` as a comment to the top of any file.
-
-- Expo local dev: `yarn native`
+-   Install dependencies: `yarn`
+-   Expo local dev: `yarn native`
 
 ## UI Kit
 
 Note we're following the [design systems guide](https://tamagui.dev/docs/guides/design-systems) and creating our own package for components.
 
-See `packages/ui` named `@my/ui` for how this works.
+## Contributing
 
-## 🆕 Add new dependencies
+We are open to contributions. Please read the [contributing guide](CONTRIBUTING.md) to get started.
 
-### Pure JS dependencies
-
-If you're installing a JavaScript-only dependency that will be used across platforms, install it in `packages/app`:
-
-```sh
-cd packages/app
-yarn add date-fns
-cd ../..
-yarn
-```
-
-### Native dependencies
-
-If you're installing a library with any native code, you must install it in `expo`:
-
-```sh
-cd apps/expo
-yarn add react-native-reanimated
-cd ..
-yarn
-```
-
-## Update new dependencies
-
-### Pure JS dependencies
-
-```sh
-yarn upgrade-interactive
-```
-
-You can also install the native library inside of `packages/app` if you want to get autoimport for that package inside of the `app` folder. However, you need to be careful and install the _exact_ same version in both packages. If the versions mismatch at all, you'll potentially get terrible bugs. This is a classic monorepo issue. I use `lerna-update-wizard` to help with this (you don't need to use Lerna to use that lib).
-
-You may potentially want to have the native module transpiled for the next app. If you get error messages with `Cannot use import statement outside a module`, you may need to use `transpilePackages` in your `next.config.js` and add the module to the array there.
-
-### Deploying to Vercel
-
-- Root: `apps/next`
-- Install command to be `yarn set version stable && yarn install`
-- Build command: leave default setting
-- Output dir: leave default setting
+> **Warning**
+> The development of this application is still in the midst of extensive construction.
