@@ -19,7 +19,6 @@ export const VideoPlayer = (props: {
     src: string
     id: string
     mediaType: ShowType
-    videoType: string
 }) => {
     const videoRef = useRef(null)
     const { setItem, getItem, removeItem } = useAsyncStorage(
@@ -162,7 +161,6 @@ export function PlayerWrapper({
                 src={data.stream?.playlist}
                 id={id}
                 mediaType={mediaType}
-                videoType={data.stream?.type}
             />
         )
     }
