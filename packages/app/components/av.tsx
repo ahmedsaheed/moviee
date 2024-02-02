@@ -21,7 +21,6 @@ export const VideoPlayer = (props: {
     mediaType: ShowType
     videoType: string
 }) => {
-    console.log('xx', props.src)
     const videoRef = useRef(null)
     const { setItem, getItem, removeItem } = useAsyncStorage(
         `PROGRESS_INFO_${props.mediaType}_${props.id}`
@@ -51,7 +50,6 @@ export const VideoPlayer = (props: {
     const rex = async () => {
         const progressInfo = await getItem()
         const res = JSON.parse(progressInfo!!) as ProgressInfo
-        console.log('xxsw', res)
     }
 
     function updatePlaybackStatus(status: AVPlaybackStatus) {
@@ -101,7 +99,6 @@ export const VideoPlayer = (props: {
 
             if (status.didJustFinish && !status.isLooping) {
                 // The player has just finished playing and will stop. Maybe you want to play something else?
-                console.log('finished')
                 updateProgress({
                     positionMillis: 0,
                     percentCompleted: 100,
