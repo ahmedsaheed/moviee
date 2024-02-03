@@ -18,7 +18,12 @@ export const SearchHeaderComponent = ({ showNavBar }) => (
 export const LargeSearchHeaderComponent = ({ scrollY }) => (
     <LargeHeader>
         <ScalingView scrollY={scrollY} pb="$0">
-            <H2 fontFamily="System" fontWeight={'bold'} p="$2" pb="$0">
+            <H2
+                style={{ fontFamily: 'System' }}
+                fontWeight={'bold'}
+                p="$2"
+                pb="$0"
+            >
                 Search
             </H2>
         </ScalingView>
@@ -28,7 +33,12 @@ export const LargeSearchHeaderComponent = ({ scrollY }) => (
 export const LargeLibraryHeaderComponent = ({ scrollY }) => (
     <LargeHeader>
         <ScalingView scrollY={scrollY} pb="$0">
-            <H2 fontFamily="System" fontWeight={'bold'} p="$2" pb="$0">
+            <H2
+                style={{ fontFamily: 'System' }}
+                fontWeight={'bold'}
+                p="$2"
+                pb="$0"
+            >
                 Library
             </H2>
         </ScalingView>
@@ -61,7 +71,12 @@ export const Greeting = () => {
 
     return (
         <View style={styles.container}>
-            <H2 fontFamily="System" fontWeight={'bold'} p="$2" pb="$0">
+            <H2
+                style={{ fontFamily: 'System' }}
+                fontWeight={'bold'}
+                p="$2"
+                pb="$0"
+            >
                 {greeting}
             </H2>
             <UserCircle2
@@ -75,6 +90,7 @@ export const Greeting = () => {
             />
             <Sheet
                 modal
+                native
                 animation="medium"
                 open={open}
                 onOpenChange={setOpen}

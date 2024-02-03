@@ -129,8 +129,8 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
             size="$4"
             flexDirection="column"
             backgroundColor="transparent"
-            borderRadius="$4"
             px="$4"
+            mt="$4"
         >
             <YStack>
                 <AnimatePresence>
@@ -301,8 +301,6 @@ function MoreDetailsTab({
             <YGroup.Item backgroundColor="$transparent">
                 <ListItem
                     backgroundColor="$transparent"
-                    // hoverTheme
-                    // pressTheme
                     title="Genre"
                     subTitle={genre}
                     icon={null}
@@ -312,8 +310,6 @@ function MoreDetailsTab({
             <YGroup.Item backgroundColor="$transparent">
                 <ListItem
                     backgroundColor="$transparent"
-                    // hoverTheme
-                    // pressTheme
                     title="Director"
                     subTitle={director}
                     icon={null}
@@ -323,8 +319,6 @@ function MoreDetailsTab({
             <YGroup.Item backgroundColor="$transparent">
                 <ListItem
                     backgroundColor="$transparent"
-                    // hoverTheme
-                    // pressTheme
                     title="Starring"
                     subTitle={starring}
                     icon={null}
@@ -334,8 +328,6 @@ function MoreDetailsTab({
             <YGroup.Item backgroundColor="$transparent">
                 <ListItem
                     backgroundColor="$transparent"
-                    // hoverTheme
-                    // pressTheme
                     title="Studio"
                     subTitle={studio}
                     icon={null}
@@ -347,7 +339,9 @@ function MoreDetailsTab({
 }
 
 const SimilarMovies = ({ similarMovies }: { similarMovies: Base[] | null }) => {
-    similarMovies = similarMovies?.slice(0, 10)!!
+    similarMovies = similarMovies?.filter(
+        (item, index) => item.imageUrl !== null && index < 10
+    ) as Base[]
     if (!similarMovies) return
     return (
         <GridView

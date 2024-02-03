@@ -1,6 +1,6 @@
 import { H3, Spinner, Text } from '@my/ui'
-import { Image, Separator, SizableText } from 'tamagui'
-import { useEffect, useState } from 'react'
+import { Image, SizableText } from 'tamagui'
+import { useEffect, useMemo, useState } from 'react'
 import {
     MovieMedia,
     RunOutput,
@@ -10,19 +10,24 @@ import {
 import { createParam } from 'solito'
 import { useLink } from 'solito/link'
 import { useMovieData } from 'app/hooks/useMovieData'
-import { Dimensions, ImageBackground, ScrollView, View } from 'react-native'
+import { Dimensions, ImageBackground, ScrollView } from 'react-native'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 import {
     Check,
+    ChevronDown,
     ChevronLeft,
-    Download,
+    ChevronUp,
     Play,
     Plus,
     Share,
 } from '@tamagui/lucide-icons'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { PlayerWrapper, ProgressInfo } from 'app/components/av'
-import { CannotPlayMovieDialog, convertMinutesToHours } from 'app/utils'
+import {
+    CannotPlayMovieDialog,
+    convertMilliSecToReadableTime,
+    convertMinutesToHours,
+} from 'app/utils'
 import { ShowType } from 'app/@types/types'
 import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 import { BlurView } from 'expo-blur'
@@ -35,8 +40,17 @@ import {
     Progress,
     XStack,
     YStack,
+    Adapt,
+    Select,
+    Sheet,
+    getFontSize,
 } from 'tamagui'
 import { DetailedTabView } from 'app/components/underlined-tab-view'
+import { LinearGradient } from 'expo-linear-gradient'
+import { StyleSheet } from 'react-native'
+import { View } from 'tamagui'
+import type { FontSizeTokens, SelectProps } from 'tamagui'
+
 const { useParam } = createParam<{ id: string; type: string }>()
 
 export function UserDetailScreen() {
@@ -84,13 +98,6 @@ export function UserDetailScreen() {
         setProgress(res)
     }
 
-    const BadgesUrl: Array<string> = [
-        'https://tv.apple.com/assets/badges/MetadataBadge%204K%20OnDark-c90195dae0171c69694b4d7386421ad8.svg',
-        'https://tv.apple.com/assets/badges/MetadataBadge%20AD%20OnDark-4731d380509cdd9c3e59e73cb9dc09d5.svg',
-        'https://tv.apple.com/assets/badges/MetadataBadge%20SDH%20OnDark-45f29ce5e07128bf67d924a31a003cf3.svg',
-        'https://tv.apple.com/assets/badges/MetadataBadge%20CC%20OnDark-7b5b00df263bfee5af843510f708c307.svg',
-    ]
-
     const removeItemFromWishlistStorage = async () => {
         const item = await getItem()
         if (item !== null) {
@@ -119,6 +126,15 @@ export function UserDetailScreen() {
             .join(', '),
     }
 
+    const movieOverView = () => {
+        const overview =
+            type === 'movie'
+                ? movieData?.overview
+                : info?.episodes !== undefined
+                ? info?.episodes!![info.currentEpisode.number - 1]?.overview
+                : movieData?.overview
+        return showMore ? overview : overview?.slice(0, 100)
+    }
     function playButtonText() {
         if (loading) {
             return 'Loading...'
@@ -154,7 +170,6 @@ export function UserDetailScreen() {
             res.episode = info!!.currentEpisode
             res.season = info!!.season
         }
-        console.log('resB4Play', res)
         setMedia(res)
     }
 
@@ -295,18 +310,11 @@ export function UserDetailScreen() {
                                 </XStack>
                                 {images?.logos[0] !== undefined && (
                                     // @ts-ignore
-                                    <BlurView
-                                        intensity={10}
-                                        tint="dark"
-                                        mt="$10"
-                                        style={{
-                                            width: '100%',
-                                            height: '20%',
-                                            position: 'absolute',
-                                            bottom: 0,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}
+                                    <LinearGradient
+                                        colors={['black', 'transparent']}
+                                        style={styles.gradient}
+                                        start={{ x: 0, y: 1.0 }}
+                                        end={{ x: 0, y: 0 }}
                                     >
                                         <Image
                                             source={{
@@ -316,14 +324,11 @@ export function UserDetailScreen() {
                                                 }`,
                                             }}
                                             width="100%"
-                                            height={100}
+                                            height={70}
                                             resizeMode="contain"
-                                            bottom={3}
                                             position="absolute"
-
-                                            // px="$8"
                                         />
-                                    </BlurView>
+                                    </LinearGradient>
                                 )}
                             </ImageBackground>
                         </View>
@@ -353,96 +358,25 @@ export function UserDetailScreen() {
                         >
                             {playButtonText()}
                         </Button>
-                        {progress?.percentCompleted !== undefined && (
+                        {progress?.viewingProgress?.percentageCompleted !==
+                            undefined && (
                             <ShowProgressIndicator
-                                progressVal={progress?.percentCompleted}
+                                progressPercentVal={
+                                    progress?.viewingProgress
+                                        ?.percentageCompleted
+                                }
+                                timeLeft={progress?.viewingProgress?.timeLeft}
                             />
                         )}
-                        <ExtraInfo {...movieData} />
-
-                        <XStack
-                            flex={1}
-                            space="$2"
-                            borderWidth={2}
-                            borderColor="transparent"
-                            padding="$2"
-                            alignSelf="center"
-                        >
-                            {BadgesUrl.map((item, index) => {
-                                return (
-                                    <YStack
-                                        alignItems="center"
-                                        padding="$0"
-                                        backgroundColor="$transparent"
-                                        theme={'alt2'}
-                                    >
-                                        <SvgUri
-                                            uri={item}
-                                            style={{ opacity: 0.8 }}
-                                        />
-                                    </YStack>
-                                )
-                            })}
-                        </XStack>
-
-                        <XStack
-                            flex={1}
-                            space="$8"
-                            borderWidth={2}
-                            borderColor="transparent"
-                            padding="$2"
-                            alignSelf="center"
-                        >
-                            <YStack
-                                alignItems="center"
-                                padding="$2"
-                                onPress={() => {
-                                    writeItemToStorage('true')
-                                }}
-                            >
-                                {!wishedlisted ? (
-                                    <Plus size={20} theme="alt1" />
-                                ) : (
-                                    <Check size={20} theme="alt1" />
-                                )}
-
-                                <SizableText
-                                    size="$2"
-                                    theme={'alt1'}
-                                    style={{
-                                        textTransform: 'uppercase',
-                                        fontFamily: 'System',
-                                    }}
-                                >
-                                    Watchlist
-                                </SizableText>
-                            </YStack>
-                            <YStack alignItems="center" padding="$2">
-                                <Download size={20} theme="alt1" />
-                                <SizableText
-                                    size="$2"
-                                    style={{
-                                        textTransform: 'uppercase',
-                                        fontFamily: 'System',
-                                    }}
-                                    theme={'alt1'}
-                                >
-                                    Download
-                                </SizableText>
-                            </YStack>
-                        </XStack>
-                        <Separator px="$4" />
                         <Paragraph
                             m="$4"
                             style={{
                                 fontFamily: 'System',
                             }}
-                            fontSize={18}
+                            fontSize={16}
+                            lineHeight="$1"
                         >
-                            {showMore
-                                ? movieData.overview
-                                : movieData.overview.slice(0, 100)}
-                            {}
+                            {movieOverView()}
                             <SizableText
                                 onPress={() => setShowMore(!showMore)}
                                 style={{
@@ -454,6 +388,16 @@ export function UserDetailScreen() {
                                 ...{showMore ? 'less' : 'more'}
                             </SizableText>
                         </Paragraph>
+                        {type === 'show' && (
+                            <SelectDemoItem
+                                id="select-demo-2"
+                                native
+                                seasonsLength={movieData?.number_of_seasons}
+                            />
+                        )}
+                        <ExtraInfo {...movieData} />
+                        <Badges />
+
                         <DetailedTabView
                             movieType={type}
                             movieId={id!!}
@@ -461,6 +405,7 @@ export function UserDetailScreen() {
                             moreDetails={moreDetails}
                             similarMovies={similarMovies}
                         />
+
                         <PlayerWrapper
                             data={data}
                             loading={loading}
@@ -477,17 +422,13 @@ export function UserDetailScreen() {
 function ExtraInfo(movieData) {
     return (
         <View
+            padding="$2"
+            mx="$4"
             style={{
-                marginHorizontal: 20,
+                fontWeight: 'bold',
             }}
         >
-            <XStack
-                flex={1}
-                style={{
-                    opacity: 0.8,
-                }}
-                alignSelf="center"
-            >
+            <XStack>
                 <>
                     <SizableText style={{ fontFamily: 'System' }}>
                         {movieData.release_date?.split('-')[0] ??
@@ -545,36 +486,43 @@ function ExtraInfo(movieData) {
     )
 }
 
-interface Props {
-    progressVal?: number
+interface ProgressIndicatorProps {
+    progressPercentVal?: number
+    timeLeft?: number
 }
-function ShowProgressIndicator({ progressVal = 0 }: Props) {
-    const [progress, setProgress] = useState(progressVal)
+function ShowProgressIndicator({
+    progressPercentVal = 0,
+    timeLeft = 0,
+}: ProgressIndicatorProps) {
+    const [progress, setProgress] = useState(progressPercentVal)
+    const [timeLeftVal, setTimeLeft] = useState(timeLeft)
     const sizeProp = `$${1}` as SizeTokens
 
     useEffect(() => {
-        setProgress(progressVal)
-    }, [progressVal])
+        setProgress(progressPercentVal)
+        setTimeLeft(timeLeft)
+    }, [progressPercentVal, timeLeft])
 
     return (
         <>
-            <Paragraph height={10} opacity={0.5}></Paragraph>
             <XStack
                 flex={1}
-                borderWidth={2}
-                borderColor="transparent"
                 padding="$2"
                 height="$3"
                 alignSelf="center"
                 alignItems="center"
+                w={'80%'}
             >
-                <YStack padding="$1">
+                <YStack padding="$1" w={'70%'}>
                     <Progress size={sizeProp} value={progress}>
                         <Progress.Indicator animation="medium" />
                     </Progress>
                 </YStack>
                 <YStack padding="$1" opacity={0.8}>
-                    <Text> {progressVal}% Completed </Text>
+                    <Text>
+                        {' '}
+                        {convertMilliSecToReadableTime(timeLeft)} left{' '}
+                    </Text>
                 </YStack>
             </XStack>
         </>
@@ -587,5 +535,201 @@ export async function getMetaAndPlay(
     seriesOptions?: { seasonNumber: number; episodeNumber: number }
 ): Promise<BothMedia | null> {
     let res = await getMoviesMetadata(movieName, seriesOptions)
+    console.log('metadata is ', res)
     return res === null ? null : res
+}
+
+const styles = StyleSheet.create({
+    gradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        padding: 40,
+        height: '90%',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+    },
+})
+
+const Badges = () => {
+    const BadgesUrl: Array<string> = [
+        'https://tv.apple.com/assets/badges/MetadataBadge%204K%20OnDark-c90195dae0171c69694b4d7386421ad8.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%20AD%20OnDark-4731d380509cdd9c3e59e73cb9dc09d5.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%20SDH%20OnDark-45f29ce5e07128bf67d924a31a003cf3.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%20CC%20OnDark-7b5b00df263bfee5af843510f708c307.svg',
+    ]
+
+    return (
+        <XStack
+            flex={1}
+            space="$2"
+            borderWidth={2}
+            borderColor="transparent"
+            padding="$2"
+            mx="$4"
+        >
+            {BadgesUrl.map((item, index) => {
+                return (
+                    <YStack
+                        alignItems="center"
+                        padding="$0"
+                        backgroundColor="$transparent"
+                        theme={'alt2'}
+                    >
+                        <SvgUri uri={item} style={{ opacity: 0.8 }} />
+                    </YStack>
+                )
+            })}
+        </XStack>
+    )
+}
+
+interface SelectDemoItemProps extends SelectProps {
+    seasonsLength?: number
+}
+
+export function SelectDemoItem(props: SelectDemoItemProps) {
+    if (props.seasonsLength!! < 2) {
+        return
+    }
+    const [val, setVal] = useState('season 1')
+    const items = useMemo(
+        () =>
+            Array.from({ length: props.seasonsLength ?? 3 }, (_, i) => {
+                return { name: `Season ${i + 1}` }
+            }),
+        [props.seasonsLength]
+    )
+
+    return (
+        <Select
+            value={val}
+            onValueChange={setVal}
+            disablePreventBodyScroll
+            {...props}
+        >
+            <Select.Trigger mx="$4" width={220} iconAfter={ChevronDown}>
+                <Select.Value placeholder="Something" />
+            </Select.Trigger>
+
+            <Adapt when="sm" platform="touch">
+                <Sheet
+                    native={!!props.native}
+                    modal
+                    dismissOnSnapToBottom
+                    animationConfig={{
+                        type: 'spring',
+                        damping: 20,
+                        mass: 1.2,
+                        stiffness: 250,
+                    }}
+                >
+                    <Sheet.Frame>
+                        <Sheet.ScrollView>
+                            <Adapt.Contents />
+                        </Sheet.ScrollView>
+                    </Sheet.Frame>
+                    <Sheet.Overlay
+                        animation="lazy"
+                        enterStyle={{ opacity: 0 }}
+                        exitStyle={{ opacity: 0 }}
+                    />
+                </Sheet>
+            </Adapt>
+
+            <Select.Content zIndex={200000}>
+                <Select.ScrollUpButton
+                    alignItems="center"
+                    justifyContent="center"
+                    position="relative"
+                    width="100%"
+                    height="$3"
+                >
+                    <YStack zIndex={10}>
+                        <ChevronUp size={20} />
+                    </YStack>
+                    <LinearGradient
+                        start={[0, 0]}
+                        end={[0, 1]}
+                        // fullscreen
+                        colors={['black', 'transparent']}
+                        // borderRadius="$4"
+                    />
+                </Select.ScrollUpButton>
+
+                <Select.Viewport
+                    // to do animations:
+                    // animation="quick"
+                    // animateOnly={['transform', 'opacity']}
+                    // enterStyle={{ o: 0, y: -10 }}
+                    // exitStyle={{ o: 0, y: 10 }}
+                    minWidth={200}
+                >
+                    <Select.Group>
+                        <Select.Label>Fruits</Select.Label>
+                        {/* for longer lists memoizing these is useful */}
+                        {useMemo(
+                            () =>
+                                items.map((item, i) => {
+                                    return (
+                                        <Select.Item
+                                            index={i}
+                                            key={item.name}
+                                            value={item.name.toLowerCase()}
+                                        >
+                                            <Select.ItemText>
+                                                {item.name}
+                                            </Select.ItemText>
+                                            <Select.ItemIndicator marginLeft="auto">
+                                                <Check size={16} />
+                                            </Select.ItemIndicator>
+                                        </Select.Item>
+                                    )
+                                }),
+                            [items]
+                        )}
+                    </Select.Group>
+                    {/* Native gets an extra icon */}
+                    {props.native && (
+                        <YStack
+                            position="absolute"
+                            right={0}
+                            top={0}
+                            bottom={0}
+                            alignItems="center"
+                            justifyContent="center"
+                            width={'$4'}
+                            pointerEvents="none"
+                        >
+                            <ChevronDown
+                                size={getFontSize(
+                                    (props.size as FontSizeTokens) ?? '$true'
+                                )}
+                            />
+                        </YStack>
+                    )}
+                </Select.Viewport>
+
+                <Select.ScrollDownButton
+                    alignItems="center"
+                    justifyContent="center"
+                    position="relative"
+                    width="100%"
+                    height="$3"
+                >
+                    <YStack zIndex={10}>
+                        <ChevronDown size={20} />
+                    </YStack>
+                    <LinearGradient
+                        start={[0, 0]}
+                        end={[0, 1]}
+                        // fullscreen
+                        colors={['transparent', 'black']}
+                        // borderRadius="$4"
+                    />
+                </Select.ScrollDownButton>
+            </Select.Content>
+        </Select>
+    )
 }
