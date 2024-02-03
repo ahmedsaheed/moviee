@@ -534,7 +534,6 @@ const Badges = () => {
             borderColor="transparent"
             padding="$2"
             mx="$4"
-            // alignSelf="center"
         >
             {BadgesUrl.map((item, index) => {
                 return (
