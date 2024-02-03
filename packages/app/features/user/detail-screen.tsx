@@ -10,7 +10,7 @@ import {
 import { createParam } from 'solito'
 import { useLink } from 'solito/link'
 import { useMovieData } from 'app/hooks/useMovieData'
-import { Dimensions, ImageBackground, ScrollView, View } from 'react-native'
+import { Dimensions, ImageBackground, ScrollView } from 'react-native'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 import {
     Check,
@@ -37,6 +37,10 @@ import {
     YStack,
 } from 'tamagui'
 import { DetailedTabView } from 'app/components/underlined-tab-view'
+import { LinearGradient } from 'expo-linear-gradient'
+import { StyleSheet } from 'react-native'
+import { View } from 'tamagui'
+
 const { useParam } = createParam<{ id: string; type: string }>()
 
 export function UserDetailScreen() {
@@ -83,13 +87,6 @@ export function UserDetailScreen() {
         console.log('progrssInfo', res)
         setProgress(res)
     }
-
-    const BadgesUrl: Array<string> = [
-        'https://tv.apple.com/assets/badges/MetadataBadge%204K%20OnDark-c90195dae0171c69694b4d7386421ad8.svg',
-        'https://tv.apple.com/assets/badges/MetadataBadge%20AD%20OnDark-4731d380509cdd9c3e59e73cb9dc09d5.svg',
-        'https://tv.apple.com/assets/badges/MetadataBadge%20SDH%20OnDark-45f29ce5e07128bf67d924a31a003cf3.svg',
-        'https://tv.apple.com/assets/badges/MetadataBadge%20CC%20OnDark-7b5b00df263bfee5af843510f708c307.svg',
-    ]
 
     const removeItemFromWishlistStorage = async () => {
         const item = await getItem()
@@ -295,18 +292,11 @@ export function UserDetailScreen() {
                                 </XStack>
                                 {images?.logos[0] !== undefined && (
                                     // @ts-ignore
-                                    <BlurView
-                                        intensity={10}
-                                        tint="dark"
-                                        mt="$10"
-                                        style={{
-                                            width: '100%',
-                                            height: '20%',
-                                            position: 'absolute',
-                                            bottom: 0,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}
+                                    <LinearGradient
+                                        colors={['black', 'transparent']}
+                                        style={styles.gradient}
+                                        start={{ x: 0, y: 1.0 }}
+                                        end={{ x: 0, y: 0 }}
                                     >
                                         <Image
                                             source={{
@@ -316,14 +306,11 @@ export function UserDetailScreen() {
                                                 }`,
                                             }}
                                             width="100%"
-                                            height={100}
+                                            height={70}
                                             resizeMode="contain"
-                                            bottom={3}
                                             position="absolute"
-
-                                            // px="$8"
                                         />
-                                    </BlurView>
+                                    </LinearGradient>
                                 )}
                             </ImageBackground>
                         </View>
@@ -358,86 +345,13 @@ export function UserDetailScreen() {
                                 progressVal={progress?.percentCompleted}
                             />
                         )}
-                        <ExtraInfo {...movieData} />
-
-                        <XStack
-                            flex={1}
-                            space="$2"
-                            borderWidth={2}
-                            borderColor="transparent"
-                            padding="$2"
-                            alignSelf="center"
-                        >
-                            {BadgesUrl.map((item, index) => {
-                                return (
-                                    <YStack
-                                        alignItems="center"
-                                        padding="$0"
-                                        backgroundColor="$transparent"
-                                        theme={'alt2'}
-                                    >
-                                        <SvgUri
-                                            uri={item}
-                                            style={{ opacity: 0.8 }}
-                                        />
-                                    </YStack>
-                                )
-                            })}
-                        </XStack>
-
-                        <XStack
-                            flex={1}
-                            space="$8"
-                            borderWidth={2}
-                            borderColor="transparent"
-                            padding="$2"
-                            alignSelf="center"
-                        >
-                            <YStack
-                                alignItems="center"
-                                padding="$2"
-                                onPress={() => {
-                                    writeItemToStorage('true')
-                                }}
-                            >
-                                {!wishedlisted ? (
-                                    <Plus size={20} theme="alt1" />
-                                ) : (
-                                    <Check size={20} theme="alt1" />
-                                )}
-
-                                <SizableText
-                                    size="$2"
-                                    theme={'alt1'}
-                                    style={{
-                                        textTransform: 'uppercase',
-                                        fontFamily: 'System',
-                                    }}
-                                >
-                                    Watchlist
-                                </SizableText>
-                            </YStack>
-                            <YStack alignItems="center" padding="$2">
-                                <Download size={20} theme="alt1" />
-                                <SizableText
-                                    size="$2"
-                                    style={{
-                                        textTransform: 'uppercase',
-                                        fontFamily: 'System',
-                                    }}
-                                    theme={'alt1'}
-                                >
-                                    Download
-                                </SizableText>
-                            </YStack>
-                        </XStack>
-                        <Separator px="$4" />
                         <Paragraph
                             m="$4"
                             style={{
                                 fontFamily: 'System',
                             }}
-                            fontSize={18}
+                            fontSize={16}
+                            lineHeight="$1"
                         >
                             {showMore
                                 ? movieData.overview
@@ -454,6 +368,10 @@ export function UserDetailScreen() {
                                 ...{showMore ? 'less' : 'more'}
                             </SizableText>
                         </Paragraph>
+
+                        <ExtraInfo {...movieData} />
+                        <Badges />
+
                         <DetailedTabView
                             movieType={type}
                             movieId={id!!}
@@ -461,6 +379,7 @@ export function UserDetailScreen() {
                             moreDetails={moreDetails}
                             similarMovies={similarMovies}
                         />
+
                         <PlayerWrapper
                             data={data}
                             loading={loading}
@@ -477,17 +396,13 @@ export function UserDetailScreen() {
 function ExtraInfo(movieData) {
     return (
         <View
+            padding="$2"
+            mx="$4"
             style={{
-                marginHorizontal: 20,
+                fontWeight: 'bold',
             }}
         >
-            <XStack
-                flex={1}
-                style={{
-                    opacity: 0.8,
-                }}
-                alignSelf="center"
-            >
+            <XStack>
                 <>
                     <SizableText style={{ fontFamily: 'System' }}>
                         {movieData.release_date?.split('-')[0] ??
@@ -588,4 +503,51 @@ export async function getMetaAndPlay(
 ): Promise<BothMedia | null> {
     let res = await getMoviesMetadata(movieName, seriesOptions)
     return res === null ? null : res
+}
+
+const styles = StyleSheet.create({
+    gradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        padding: 40,
+        height: '90%',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+    },
+})
+
+const Badges = () => {
+    const BadgesUrl: Array<string> = [
+        'https://tv.apple.com/assets/badges/MetadataBadge%204K%20OnDark-c90195dae0171c69694b4d7386421ad8.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%20AD%20OnDark-4731d380509cdd9c3e59e73cb9dc09d5.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%20SDH%20OnDark-45f29ce5e07128bf67d924a31a003cf3.svg',
+        'https://tv.apple.com/assets/badges/MetadataBadge%20CC%20OnDark-7b5b00df263bfee5af843510f708c307.svg',
+    ]
+
+    return (
+        <XStack
+            flex={1}
+            space="$2"
+            borderWidth={2}
+            borderColor="transparent"
+            padding="$2"
+            mx="$4"
+            // alignSelf="center"
+        >
+            {BadgesUrl.map((item, index) => {
+                return (
+                    <YStack
+                        alignItems="center"
+                        padding="$0"
+                        backgroundColor="$transparent"
+                        theme={'alt2'}
+                    >
+                        <SvgUri uri={item} style={{ opacity: 0.8 }} />
+                    </YStack>
+                )
+            })}
+        </XStack>
+    )
 }

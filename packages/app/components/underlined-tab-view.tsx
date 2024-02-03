@@ -129,8 +129,8 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
             size="$4"
             flexDirection="column"
             backgroundColor="transparent"
-            borderRadius="$4"
             px="$4"
+            mt="$4"
         >
             <YStack>
                 <AnimatePresence>
