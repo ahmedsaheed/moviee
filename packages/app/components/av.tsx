@@ -9,7 +9,10 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 export type ProgressInfo = {
     positionMillis: number
     uri: string
-    percentCompleted?: number
+    viewingProgress?: {
+        timeLeft: number
+        percentageCompleted: number
+    }
     completed: boolean
     episode?: number
     season?: number
@@ -63,10 +66,14 @@ export const VideoPlayer = (props: {
                 // Update your UI for the playing state
                 updateProgress({
                     positionMillis: status.positionMillis,
-                    //percentage in a range ong 0-100
-                    percentCompleted: Math.round(
-                        (status.positionMillis / status.durationMillis!!) * 100
-                    ),
+                    viewingProgress: {
+                        timeLeft:
+                            status.durationMillis!! - status.positionMillis,
+                        percentageCompleted: Math.round(
+                            (status.positionMillis / status.durationMillis!!) *
+                                100
+                        ),
+                    },
                     uri: props.src,
                     completed: false,
                     ...(props.mediaType === 'show' && {
@@ -79,9 +86,14 @@ export const VideoPlayer = (props: {
                 // Update your UI for the paused state
                 updateProgress({
                     positionMillis: status.positionMillis,
-                    percentCompleted: Math.round(
-                        (status.positionMillis / status.durationMillis!!) * 100
-                    ),
+                    viewingProgress: {
+                        timeLeft:
+                            status.durationMillis!! - status.positionMillis,
+                        percentageCompleted: Math.round(
+                            (status.positionMillis / status.durationMillis!!) *
+                                100
+                        ),
+                    },
                     uri: props.src,
                     completed: false,
                     ...(props.mediaType === 'show' && {
@@ -100,7 +112,11 @@ export const VideoPlayer = (props: {
                 // The player has just finished playing and will stop. Maybe you want to play something else?
                 updateProgress({
                     positionMillis: 0,
-                    percentCompleted: 100,
+                    viewingProgress: {
+                        timeLeft:
+                            status.durationMillis!! - status.positionMillis,
+                        percentageCompleted: 100,
+                    },
                     uri: props.src,
                     completed: true,
                     ...(props.mediaType === 'show' && {
