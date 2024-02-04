@@ -1,6 +1,6 @@
 import { H3, Spinner, Text } from '@my/ui'
 import { Image, SizableText } from 'tamagui'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
     MovieMedia,
     RunOutput,
@@ -12,15 +12,7 @@ import { useLink } from 'solito/link'
 import { useMovieData } from 'app/hooks/useMovieData'
 import { Dimensions, ImageBackground, ScrollView } from 'react-native'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
-import {
-    Check,
-    ChevronDown,
-    ChevronLeft,
-    ChevronUp,
-    Play,
-    Plus,
-    Share,
-} from '@tamagui/lucide-icons'
+import { Check, ChevronLeft, Play, Plus, Share } from '@tamagui/lucide-icons'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { PlayerWrapper, ProgressInfo } from 'app/components/av'
 import {
@@ -40,16 +32,13 @@ import {
     Progress,
     XStack,
     YStack,
-    Adapt,
-    Select,
-    Sheet,
     View,
-    getFontSize,
 } from 'tamagui'
 import { DetailedTabView } from 'app/components/underlined-tab-view'
 import { LinearGradient } from 'expo-linear-gradient'
 import { StyleSheet } from 'react-native'
-import type { FontSizeTokens, SelectProps } from 'tamagui'
+import { SeasonSelector } from 'app/components/season-selector'
+import { ShowProgressIndicator } from 'app/components/progress-indicator'
 
 const { useParam } = createParam<{ id: string; type: string }>()
 
@@ -397,7 +386,7 @@ export function UserDetailScreen() {
                             </SizableText>
                         </Paragraph>
                         {type === 'show' && (
-                            <SelectDemoItem
+                            <SeasonSelector
                                 id="select-demo-2"
                                 native
                                 seasonsLength={movieData?.number_of_seasons}
@@ -496,48 +485,6 @@ function ExtraInfo(movieData) {
     )
 }
 
-interface ProgressIndicatorProps {
-    progressPercentVal?: number
-    timeLeft?: number
-}
-function ShowProgressIndicator({
-    progressPercentVal = 0,
-    timeLeft = 0,
-}: ProgressIndicatorProps) {
-    const [progress, setProgress] = useState(progressPercentVal)
-    const [timeLeftVal, setTimeLeft] = useState(timeLeft)
-    const sizeProp = `$${1}` as SizeTokens
-
-    useEffect(() => {
-        setProgress(progressPercentVal)
-        setTimeLeft(timeLeft)
-    }, [progressPercentVal, timeLeft])
-
-    return (
-        <>
-            <XStack
-                flex={1}
-                padding="$2"
-                height="$3"
-                alignSelf="center"
-                alignItems="center"
-                w={'80%'}
-            >
-                <YStack padding="$1" w={'70%'}>
-                    <Progress size={sizeProp} value={progress}>
-                        <Progress.Indicator animation="medium" />
-                    </Progress>
-                </YStack>
-                <YStack padding="$1" opacity={0.8}>
-                    <Text>
-                        {' '}
-                        {convertMilliSecToReadableTime(timeLeft)} left{' '}
-                    </Text>
-                </YStack>
-            </XStack>
-        </>
-    )
-}
 type BothMedia = ShowMedia | MovieMedia
 
 export async function getMetaAndPlay(
@@ -592,170 +539,5 @@ const Badges = () => {
                 )
             })}
         </XStack>
-    )
-}
-
-interface SelectDemoItemProps extends SelectProps {
-    seasonsLength?: number
-    updateProgress?: (progressInfo: ProgressInfo) => void
-    initialSeason?: number
-}
-
-export function SelectDemoItem(props: SelectDemoItemProps) {
-    const { seasonsLength, updateProgress, initialSeason } = props
-    if (seasonsLength!! < 2) {
-        return
-    }
-    const [val, setVal] = useState(`season ${initialSeason ?? 1}`)
-    useEffect(() => {
-        setVal(`season ${initialSeason ?? 1}`)
-    }, [initialSeason])
-    const items = useMemo(
-        () =>
-            Array.from({ length: props.seasonsLength ?? 3 }, (_, i) => {
-                return { name: `Season ${i + 1}` }
-            }),
-        [seasonsLength]
-    )
-
-    const onValueChange = (value: string) => {
-        setVal(value)
-        updateProgress!!({
-            positionMillis: 0,
-            season: Number(value.split(' ')[1]),
-            episode: 1,
-            completed: false,
-        })
-    }
-
-    return (
-        <Select
-            value={val}
-            onValueChange={onValueChange}
-            disablePreventBodyScroll
-            {...props}
-        >
-            <Select.Trigger mx="$4" width={220} iconAfter={ChevronDown}>
-                <Select.Value placeholder="Something" />
-            </Select.Trigger>
-
-            <Adapt when="sm" platform="touch">
-                <Sheet
-                    native={!!props.native}
-                    modal
-                    dismissOnSnapToBottom
-                    animationConfig={{
-                        type: 'spring',
-                        damping: 20,
-                        mass: 1.2,
-                        stiffness: 250,
-                    }}
-                >
-                    <Sheet.Frame>
-                        <Sheet.ScrollView>
-                            <Adapt.Contents />
-                        </Sheet.ScrollView>
-                    </Sheet.Frame>
-                    <Sheet.Overlay
-                        animation="lazy"
-                        enterStyle={{ opacity: 0 }}
-                        exitStyle={{ opacity: 0 }}
-                    />
-                </Sheet>
-            </Adapt>
-
-            <Select.Content zIndex={200000}>
-                <Select.ScrollUpButton
-                    alignItems="center"
-                    justifyContent="center"
-                    position="relative"
-                    width="100%"
-                    height="$3"
-                >
-                    <YStack zIndex={10}>
-                        <ChevronUp size={20} />
-                    </YStack>
-                    <LinearGradient
-                        start={[0, 0]}
-                        end={[0, 1]}
-                        // fullscreen
-                        colors={['black', 'transparent']}
-                        // borderRadius="$4"
-                    />
-                </Select.ScrollUpButton>
-
-                <Select.Viewport
-                    // to do animations:
-                    // animation="quick"
-                    // animateOnly={['transform', 'opacity']}
-                    // enterStyle={{ o: 0, y: -10 }}
-                    // exitStyle={{ o: 0, y: 10 }}
-                    minWidth={200}
-                >
-                    <Select.Group>
-                        <Select.Label>Seasons</Select.Label>
-                        {/* for longer lists memoizing these is useful */}
-                        {useMemo(
-                            () =>
-                                items.map((item, i) => {
-                                    return (
-                                        <Select.Item
-                                            index={i}
-                                            key={item.name}
-                                            value={item.name.toLowerCase()}
-                                        >
-                                            <Select.ItemText>
-                                                {item.name}
-                                            </Select.ItemText>
-                                            <Select.ItemIndicator marginLeft="auto">
-                                                <Check size={16} />
-                                            </Select.ItemIndicator>
-                                        </Select.Item>
-                                    )
-                                }),
-                            [items]
-                        )}
-                    </Select.Group>
-                    {/* Native gets an extra icon */}
-                    {props.native && (
-                        <YStack
-                            position="absolute"
-                            right={0}
-                            top={0}
-                            bottom={0}
-                            alignItems="center"
-                            justifyContent="center"
-                            width={'$4'}
-                            pointerEvents="none"
-                        >
-                            <ChevronDown
-                                size={getFontSize(
-                                    (props.size as FontSizeTokens) ?? '$true'
-                                )}
-                            />
-                        </YStack>
-                    )}
-                </Select.Viewport>
-
-                <Select.ScrollDownButton
-                    alignItems="center"
-                    justifyContent="center"
-                    position="relative"
-                    width="100%"
-                    height="$3"
-                >
-                    <YStack zIndex={10}>
-                        <ChevronDown size={20} />
-                    </YStack>
-                    <LinearGradient
-                        start={[0, 0]}
-                        end={[0, 1]}
-                        // fullscreen
-                        colors={['transparent', 'black']}
-                        // borderRadius="$4"
-                    />
-                </Select.ScrollDownButton>
-            </Select.Content>
-        </Select>
     )
 }
