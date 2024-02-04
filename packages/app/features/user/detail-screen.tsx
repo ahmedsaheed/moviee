@@ -77,7 +77,6 @@ export function UserDetailScreen() {
     const updateProgress = async (progressInfo: ProgressInfo) => {
         await setProgressInfo(JSON.stringify(progressInfo))
         setProgress(progressInfo)
-        // getProgress()
     }
 
     const removeItemFromWishlistStorage = async () => {

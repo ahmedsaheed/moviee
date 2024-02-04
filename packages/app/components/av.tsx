@@ -5,6 +5,9 @@ import { Spinner } from '@my/ui'
 import { StyleSheet } from 'react-native'
 import { ShowType } from 'app/@types/types'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
+import { Dispatch, SetStateAction } from 'react'
+
+type Dispatcher<S> = Dispatch<SetStateAction<S>>
 
 export type ProgressInfo = {
     positionMillis: number
@@ -22,6 +25,7 @@ export const VideoPlayer = (props: {
     src: string
     id: string
     mediaType: ShowType
+    setProgress: Dispatcher<ProgressInfo>
 }) => {
     const videoRef = useRef(null)
     const { setItem, getItem, removeItem } = useAsyncStorage(
@@ -35,6 +39,7 @@ export const VideoPlayer = (props: {
     const { season, episode } = seasonInfo ?? { season: 1, episode: 1 }
     const updateProgress = async (progressInfo: ProgressInfo) => {
         await setItem(JSON.stringify(progressInfo))
+        props.setProgress(progressInfo)
     }
     const getProgress = async () => {
         const progressInfo = await getItem()
@@ -161,11 +166,13 @@ export function PlayerWrapper({
     loading,
     id,
     mediaType,
+    setProgress,
 }: {
     data: RunOutput | null
     id: string
     mediaType: ShowType
     loading: boolean
+    setProgress: Dispatcher<ProgressInfo>
 }) {
     if (loading) {
         return <Spinner ai={'center'} size="large" color="$orange10" />
@@ -177,6 +184,7 @@ export function PlayerWrapper({
                 src={data.stream?.playlist}
                 id={id}
                 mediaType={mediaType}
+                setProgress={setProgress}
             />
         )
     }

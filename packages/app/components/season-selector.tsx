@@ -1,6 +1,6 @@
-import { Select, Adapt, YStack, getFontSize } from 'tamagui'
+import { Select, Adapt, Sheet, YStack, getFontSize } from 'tamagui'
 import type { FontSizeTokens, SelectProps } from 'tamagui'
-import { ChevronDown, Sheet, ChevronUp, Check } from '@tamagui/lucide-icons'
+import { ChevronDown, ChevronUp, Check } from '@tamagui/lucide-icons'
 import { useState, useEffect, useMemo } from 'react'
 import { ProgressInfo } from './av'
 import { LinearGradient } from 'expo-linear-gradient'
