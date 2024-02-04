@@ -398,6 +398,7 @@ export function UserDetailScreen() {
                             loading={loading}
                             id={id!!}
                             mediaType={type}
+                            setProgress={setProgress}
                         />
                     </>
                 )}
