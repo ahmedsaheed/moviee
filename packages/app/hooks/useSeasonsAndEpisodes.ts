@@ -23,16 +23,16 @@ export function useSeasonsAndEpisodes(
             setData(response)
         }
         getSeasonsAndEpisodes()
-    }, [])
+    }, [seasonNumber])
     return {
         season: {
-            number: 1,
+            number: seasonNumber,
             tmdbId: String(data?.id!!),
         },
-        episodes: data?.episodes,
+        episodes: data?.episodes!!,
         currentEpisode: {
             number: 1,
-            tmdbId: String(data?.episodes[0]!!.id!!),
+            tmdbId: String(data?.episodes[0]!!?.id!!),
         },
     }
 }

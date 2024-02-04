@@ -18,6 +18,7 @@ import { MovieCards } from './card'
 import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
 import { Image, Pressable, StyleSheet } from 'react-native'
 import { GridView } from 'app/features/search/search'
+import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 
 interface MoreDetailsTabProps {
     genre?: string
@@ -29,12 +30,19 @@ interface MoreDetailsTabProps {
 interface DetailedTabViewProps {
     movieType: ShowType
     movieId: string
-    episodes?: Episode[]
     moreDetails?: MoreDetailsTabProps
     similarMovies?: Base[] | null
+    seasonNumber?: number
 }
 export const DetailedTabView = (props: DetailedTabViewProps) => {
-    const { movieId, movieType, episodes, moreDetails, similarMovies } = props
+    const { movieId, movieType, moreDetails, similarMovies, seasonNumber } =
+        props
+    const info = useSeasonsAndEpisodes(
+        movieType,
+        Number(movieId!!),
+        seasonNumber
+    )
+
     const [tabState, setTabState] = useState<{
         currentTab: string
         /**
@@ -103,8 +111,8 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
     const renderByTab = (tab: string) => {
         switch (tab) {
             case 'tab1':
-                return episodes ? (
-                    <EpisodeList episodes={episodes!!} />
+                return info?.episodes ? (
+                    <EpisodeList episodes={info.episodes} />
                 ) : (
                     similarMovies && (
                         <View pt="$2">
