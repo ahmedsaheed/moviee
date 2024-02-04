@@ -1,4 +1,4 @@
-import { H3, Spinner, Text } from '@my/ui'
+import { H3, Spinner } from '@my/ui'
 import { Image, SizableText } from 'tamagui'
 import { useEffect, useState } from 'react'
 import {
@@ -15,25 +15,13 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 import { Check, ChevronLeft, Play, Plus, Share } from '@tamagui/lucide-icons'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { PlayerWrapper, ProgressInfo } from 'app/components/av'
-import {
-    CannotPlayMovieDialog,
-    convertMilliSecToReadableTime,
-    convertMinutesToHours,
-} from 'app/utils'
+import { CannotPlayMovieDialog, convertMinutesToHours } from 'app/utils'
 import { ShowType } from 'app/@types/types'
 import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 import { BlurView } from 'expo-blur'
 import { router } from 'expo-router'
 import { SvgUri } from 'react-native-svg'
-import {
-    Button,
-    Paragraph,
-    SizeTokens,
-    Progress,
-    XStack,
-    YStack,
-    View,
-} from 'tamagui'
+import { Button, Paragraph, XStack, YStack, View } from 'tamagui'
 import { DetailedTabView } from 'app/components/underlined-tab-view'
 import { LinearGradient } from 'expo-linear-gradient'
 import { StyleSheet } from 'react-native'
