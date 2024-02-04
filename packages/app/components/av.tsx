@@ -8,7 +8,7 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 
 export type ProgressInfo = {
     positionMillis: number
-    uri: string
+    uri?: string
     viewingProgress?: {
         timeLeft: number
         percentageCompleted: number

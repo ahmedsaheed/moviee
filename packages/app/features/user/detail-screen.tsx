@@ -43,12 +43,12 @@ import {
     Adapt,
     Select,
     Sheet,
+    View,
     getFontSize,
 } from 'tamagui'
 import { DetailedTabView } from 'app/components/underlined-tab-view'
 import { LinearGradient } from 'expo-linear-gradient'
 import { StyleSheet } from 'react-native'
-import { View } from 'tamagui'
 import type { FontSizeTokens, SelectProps } from 'tamagui'
 
 const { useParam } = createParam<{ id: string; type: string }>()
@@ -76,9 +76,8 @@ export function UserDetailScreen() {
     } = useMovieData(type, Number(id!!))
     const info = useSeasonsAndEpisodes(type, Number(id!!))
     const { setItem, getItem, removeItem } = useAsyncStorage(`WATCHLIST_${id}`)
-    const { getItem: getProgressInfo } = useAsyncStorage(
-        `PROGRESS_INFO_${type}_${id}`
-    )
+    const { getItem: getProgressInfo, setItem: setProgressInfo } =
+        useAsyncStorage(`PROGRESS_INFO_${type}_${id}`)
     const readItemFromWishlistStorage = async () => {
         const item = await getItem()
         if (item !== null) {
@@ -96,6 +95,12 @@ export function UserDetailScreen() {
         const res = JSON.parse(progressInfo) as ProgressInfo
         console.log('progrssInfo', res)
         setProgress(res)
+    }
+
+    const updateProgress = async (progressInfo: ProgressInfo) => {
+        await setProgressInfo(JSON.stringify(progressInfo))
+        setProgress(progressInfo)
+        // getProgress()
     }
 
     const removeItemFromWishlistStorage = async () => {
@@ -150,11 +155,14 @@ export function UserDetailScreen() {
         if (type === 'show') {
             if (progress !== null) {
                 if (progress.positionMillis > 0) {
+                    console.log('using progress', progress)
                     return `Continue S${progress.season} E${progress.episode}`
                 }
             }
-            return `Play S${info!!.season.number} E${
-                info!!.currentEpisode.number
+            // let use progress if available
+
+            return `Play S${progress?.season || info!!.season.number} E${
+                progress?.episode || info!!.currentEpisode.number
             }`
         }
     }
@@ -393,6 +401,8 @@ export function UserDetailScreen() {
                                 id="select-demo-2"
                                 native
                                 seasonsLength={movieData?.number_of_seasons}
+                                updateProgress={updateProgress}
+                                initialSeason={progress?.season}
                             />
                         )}
                         <ExtraInfo {...movieData} />
@@ -401,9 +411,10 @@ export function UserDetailScreen() {
                         <DetailedTabView
                             movieType={type}
                             movieId={id!!}
-                            episodes={info?.episodes}
+                            // episodes={info?.episodes}
                             moreDetails={moreDetails}
                             similarMovies={similarMovies}
+                            seasonNumber={progress?.season}
                         />
 
                         <PlayerWrapper
@@ -459,7 +470,6 @@ function ExtraInfo(movieData) {
                     </SizableText>
                     {movieData.genres.map((item, index) => {
                         return (
-                            // return only first 3 genres
                             index < 2 && (
                                 <>
                                     <SizableText
@@ -587,25 +597,41 @@ const Badges = () => {
 
 interface SelectDemoItemProps extends SelectProps {
     seasonsLength?: number
+    updateProgress?: (progressInfo: ProgressInfo) => void
+    initialSeason?: number
 }
 
 export function SelectDemoItem(props: SelectDemoItemProps) {
-    if (props.seasonsLength!! < 2) {
+    const { seasonsLength, updateProgress, initialSeason } = props
+    if (seasonsLength!! < 2) {
         return
     }
-    const [val, setVal] = useState('season 1')
+    const [val, setVal] = useState(`season ${initialSeason ?? 1}`)
+    useEffect(() => {
+        setVal(`season ${initialSeason ?? 1}`)
+    }, [initialSeason])
     const items = useMemo(
         () =>
             Array.from({ length: props.seasonsLength ?? 3 }, (_, i) => {
                 return { name: `Season ${i + 1}` }
             }),
-        [props.seasonsLength]
+        [seasonsLength]
     )
+
+    const onValueChange = (value: string) => {
+        setVal(value)
+        updateProgress!!({
+            positionMillis: 0,
+            season: Number(value.split(' ')[1]),
+            episode: 1,
+            completed: false,
+        })
+    }
 
     return (
         <Select
             value={val}
-            onValueChange={setVal}
+            onValueChange={onValueChange}
             disablePreventBodyScroll
             {...props}
         >
@@ -667,7 +693,7 @@ export function SelectDemoItem(props: SelectDemoItemProps) {
                     minWidth={200}
                 >
                     <Select.Group>
-                        <Select.Label>Fruits</Select.Label>
+                        <Select.Label>Seasons</Select.Label>
                         {/* for longer lists memoizing these is useful */}
                         {useMemo(
                             () =>
