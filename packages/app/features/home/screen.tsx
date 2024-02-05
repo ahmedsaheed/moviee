@@ -24,10 +24,6 @@ export function HomeScreen() {
     const bottomTabBarHeight = useBottomTabBarHeight()
     const genre: HeadingAndMovies[] = [
         {
-            heading: 'Trending Today',
-            movies: trendingToday,
-        },
-        {
             heading: 'Bingeable Series',
             movies: trendingSeriesToday,
         },
@@ -117,7 +113,6 @@ export function HomeScreen() {
                             )}
                         </>
                     )}
-                    {/* </YStack> */}
                 </YStack>
             </ScrollViewWithHeaders>
         </YStack>

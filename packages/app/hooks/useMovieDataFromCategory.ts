@@ -32,8 +32,6 @@ export function useMovieDataFromCategories() {
 
         const fetchData = async () => {
             try {
-                const trendingToday = await getMovieByCategory('TRENDING')
-
                 const data = await Promise.all([
                     getMovieByCategory('TRENDING'),
                     getTVByCategory(),
