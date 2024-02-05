@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Dimensions, View } from 'react-native'
+import { Dimensions, ImageBackground, View } from 'react-native'
 import Animated, {
     Extrapolate,
     interpolate,
@@ -39,7 +39,7 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                     mode="parallax"
                     loop={true}
                     autoPlay={true}
-                    style={{ height: 250, borderRadius: 10 }}
+                    style={{ height: 250 }}
                     width={width - 15}
                     onProgressChange={(_, absoluteProgress) =>
                         (progressValue.value = absoluteProgress)
@@ -53,16 +53,17 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                     data={[...data!!]}
                     renderItem={({ index, animationValue }) => {
                         return (
-                            <CustomItem
+                            <CarouselCard
                                 key={index}
-                                index={index}
                                 imageUrl={data[index]!!.backdropUrl!!}
-                                animationValue={animationValue}
+                                logoUrl={data[index]!!.logoUrl!!}
                                 name={data[index]!!.title}
+                                onPress={() =>
+                                    console.log('pressed', new Date())
+                                }
                             />
                         )
                     }}
-                    customAnimation={animationStyle}
                     autoPlayInterval={1500}
                 />
             </View>
@@ -102,23 +103,34 @@ interface ItemProps {
 
 function CarouselCard(props: {
     imageUrl: string
+    logoUrl?: string
     name: string
     onPress: (string) => void
 }) {
-    const { imageUrl, onPress } = props
+    const { imageUrl, onPress, logoUrl } = props
     return (
-        <Image
+        <ImageBackground
             resizeMode={'cover'}
-            onPress={onPress}
+            // onPress={onPress}
             style={{
                 height: '100%',
                 width: '100%',
-                borderRadius: 10,
+                borderRadius: 5,
             }}
             source={{
                 uri: `https://image.tmdb.org/t/p/original${imageUrl}`,
             }}
-        />
+        >
+            <Image
+                source={{
+                    uri: `https://image.tmdb.org/t/p/original${logoUrl}`,
+                }}
+                width="100%"
+                height={70}
+                resizeMode="contain"
+                // position="absolute"
+            />
+        </ImageBackground>
     )
 }
 
