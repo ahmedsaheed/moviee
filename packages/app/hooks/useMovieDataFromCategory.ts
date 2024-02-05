@@ -27,49 +27,45 @@ export function useMovieDataFromCategories() {
         documentaryMovies: null,
     } as MovieData)
 
-    useFocusEffect(
-        useCallback(() => {
-            let isActive = true
+    useEffect(() => {
+        let isActive = true
 
-            const fetchData = async () => {
-                try {
-                    const trendingToday = await getMovieByCategory('TRENDING')
-
-                    const data = await Promise.all([
-                        getMovieByCategory('TRENDING'),
-                        getTVByCategory(),
-                        getMovieByCategory('ACTION'),
-                        getMovieByCategory('ADVENTURE'),
-                        getMovieByCategory('DOCUMENTARY'),
-                        getMovieByCategory('DRAMA'),
-                        getMovieByCategory('COMEDY'),
-                        getMovieByCategory('ANIMATION'),
-                    ])
-                    if (isActive) {
-                        setMovieData({
-                            trendingToday: data[0],
-                            trendingSeriesToday: data[1],
-                            trendingWeekly: data[2],
-                            adventureMovies: data[3],
-                            comedyMovies: data[4],
-                            animationMovies: data[5],
-                            dramaMovies: data[6],
-                            documentaryMovies: data[7],
-                        })
-                        setIsLoading(false)
-                    }
-                } catch (error) {
-                    console.error('Error fetching data:', error)
+        const fetchData = async () => {
+            try {
+                const data = await Promise.all([
+                    getMovieByCategory('TRENDING'),
+                    getTVByCategory(),
+                    getMovieByCategory('ACTION'),
+                    getMovieByCategory('ADVENTURE'),
+                    getMovieByCategory('DOCUMENTARY'),
+                    getMovieByCategory('DRAMA'),
+                    getMovieByCategory('COMEDY'),
+                    getMovieByCategory('ANIMATION'),
+                ])
+                if (isActive) {
+                    setMovieData({
+                        trendingToday: data[0],
+                        trendingSeriesToday: data[1],
+                        trendingWeekly: data[2],
+                        adventureMovies: data[3],
+                        comedyMovies: data[4],
+                        animationMovies: data[5],
+                        dramaMovies: data[6],
+                        documentaryMovies: data[7],
+                    })
                     setIsLoading(false)
                 }
+            } catch (error) {
+                console.error('Error fetching data:', error)
+                setIsLoading(false)
             }
-            fetchData()
+        }
+        fetchData()
 
-            return () => {
-                isActive = false
-            }
-        }, [])
-    )
+        return () => {
+            isActive = false
+        }
+    }, [])
 
     return {
         isLoading,

@@ -75,25 +75,61 @@ export const isCached = async (key: string) => {
     }
 }
 
+const getTrendingMoviesLogo = async (
+    trending: Array<Movie>
+): Promise<
+    Array<{
+        id: number
+        logoUri: string | undefined
+    }>
+> => {
+    const logoPromises = trending.map(async movie => {
+        const data = await getShowImagesAndLogo(movie.id, 'movie')
+        console.log('image from trending', data)
+        console.log('trending movies logo not cached: storing data')
+        return { id: movie.id, logoUri: data.logos[0]?.file_path }
+    })
+    const res = await Promise.all(logoPromises)
+    console.log('whats in res', res)
+    return res
+}
+
 export const getMovieByCategory = async (
     category: MovieCategories
 ): Promise<Array<Base> | null> => {
+    const isTrending = category === 'TRENDING'
     const uri = getUriFromCategory(category)
     const cached = await isCached(uri)
     if (cached?.isCached) {
         console.log('cached: returning cached data')
         const data = cached!!.value as Array<Movie>
+        const logos = await getTrendingMoviesLogo(data)
         return data?.map(movie => {
-            return extractToBase(movie)
+            const base = extractToBase(movie)
+            if (isTrending) {
+                const logo = logos.find(logo => logo.id === movie.id)
+                console.log('found logo for id', movie.id, logo?.logoUri)
+                base.logoUrl = logo?.logoUri
+                return base
+            }
+            return base
         })
     }
     const response = (await fetcher(uri)) as ApiResponse
     const data = response.results as Movie[]
+    const logos = await getTrendingMoviesLogo(data)
     if (!data) return null
     console.log('not cached: storing data')
     storeToCache(uri, data)
     return data?.map(movie => {
-        return extractToBase(movie)
+        const base = extractToBase(movie)
+        if (isTrending) {
+            const logo = logos.find(logo => logo.id === movie.id)
+            console.log('found logo for id', movie.id, logo?.logoUri)
+            base.logoUrl = logo?.logoUri
+            return base
+        }
+        return base
     })
 }
 

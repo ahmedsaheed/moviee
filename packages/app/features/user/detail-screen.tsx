@@ -292,14 +292,15 @@ export function UserDetailScreen() {
                                         )}
                                     </BlurView>
                                 </XStack>
-                                {images?.logos[0] !== undefined && (
-                                    // @ts-ignore
-                                    <LinearGradient
-                                        colors={['black', 'transparent']}
-                                        style={styles.gradient}
-                                        start={{ x: 0, y: 1.0 }}
-                                        end={{ x: 0, y: 0 }}
-                                    >
+                                <LinearGradient
+                                    colors={['black', 'transparent']}
+                                    style={styles.gradient}
+                                    start={{ x: 0, y: 1.0 }}
+                                    end={{ x: 0, y: 0 }}
+                                >
+                                    {images?.logos[0] !== undefined && (
+                                        // @ts-ignore
+
                                         <Image
                                             source={{
                                                 uri: `${
@@ -312,21 +313,19 @@ export function UserDetailScreen() {
                                             resizeMode="contain"
                                             position="absolute"
                                         />
-                                    </LinearGradient>
-                                )}
+                                    )}
+                                    {images?.logos[0] === undefined && (
+                                        <H3
+                                            fontWeight="bold"
+                                            m="$4"
+                                            style={{ fontFamily: 'System' }}
+                                        >
+                                            {movieData?.title ?? movieData.name}
+                                        </H3>
+                                    )}
+                                </LinearGradient>
                             </ImageBackground>
                         </View>
-
-                        {images?.logos[0] === undefined && (
-                            <H3
-                                fontWeight="bold"
-                                m="$4"
-                                style={{ fontFamily: 'System' }}
-                            >
-                                {movieData?.title ?? movieData.name}
-                            </H3>
-                        )}
-
                         <Button
                             mt="$2"
                             icon={Play}

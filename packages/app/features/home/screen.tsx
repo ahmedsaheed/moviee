@@ -24,10 +24,6 @@ export function HomeScreen() {
     const bottomTabBarHeight = useBottomTabBarHeight()
     const genre: HeadingAndMovies[] = [
         {
-            heading: 'Trending Today',
-            movies: trendingToday,
-        },
-        {
             heading: 'Bingeable Series',
             movies: trendingSeriesToday,
         },
@@ -65,60 +61,58 @@ export function HomeScreen() {
                 LargeHeaderComponent={LargeHeaderComponent}
                 contentContainerStyle={{}}
             >
-                <YStack f={1} p="$2" space>
-                    <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
-                        {isLoading ? (
-                            <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    height: '100%',
-                                }}
-                            >
-                                <Spinner size="large" />
-                            </View>
-                        ) : (
-                            <>
-                                <HomeTopCarousel data={trendingToday} />
-                                {genre.map(
-                                    (item, index) =>
-                                        item.movies && (
-                                            <>
-                                                <SizableText
-                                                    theme="alt1"
-                                                    size="$1"
-                                                    style={{
-                                                        fontFamily: 'System',
-                                                    }}
-                                                    fontWeight="bold"
-                                                    p={2}
-                                                    enterStyle={{
-                                                        opacity: 0,
-                                                        y: 10,
-                                                        scale: 0.9,
-                                                    }}
-                                                    exitStyle={{
-                                                        opacity: 0,
-                                                        y: -10,
-                                                        scale: 0.9,
-                                                    }}
-                                                >
-                                                    {' '}
-                                                    {item.heading}
-                                                </SizableText>
-                                                <MovieCards
-                                                    movies={item.movies}
-                                                    onPress={
-                                                        resolveMetaAndNavigateToDetails
-                                                    }
-                                                />
-                                            </>
-                                        )
-                                )}
-                            </>
-                        )}
-                    </YStack>
+                <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
+                    {isLoading ? (
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: '100%',
+                            }}
+                        >
+                            <Spinner size="large" />
+                        </View>
+                    ) : (
+                        <>
+                            <HomeTopCarousel data={trendingToday} />
+                            {genre.map(
+                                (item, index) =>
+                                    item.movies && (
+                                        <>
+                                            <SizableText
+                                                theme="alt1"
+                                                size="$1"
+                                                style={{
+                                                    fontFamily: 'System',
+                                                }}
+                                                fontWeight="bold"
+                                                p={2}
+                                                enterStyle={{
+                                                    opacity: 0,
+                                                    y: 10,
+                                                    scale: 0.9,
+                                                }}
+                                                exitStyle={{
+                                                    opacity: 0,
+                                                    y: -10,
+                                                    scale: 0.9,
+                                                }}
+                                            >
+                                                {' '}
+                                                {item.heading}
+                                            </SizableText>
+                                            <MovieCards
+                                                movies={item.movies}
+                                                onPress={
+                                                    resolveMetaAndNavigateToDetails
+                                                }
+                                            />
+                                        </>
+                                    )
+                            )}
+                        </>
+                    )}
                 </YStack>
             </ScrollViewWithHeaders>
         </YStack>

@@ -1,5 +1,11 @@
 import * as React from 'react'
-import { Dimensions, View } from 'react-native'
+import {
+    Dimensions,
+    ImageBackground,
+    View,
+    StyleSheet,
+    Pressable,
+} from 'react-native'
 import Animated, {
     Extrapolate,
     interpolate,
@@ -10,12 +16,14 @@ import Animated, {
 import Carousel from 'react-native-reanimated-carousel'
 import { Base, TAnimationStyle } from 'app/@types/types'
 import { Image } from '@my/ui'
-
+import { LinearGradient } from 'expo-linear-gradient'
+import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
 const { width } = Dimensions.get('window')
 
 export function HomeTopCarousel(props: { data: Array<Base> | null }) {
     const progressValue = useSharedValue<number>(0)
-    const { data } = props
+    let { data } = props
+    data = data?.filter((item, index) => item.backdropUrl && item.logoUrl)!!
     const animationStyle: TAnimationStyle = React.useCallback(
         (value: number) => {
             'worklet'
@@ -53,16 +61,17 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                     data={[...data!!]}
                     renderItem={({ index, animationValue }) => {
                         return (
-                            <CustomItem
-                                key={index}
-                                index={index}
-                                imageUrl={data[index]!!.backdropUrl!!}
-                                animationValue={animationValue}
-                                name={data[index]!!.title}
-                            />
+                            <View>
+                                <CarouselCard
+                                    key={index}
+                                    imageUrl={data!![index]!!.backdropUrl!!}
+                                    logoUrl={data!![index]!!.logoUrl!!}
+                                    name={data!![index]!!.title}
+                                    onPress={resolveMetaAndNavigateToDetails}
+                                />
+                            </View>
                         )
                     }}
-                    customAnimation={animationStyle}
                     autoPlayInterval={1500}
                 />
             </View>
@@ -74,93 +83,53 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                         width: 100,
                         alignSelf: 'center',
                     }}
-                >
-                    {/*{data?.map((backgroundColor, index) => {*/}
-                    {/*    return (*/}
-                    {/*        <PaginationItem*/}
-                    {/*            backgroundColor={'white'}*/}
-                    {/*            animValue={progressValue}*/}
-                    {/*            index={index}*/}
-                    {/*            key={index}*/}
-                    {/*            isRotate={false}*/}
-                    {/*            length={data.length}*/}
-                    {/*        />*/}
-                    {/*    )*/}
-                    {/*})}*/}
-                </View>
+                ></View>
             )}
         </>
     )
 }
 
-interface ItemProps {
-    index: number
-    name: string
-    imageUrl: string
-    animationValue: Animated.SharedValue<number>
-}
-
 function CarouselCard(props: {
     imageUrl: string
+    logoUrl?: string
     name: string
     onPress: (string) => void
 }) {
-    const { imageUrl, onPress } = props
+    const { imageUrl, onPress, logoUrl, name } = props
+    console.log('imageUrl', imageUrl, 'logoUrl', logoUrl)
     return (
-        <Image
-            resizeMode={'cover'}
-            onPress={onPress}
-            style={{
-                height: '100%',
-                width: '100%',
-                borderRadius: 10,
-            }}
-            source={{
-                uri: `https://image.tmdb.org/t/p/original${imageUrl}`,
-            }}
-        />
-    )
-}
-
-const CustomItem: React.FC<ItemProps> = ({
-    imageUrl,
-    name,
-    index,
-    animationValue,
-}) => {
-    const maskStyle = useAnimatedStyle(() => {
-        const backgroundColor = interpolateColor(
-            animationValue.value,
-            [-1, 0, 1],
-            ['#000000dd', 'transparent', '#000000dd']
-        )
-        return {
-            backgroundColor,
-        }
-    }, [animationValue])
-
-    return (
-        <View>
-            <CarouselCard
-                key={index}
-                imageUrl={imageUrl}
-                name={name}
-                onPress={() => console.log('pressed', new Date())}
-            />
-            <Animated.View
-                pointerEvents="none"
-                style={[
-                    {
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                    },
-                    maskStyle,
-                ]}
-            />
-        </View>
+        <Pressable onPress={() => onPress(name)}>
+            <ImageBackground
+                resizeMode={'cover'}
+                style={{
+                    height: '100%',
+                    width: '100%',
+                    borderRadius: 10,
+                }}
+                source={{
+                    uri: `https://image.tmdb.org/t/p/original${imageUrl}`,
+                }}
+            >
+                <LinearGradient
+                    colors={['black', 'transparent']}
+                    style={styles.gradient}
+                    start={{ x: 0, y: 1.0 }}
+                    end={{ x: 0, y: 0 }}
+                >
+                    <Image
+                        source={{
+                            uri: `https://image.tmdb.org/t/p/original${logoUrl}`,
+                        }}
+                        width="100%"
+                        height={50}
+                        resizeMode="contain"
+                        position="absolute"
+                        bottom={0}
+                        pb="$2"
+                    />
+                </LinearGradient>
+            </ImageBackground>
+        </Pressable>
     )
 }
 
@@ -225,3 +194,16 @@ const PaginationItem: React.FC<{
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    gradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        padding: 40,
+        height: '90%',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+    },
+})
