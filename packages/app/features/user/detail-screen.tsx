@@ -16,7 +16,7 @@ import { Check, ChevronLeft, Play, Plus, Share } from '@tamagui/lucide-icons'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { PlayerWrapper, ProgressInfo } from 'app/components/av'
 import { CannotPlayMovieDialog, convertMinutesToHours } from 'app/utils'
-import { ShowType } from 'app/@types/types'
+import { Base, ShowType } from 'app/@types/types'
 import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 import { BlurView } from 'expo-blur'
 import { router } from 'expo-router'
@@ -107,6 +107,14 @@ export function UserDetailScreen() {
             .join(', '),
     }
 
+    const baseTypedInfo = {
+        tmdbId: Number(id),
+        imageUrl: movieData?.poster_path,
+        backdropUrl: movieData?.backdrop_path,
+        title: movieData?.title ?? movieData?.name,
+        releaseYear: movieData?.release_date?.split('-')[0] ?? '',
+    } as unknown as Base
+
     const movieOverView = () => {
         const overview =
             type === 'movie'
@@ -116,6 +124,7 @@ export function UserDetailScreen() {
                 : movieData?.overview
         return showMore ? overview : overview?.slice(0, 100)
     }
+
     function playButtonText() {
         if (loading) {
             return 'Loading...'
@@ -398,6 +407,7 @@ export function UserDetailScreen() {
                             id={id!!}
                             mediaType={type}
                             setProgress={setProgress}
+                            baseTypedInfo={baseTypedInfo}
                         />
                     </>
                 )}
