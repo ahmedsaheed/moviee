@@ -30,7 +30,10 @@ export function Cards(props: HomeScreenCardProps) {
 
 export function MovieCards(
     props:
-        | { movies: Array<Base> | null; onPress: (movieName: string) => void }
+        | {
+              movies: Array<Base> | null
+              onPress: (movieName: string, id: number) => void
+          }
         | undefined
 ) {
     if (!props) {
@@ -38,9 +41,7 @@ export function MovieCards(
     }
     const { movies, onPress } = props
     return (
-        <ScrollView horizontal={true}
-            showsHorizontalScrollIndicator={false}
-        >
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             <XStack
                 $sm={{ flexDirection: 'row' }}
                 paddingHorizontal="$0"
@@ -68,7 +69,7 @@ export function MovieCards(
                         pressStyle={{ scale: 0.875 }}
                         imageUrl={movie.imageUrl}
                         key={index}
-                        onPress={() => onPress(movie.title)}
+                        onPress={() => onPress(movie.title, movie.tmdbId)}
                         releaseYear={movie.releaseYear}
                         title={movie.title}
                         tmdbId={movie.tmdbId}

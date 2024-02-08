@@ -358,7 +358,9 @@ const SimilarMovies = ({ similarMovies }: { similarMovies: Base[] | null }) => {
             renderItem={item => (
                 <View
                     style={styles.itemContainer}
-                    onPress={() => resolveMetaAndNavigateToDetails(item.title)}
+                    onPress={() =>
+                        resolveMetaAndNavigateToDetails(item.title, item.tmdbId)
+                    }
                 >
                     <Image
                         source={{ uri: item.imageUrl }}

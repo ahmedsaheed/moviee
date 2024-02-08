@@ -6,14 +6,13 @@ import {
 } from '@movie-web/providers'
 import { fetcher } from 'app/lib/fetcher/fetcher'
 import { router } from 'expo-router'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getSeasonAndEpisodeDetails, isCached, storeToCache } from './genre'
 
 const formatMovieName = (movieName: string) => {
     return movieName.replace(/\s/g, '%20')
 }
 
-const movieUrl = (movieName: string): string =>
+export const movieUrl = (movieName: string): string =>
     `https://api.themoviedb.org/3/search/multi?query=${formatMovieName(
         movieName
     )}&include_adult=false&language=en-US&page=1`
@@ -23,6 +22,7 @@ const isMovieOrTV = meta =>
 
 export const getMoviesMetadata = async (
     movie: string,
+    id: number,
     seriesOptions?: { seasonNumber: number; episodeNumber: number }
 ): Promise<ScrapeMedia | null> => {
     let meta
@@ -31,10 +31,14 @@ export const getMoviesMetadata = async (
     const cached = await isCached(url)
     if (cached?.isCached) {
         const initialData = cached!!.value as any
-        meta = initialData?.results[0]
+        const res = initialData?.results
+        if (!res) return null
+        meta = res.find((result: any) => result.id === id)
     } else {
-        const getMeta = (await fetcher(url)) as any
-        meta = getMeta?.results[0]
+        const getMeta = await fetcher<any>(url)
+        const results = getMeta?.results
+        if (!results) return null
+        meta = results.find((result: any) => result.id === id)
         await storeToCache(url, getMeta)
     }
 
@@ -57,7 +61,6 @@ export const getMoviesMetadata = async (
         }
     }
 
-    console.log('meta', meta)
     if (!meta || !isMovieOrTV(meta)) return null
 
     const isTV = meta?.media_type === 'tv'
@@ -68,7 +71,6 @@ export const getMoviesMetadata = async (
         releaseYear: !isTV
             ? meta.release_date.split('-')[0]
             : meta.first_air_date.split('-')[0],
-        // if is tv show spread season and episode
         ...(seriesInfo ?? {}),
     }
 }
@@ -100,8 +102,11 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
     })
 }
 
-export async function resolveMetaAndNavigateToDetails(movieName: string) {
-    const res = await getMoviesMetadata(movieName)
+export async function resolveMetaAndNavigateToDetails(
+    movieName: string,
+    id: number
+) {
+    const res = await getMoviesMetadata(movieName, id)
     const { tmdbId, type } = res!!
     if (!tmdbId) return
     //TODO: add to history

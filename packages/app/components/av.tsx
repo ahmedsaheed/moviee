@@ -3,11 +3,8 @@ import { AVPlaybackStatus, ResizeMode, Video } from 'expo-av'
 import { RunOutput } from '@movie-web/providers'
 import { Spinner } from '@my/ui'
 import { StyleSheet } from 'react-native'
-import { ShowType } from 'app/@types/types'
+import { Base, Dispatcher, ShowType } from 'app/@types/types'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
-import { Dispatch, SetStateAction } from 'react'
-
-type Dispatcher<S> = Dispatch<SetStateAction<S>>
 
 export type ProgressInfo = {
     positionMillis: number
@@ -26,11 +23,15 @@ export const VideoPlayer = (props: {
     id: string
     mediaType: ShowType
     setProgress: Dispatcher<ProgressInfo>
+    basedTypedInfo?: Base
 }) => {
+    const { src, id, mediaType, setProgress, basedTypedInfo } = props
     const videoRef = useRef(null)
     const { setItem, getItem, removeItem } = useAsyncStorage(
-        `PROGRESS_INFO_${props.mediaType}_${props.id}`
+        `PROGRESS_INFO_${mediaType}_${id}`
     )
+    const { setItem: setContinueWatchingItem, getItem: getContinueWatching } =
+        useAsyncStorage('continue_watching')
     const [position, setPosition] = useState(0)
     const [seasonInfo, setSeasonInfo] = useState<{
         season: number
@@ -39,14 +40,30 @@ export const VideoPlayer = (props: {
     const { season, episode } = seasonInfo ?? { season: 1, episode: 1 }
     const updateProgress = async (progressInfo: ProgressInfo) => {
         await setItem(JSON.stringify(progressInfo))
-        props.setProgress(progressInfo)
+        setProgress(progressInfo)
     }
+
+    const addCurrentToContinueWatching = async () => {
+        const continueWatching = await getContinueWatching()
+        const continueWatchingArray = (
+            continueWatching ? JSON.parse(continueWatching) : []
+        ) as Base[]
+        const index = continueWatchingArray.findIndex(
+            (item: Base) => item.tmdbId === Number(id)
+        )
+        if (index !== -1) {
+            continueWatchingArray.splice(index, 1)
+        }
+        let newlenght = continueWatchingArray.unshift(basedTypedInfo!!)
+        await setContinueWatchingItem(JSON.stringify(continueWatchingArray))
+    }
+
     const getProgress = async () => {
         const progressInfo = await getItem()
         if (!progressInfo) return
         const res = JSON.parse(progressInfo) as ProgressInfo
         setPosition(res.positionMillis ?? 0)
-        if (props.mediaType === 'show') {
+        if (mediaType === 'show') {
             setSeasonInfo({
                 season: res.season ?? 1,
                 episode: res.episode ?? 1,
@@ -54,20 +71,16 @@ export const VideoPlayer = (props: {
         }
     }
 
-    const rex = async () => {
-        const progressInfo = await getItem()
-        const res = JSON.parse(progressInfo!!) as ProgressInfo
-    }
-
     function updatePlaybackStatus(status: AVPlaybackStatus) {
         if (!status.isLoaded) {
             if (status.error) {
-                console.log(
+                console.error(
                     `Encountered a fatal error during playback: ${status.error}`
                 )
             }
         } else {
             if (status.isPlaying) {
+                addCurrentToContinueWatching()
                 // Update your UI for the playing state
                 updateProgress({
                     positionMillis: status.positionMillis,
@@ -79,9 +92,9 @@ export const VideoPlayer = (props: {
                                 100
                         ),
                     },
-                    uri: props.src,
+                    uri: src,
                     completed: false,
-                    ...(props.mediaType === 'show' && {
+                    ...(mediaType === 'show' && {
                         episode: episode,
                         //TODO: if is last episode of season, increment season
                         season: season,
@@ -99,9 +112,9 @@ export const VideoPlayer = (props: {
                                 100
                         ),
                     },
-                    uri: props.src,
+                    uri: src,
                     completed: false,
-                    ...(props.mediaType === 'show' && {
+                    ...(mediaType === 'show' && {
                         episode: episode,
                         //TODO: if is last episode of season, increment season
                         season: season,
@@ -122,15 +135,14 @@ export const VideoPlayer = (props: {
                             status.durationMillis!! - status.positionMillis,
                         percentageCompleted: 100,
                     },
-                    uri: props.src,
+                    uri: src,
                     completed: true,
-                    ...(props.mediaType === 'show' && {
+                    ...(mediaType === 'show' && {
                         episode: episode + 1,
                         //TODO: if is last episode of season, increment season
                         season: season,
                     }),
                 })
-                rex()
             }
         }
     }
@@ -167,12 +179,14 @@ export function PlayerWrapper({
     id,
     mediaType,
     setProgress,
+    baseTypedInfo,
 }: {
     data: RunOutput | null
     id: string
     mediaType: ShowType
     loading: boolean
     setProgress: Dispatcher<ProgressInfo>
+    baseTypedInfo?: Base
 }) {
     if (loading) {
         return <Spinner ai={'center'} size="large" color="$orange10" />
@@ -185,6 +199,7 @@ export function PlayerWrapper({
                 id={id}
                 mediaType={mediaType}
                 setProgress={setProgress}
+                basedTypedInfo={baseTypedInfo}
             />
         )
     }

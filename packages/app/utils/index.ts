@@ -42,6 +42,6 @@ export const CannotPlayMovieDialog = () =>
                 onPress: () => router.back(),
                 style: 'cancel',
             },
-            { text: 'OK', onPress: () => console.log('OK Pressed') },
+            { text: 'OK', onPress: () => {} },
         ]
     )

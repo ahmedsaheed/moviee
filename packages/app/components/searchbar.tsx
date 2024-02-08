@@ -3,8 +3,11 @@ import { Search } from '@tamagui/lucide-icons'
 import { useState } from 'react'
 import { useColorScheme } from 'react-native'
 import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
+import { getMultiSearch } from 'app/lib/movies/genre'
+import { Base, Dispatcher } from 'app/@types/types'
 
-export function Searchbar() {
+export function Searchbar(props: { setResults: Dispatcher<Base[]> }) {
+    const { setResults } = props
     const [searchQuery, setSearchQuery] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(false)
     const scheme = useColorScheme()
@@ -13,13 +16,26 @@ export function Searchbar() {
         setSearchQuery('')
         this.search.clear()
         this.search.blur()
+        setResults([])
+    }
+
+    const onTextChange = async (text: string) => {
+        if (text === '') {
+            setLoading(false)
+            resetSearch()
+            return
+        }
+        setLoading(true)
+        setSearchQuery(text)
+        const res = await getMultiSearch(searchQuery)
+        setResults(res)
     }
 
     return (
         <SearchBar
             ref={search => (this.search = search)}
             //@ts-ignore
-            onChangeText={text => setSearchQuery(text)}
+            onChangeText={text => onTextChange(text)}
             value={searchQuery}
             placeholder="Search Shows and Movies"
             platform="ios"
@@ -37,10 +53,10 @@ export function Searchbar() {
                 paddingTop: 0,
             }}
             onSubmitEditing={async () => {
-                setLoading(true)
-                await resolveMetaAndNavigateToDetails(searchQuery)
+                // setLoading(true)
+                // await resolveMetaAndNavigateToDetails(searchQuery)
                 setLoading(false)
-                resetSearch()
+                // resetSearch()
             }}
             pt={'$0'}
             showClearIcon={false}

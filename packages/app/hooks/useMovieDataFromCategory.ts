@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Base } from 'app/@types/types'
 import { getMovieByCategory, getTVByCategory } from 'app/lib/movies/genre'
-import { useFocusEffect } from '@react-navigation/native'
-
+import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 type MovieData = {
     trendingToday: Array<Base> | null
     trendingSeriesToday: Array<Base> | null
@@ -12,9 +11,12 @@ type MovieData = {
     animationMovies: Array<Base> | null
     dramaMovies: Array<Base> | null
     documentaryMovies: Array<Base> | null
+    currentlyWatching: Array<Base> | null
 }
 
 export function useMovieDataFromCategories() {
+    const { getItem: getContinueWatching } =
+        useAsyncStorage('continue_watching')
     const [isLoading, setIsLoading] = useState(true)
     const [movieData, setMovieData] = useState({
         trendingToday: null,
@@ -25,7 +27,21 @@ export function useMovieDataFromCategories() {
         animationMovies: null,
         dramaMovies: null,
         documentaryMovies: null,
+        currentlyWatching: null,
     } as MovieData)
+
+    const getCurrentlyWatching = async () => {
+        try {
+            const data = await getContinueWatching()
+            if (data) {
+                const currentlyWatching = JSON.parse(data) as Array<Base>
+                return currentlyWatching
+            }
+        } catch (error) {
+            console.error('Error fetching currently watching:', error)
+        }
+        return null
+    }
 
     useEffect(() => {
         let isActive = true
@@ -41,6 +57,7 @@ export function useMovieDataFromCategories() {
                     getMovieByCategory('DRAMA'),
                     getMovieByCategory('COMEDY'),
                     getMovieByCategory('ANIMATION'),
+                    getCurrentlyWatching(),
                 ])
                 if (isActive) {
                     setMovieData({
@@ -52,6 +69,7 @@ export function useMovieDataFromCategories() {
                         animationMovies: data[5],
                         dramaMovies: data[6],
                         documentaryMovies: data[7],
+                        currentlyWatching: data[8],
                     })
                     setIsLoading(false)
                 }

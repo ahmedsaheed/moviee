@@ -16,7 +16,7 @@ import { Check, ChevronLeft, Play, Plus, Share } from '@tamagui/lucide-icons'
 import { getMoviesMetadata, retrieveFromProvider } from 'app/lib/movies/movies'
 import { PlayerWrapper, ProgressInfo } from 'app/components/av'
 import { CannotPlayMovieDialog, convertMinutesToHours } from 'app/utils'
-import { ShowType } from 'app/@types/types'
+import { Base, ShowType } from 'app/@types/types'
 import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
 import { BlurView } from 'expo-blur'
 import { router } from 'expo-router'
@@ -35,7 +35,7 @@ export function UserDetailScreen() {
     const [data, setData] = useState<RunOutput | null>(null)
     const [loading, setLoading] = useState(false)
     const [showMore, setShowMore] = useState(false)
-    const [wishedlisted, setWishedlisted] = useState(false)
+    const [wishedListed, setWishedListed] = useState(false)
     const [progress, setProgress] = useState<ProgressInfo | null>(null)
     const [id] = useParam('id')
     const [type] = useParam('type') as unknown as [ShowType]
@@ -44,7 +44,7 @@ export function UserDetailScreen() {
         href: '/',
     })
 
-    const IMAGE_URL_PRFIX = 'https://image.tmdb.org/t/p/original/'
+    const IMAGE_URL_PREFIX = 'https://image.tmdb.org/t/p/original/'
     const { height } = Dimensions.get('window')
     const {
         data: movieData,
@@ -58,7 +58,7 @@ export function UserDetailScreen() {
     const readItemFromWishlistStorage = async () => {
         const item = await getItem()
         if (item !== null) {
-            setWishedlisted(true)
+            setWishedListed(true)
         }
     }
 
@@ -70,7 +70,6 @@ export function UserDetailScreen() {
         }
 
         const res = JSON.parse(progressInfo) as ProgressInfo
-        console.log('progrssInfo', res)
         setProgress(res)
     }
 
@@ -83,14 +82,14 @@ export function UserDetailScreen() {
         const item = await getItem()
         if (item !== null) {
             await removeItem()
-            setWishedlisted(false)
+            setWishedListed(false)
         }
     }
 
     const writeItemToStorage = async newValue => {
         await setItem(newValue)
         if (newValue === 'true') {
-            setWishedlisted(true)
+            setWishedListed(true)
         }
     }
     useEffect(() => {
@@ -107,6 +106,14 @@ export function UserDetailScreen() {
             .join(', '),
     }
 
+    const baseTypedInfo = {
+        tmdbId: Number(id),
+        imageUrl: movieData?.poster_path,
+        backdropUrl: movieData?.backdrop_path,
+        title: movieData?.title ?? movieData?.name,
+        releaseYear: movieData?.release_date?.split('-')[0] ?? '',
+    } as unknown as Base
+
     const movieOverView = () => {
         const overview =
             type === 'movie'
@@ -116,6 +123,7 @@ export function UserDetailScreen() {
                 : movieData?.overview
         return showMore ? overview : overview?.slice(0, 100)
     }
+
     function playButtonText() {
         if (loading) {
             return 'Loading...'
@@ -131,7 +139,6 @@ export function UserDetailScreen() {
         if (type === 'show') {
             if (progress !== null) {
                 if (progress.positionMillis > 0) {
-                    console.log('using progress', progress)
                     return `Continue S${progress.season} E${progress.episode}`
                 }
             }
@@ -148,7 +155,7 @@ export function UserDetailScreen() {
         seriesOptions?: { seasonNumber: number; episodeNumber: number }
     ) => {
         setLoading(true)
-        const res = await getMetaAndPlay(movieName, seriesOptions)
+        const res = await getMetaAndPlay(movieName, Number(id), seriesOptions)
         if (res === null) return
         if (res && res?.type === 'show' && seriesOptions === undefined) {
             res.episode = info!!.currentEpisode
@@ -194,7 +201,7 @@ export function UserDetailScreen() {
                             <ImageBackground
                                 source={{
                                     uri: `${
-                                        IMAGE_URL_PRFIX +
+                                        IMAGE_URL_PREFIX +
                                         movieData.backdrop_path
                                     }`,
                                 }}
@@ -275,7 +282,7 @@ export function UserDetailScreen() {
                                             display: 'flex',
                                         }}
                                     >
-                                        {!wishedlisted ? (
+                                        {!wishedListed ? (
                                             <Plus
                                                 size="$1"
                                                 onPress={() =>
@@ -304,7 +311,7 @@ export function UserDetailScreen() {
                                         <Image
                                             source={{
                                                 uri: `${
-                                                    IMAGE_URL_PRFIX +
+                                                    IMAGE_URL_PREFIX +
                                                     images?.logos[0].file_path
                                                 }`,
                                             }}
@@ -398,6 +405,7 @@ export function UserDetailScreen() {
                             id={id!!}
                             mediaType={type}
                             setProgress={setProgress}
+                            baseTypedInfo={baseTypedInfo}
                         />
                     </>
                 )}
@@ -476,10 +484,10 @@ type BothMedia = ShowMedia | MovieMedia
 
 export async function getMetaAndPlay(
     movieName: string,
+    id: number,
     seriesOptions?: { seasonNumber: number; episodeNumber: number }
 ): Promise<BothMedia | null> {
-    let res = await getMoviesMetadata(movieName, seriesOptions)
-    console.log('metadata is ', res)
+    let res = await getMoviesMetadata(movieName, id, seriesOptions)
     return res === null ? null : res
 }
 

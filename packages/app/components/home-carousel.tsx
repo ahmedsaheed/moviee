@@ -64,6 +64,7 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                             <View>
                                 <CarouselCard
                                     key={index}
+                                    id={data!![index]!!.tmdbId}
                                     imageUrl={data!![index]!!.backdropUrl!!}
                                     logoUrl={data!![index]!!.logoUrl!!}
                                     name={data!![index]!!.title}
@@ -72,7 +73,7 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
                             </View>
                         )
                     }}
-                    autoPlayInterval={1500}
+                    autoPlayInterval={3000}
                 />
             </View>
             {!!progressValue && (
@@ -91,14 +92,14 @@ export function HomeTopCarousel(props: { data: Array<Base> | null }) {
 
 function CarouselCard(props: {
     imageUrl: string
+    id: number
     logoUrl?: string
     name: string
-    onPress: (string) => void
+    onPress: (string, id) => void
 }) {
-    const { imageUrl, onPress, logoUrl, name } = props
-    console.log('imageUrl', imageUrl, 'logoUrl', logoUrl)
+    const { imageUrl, onPress, logoUrl, name, id } = props
     return (
-        <Pressable onPress={() => onPress(name)}>
+        <Pressable onPress={() => onPress(name, id)}>
             <ImageBackground
                 resizeMode={'cover'}
                 style={{

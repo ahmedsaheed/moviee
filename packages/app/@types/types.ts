@@ -2,6 +2,7 @@ import { CardProps } from '@my/ui'
 import { ScrapeMedia } from '@movie-web/providers'
 import type { ViewStyle } from 'react-native'
 import type { AnimatedStyleProp } from 'react-native-reanimated'
+import { Dispatch, SetStateAction } from 'react'
 
 export type HomeScreenCardProps = {
     onPress: (string) => void
@@ -104,10 +105,11 @@ export type Movie = {
     video: boolean
     vote_average: number
     vote_count: number
+    name?: string
 }
 
 type Results = Movie[] | DetailedMovieInfo
-
+export type Dispatcher<S> = Dispatch<SetStateAction<S>>
 export type ApiResponse = {
     results: Results
     total_pages: number
