@@ -3,11 +3,8 @@ import { AVPlaybackStatus, ResizeMode, Video } from 'expo-av'
 import { RunOutput } from '@movie-web/providers'
 import { Spinner } from '@my/ui'
 import { StyleSheet } from 'react-native'
-import { Base, ShowType } from 'app/@types/types'
+import { Base, Dispatcher, ShowType } from 'app/@types/types'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
-import { Dispatch, SetStateAction } from 'react'
-
-type Dispatcher<S> = Dispatch<SetStateAction<S>>
 
 export type ProgressInfo = {
     positionMillis: number
@@ -51,7 +48,6 @@ export const VideoPlayer = (props: {
         const continueWatchingArray = (
             continueWatching ? JSON.parse(continueWatching) : []
         ) as Base[]
-        console.log('continueWatchingArray', continueWatchingArray.length)
         const index = continueWatchingArray.findIndex(
             (item: Base) => item.tmdbId === Number(id)
         )
@@ -59,7 +55,6 @@ export const VideoPlayer = (props: {
             continueWatchingArray.splice(index, 1)
         }
         let newlenght = continueWatchingArray.unshift(basedTypedInfo!!)
-        console.log('newlenght', newlenght)
         await setContinueWatchingItem(JSON.stringify(continueWatchingArray))
     }
 
@@ -79,7 +74,7 @@ export const VideoPlayer = (props: {
     function updatePlaybackStatus(status: AVPlaybackStatus) {
         if (!status.isLoaded) {
             if (status.error) {
-                console.log(
+                console.error(
                     `Encountered a fatal error during playback: ${status.error}`
                 )
             }

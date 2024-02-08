@@ -14,6 +14,7 @@ import {
     TvShowResult,
 } from 'app/@types/types'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { movieUrl } from './movies'
 
 const PREFIX = 'https://api.themoviedb.org/3'
 const TRENDING_URI = (showType: ShowType) =>
@@ -51,7 +52,7 @@ export const storeToCache = async (key: string, value: any) => {
         const jsonValue = JSON.stringify(data)
         await AsyncStorage.setItem(key, jsonValue)
     } catch (e) {
-        console.log(e)
+        console.error(e)
     }
 }
 
@@ -64,15 +65,31 @@ export const isCached = async (key: string) => {
         const time = now.getTime()
         const expireDate = new Date(data.expireDate).getTime()
         const isExpired = time > expireDate
-        console.log('isExpired', isExpired, time, expireDate)
         if (isExpired) {
-            console.log('data expired')
             return { isCached: false }
         }
         return { isCached: true, value: data.value }
     } catch (e) {
         console.error(e)
     }
+}
+
+export const getMultiSearch = async (movieName: string) => {
+    const uri = movieUrl(movieName)
+    const cached = await isCached(uri)
+    if (cached?.isCached) {
+        const initialData = cached!!.value as ApiResponse
+        const res = initialData.results as Movie[]
+        return res.map(movie => {
+            return extractToBase(movie)
+        })
+    }
+    const response = await fetcher<ApiResponse>(uri)
+    const data = response.results as Movie[]
+    storeToCache(uri, response)
+    return data.map(movie => {
+        return extractToBase(movie)
+    })
 }
 
 const getTrendingMoviesLogo = async (
@@ -85,12 +102,9 @@ const getTrendingMoviesLogo = async (
 > => {
     const logoPromises = trending.map(async movie => {
         const data = await getShowImagesAndLogo(movie.id, 'movie')
-        console.log('image from trending', data)
-        console.log('trending movies logo not cached: storing data')
         return { id: movie.id, logoUri: data.logos[0]?.file_path }
     })
     const res = await Promise.all(logoPromises)
-    console.log('whats in res', res)
     return res
 }
 
@@ -101,31 +115,27 @@ export const getMovieByCategory = async (
     const uri = getUriFromCategory(category)
     const cached = await isCached(uri)
     if (cached?.isCached) {
-        console.log('cached: returning cached data')
         const data = cached!!.value as Array<Movie>
         const logos = await getTrendingMoviesLogo(data)
         return data?.map(movie => {
             const base = extractToBase(movie)
             if (isTrending) {
                 const logo = logos.find(logo => logo.id === movie.id)
-                console.log('found logo for id', movie.id, logo?.logoUri)
                 base.logoUrl = logo?.logoUri
                 return base
             }
             return base
         })
     }
-    const response = (await fetcher(uri)) as ApiResponse
+    const response = await fetcher<ApiResponse>(uri)
     const data = response.results as Movie[]
     const logos = await getTrendingMoviesLogo(data)
     if (!data) return null
-    console.log('not cached: storing data')
     storeToCache(uri, data)
     return data?.map(movie => {
         const base = extractToBase(movie)
         if (isTrending) {
             const logo = logos.find(logo => logo.id === movie.id)
-            console.log('found logo for id', movie.id, logo?.logoUri)
             base.logoUrl = logo?.logoUri
             return base
         }
@@ -139,16 +149,14 @@ export const getSimilarMovies = async (
     const uri = SIMILAR_MOVIES_URI(id)
     const cached = await isCached(uri)
     if (cached?.isCached) {
-        console.log('similar cached: returning cached data')
         const data = cached!!.value as Array<Movie>
         return data?.map(movie => {
             return extractToBase(movie)
         })
     }
-    const response = (await fetcher(uri)) as ApiResponse
+    const response = await fetcher<ApiResponse>(uri)
     const data = response.results as Movie[]
     if (!data) return null
-    console.log('similar not cached: storing data')
     storeToCache(uri, data)
     return data?.map(movie => {
         return extractToBase(movie)
@@ -159,16 +167,14 @@ export const getTVByCategory = async (): Promise<Array<Base> | null> => {
     const uri = TRENDING_URI('show')
     const cached = await isCached(uri)
     if (cached?.isCached) {
-        console.log('cached tv shows: returning cached data')
         const data = cached!!.value as Array<TvShowResult>
         return data?.map(movie => {
             return extractToBase(movie)
         })
     }
-    const response = (await fetcher(uri)) as TvShowAPIResponse
+    const response = await fetcher<TvShowAPIResponse>(uri)
     const data = response.results
     if (!data) return null
-    console.log('not cached: storing data')
     storeToCache(uri, data)
     return data?.map(movie => {
         return extractToBase(movie)
@@ -177,28 +183,24 @@ export const getTVByCategory = async (): Promise<Array<Base> | null> => {
 
 const getTVSeriesDetails = async (id: number) => {
     const uri = SERIES_DETAILS_URI(id)
-    const response = (await fetcher(uri)) as DetailedSeriesInfo
-    console.log(response)
+    const response = await fetcher<DetailedSeriesInfo>(uri)
     return response
 }
 
 export const getTVDataAndImages = async (id: number) => {
-    const cacheKey = imagesuri(id, 'show')
+    const cacheKey = imagesUri(id, 'show')
     const cached = await isCached(cacheKey)
     if (cached?.isCached) {
-        console.log('tv images cached: returning cached data')
         const data = cached!!.value
-        console.log(data)
         return data
     }
     const data = await getTVSeriesDetails(id)
     const images = await getShowImagesAndLogo(id, 'show')
-    console.log('tv images not cached: storing data')
     storeToCache(cacheKey, { data, images })
     return { data, images }
 }
 
-const imagesuri = (id: number, showType: ShowType) => {
+const imagesUri = (id: number, showType: ShowType) => {
     const ext = '/images?include_image_language=en'
     return showType === 'movie'
         ? MOVIE_DETAILS_URI(id).split('?')[0] + ext
@@ -206,10 +208,8 @@ const imagesuri = (id: number, showType: ShowType) => {
 }
 
 const getShowImagesAndLogo = async (id: number, showType: ShowType) => {
-    const uri = imagesuri(id, showType)
-    console.log(uri)
-    const response = (await fetcher(uri)) as ImageDetails
-    console.log(response)
+    const uri = imagesUri(id, showType)
+    const response = await fetcher<ImageDetails>(uri)
     return response
 }
 
@@ -220,30 +220,23 @@ export const getSeasonAndEpisodeDetails = async (
     const url = `${PREFIX}/tv/${seasonTmdbId}/season/${seasonNumber}?language=en-US`
     const cached = await isCached(url)
     if (cached?.isCached) {
-        console.log('season and episode details cached: returning cached data')
         const data = cached!!.value
-        console.log(data)
         return data as SeasonAndEpisode
     }
-    console.log('season and episode details not cached: storing data')
-    const response = (await fetcher(url)) as SeasonAndEpisode
+    const response = await fetcher<SeasonAndEpisode>(url)
     storeToCache(url, response)
-    console.log(response)
     return response
 }
 
 export const getMovieDataAndImages = async (id: number) => {
-    const cacheKey = imagesuri(id, 'movie')
+    const cacheKey = imagesUri(id, 'movie')
     const cached = await isCached(cacheKey)
     if (cached?.isCached) {
-        console.log('movie images cached: returning cached data')
         const data = cached!!.value
-        console.log(data)
         return data
     }
     const data = await getMovieDetails(id)
     const images = await getShowImagesAndLogo(id, 'movie')
-    console.log('movie images not cached: storing data')
     storeToCache(cacheKey, { data, images })
     return { data, images }
 }
@@ -252,8 +245,7 @@ const getMovieDetails = async (
     id: number
 ): Promise<DetailedMovieInfo | null> => {
     const uri = MOVIE_DETAILS_URI(id)
-    console.log(uri)
-    const response = (await fetcher(uri)) as DetailedMovieInfo
+    const response = await fetcher<DetailedMovieInfo>(uri)
     return response ?? null
 }
 function extractToBase(movie: Movie | TvShowResult): Base {

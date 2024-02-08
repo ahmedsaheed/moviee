@@ -21,9 +21,11 @@ export function HomeScreen() {
         currentlyWatching,
         isLoading,
     } = useMovieDataFromCategories()
+
     const { getItem: getContinueWatching } =
         useAsyncStorage('continue_watching')
     const bottomTabBarHeight = useBottomTabBarHeight()
+
     const genre: HeadingAndMovies[] = [
         {
             heading: 'Bingeable Series',
