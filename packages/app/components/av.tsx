@@ -17,7 +17,7 @@ export type ProgressInfo = {
     episode?: number
     season?: number
 }
-
+type UpdateCurrentOperation = 'remove' | 'add'
 export const VideoPlayer = (props: {
     src: string
     id: string
@@ -43,25 +43,55 @@ export const VideoPlayer = (props: {
         setProgress(progressInfo)
     }
 
-    const addCurrentToContinueWatching = async () => {
+    const updateContinueWatching = async (
+        operation: UpdateCurrentOperation,
+        item: Base
+    ) => {
         const continueWatching = await getContinueWatching()
         const continueWatchingArray = (
             continueWatching ? JSON.parse(continueWatching) : []
         ) as Base[]
         const index = continueWatchingArray.findIndex(
-            (item: Base) => item.tmdbId === Number(id)
+            (i: Base) => i.tmdbId === item.tmdbId
         )
         if (index !== -1) {
             continueWatchingArray.splice(index, 1)
         }
-        let newlenght = continueWatchingArray.unshift(basedTypedInfo!!)
+        if (operation === 'add') {
+            continueWatchingArray.unshift(item)
+        }
         await setContinueWatchingItem(JSON.stringify(continueWatchingArray))
     }
 
+    const resetProgress = async () => {
+        await removeItem()
+        updateProgress({
+            positionMillis: 0,
+            viewingProgress: {
+                timeLeft: 0,
+                percentageCompleted: 0,
+            },
+            uri: src,
+            completed: false,
+            ...(mediaType === 'show' && {
+                episode: episode,
+                season: season,
+            }),
+        })
+    }
+
     const getProgress = async () => {
-        const progressInfo = await getItem()
+        let progressInfo
+        let res
+        progressInfo = await getItem()
         if (!progressInfo) return
-        const res = JSON.parse(progressInfo) as ProgressInfo
+        res = JSON.parse(progressInfo) as ProgressInfo
+        if (res.viewingProgress?.percentageCompleted === 100) {
+            resetProgress()
+            progressInfo = await getItem()
+            if (!progressInfo) return
+            res = JSON.parse(progressInfo) as ProgressInfo
+        }
         setPosition(res.positionMillis ?? 0)
         if (mediaType === 'show') {
             setSeasonInfo({
@@ -80,7 +110,7 @@ export const VideoPlayer = (props: {
             }
         } else {
             if (status.isPlaying) {
-                addCurrentToContinueWatching()
+                updateContinueWatching('add', basedTypedInfo!!)
                 // Update your UI for the playing state
                 updateProgress({
                     positionMillis: status.positionMillis,
@@ -128,6 +158,7 @@ export const VideoPlayer = (props: {
 
             if (status.didJustFinish && !status.isLooping) {
                 // The player has just finished playing and will stop. Maybe you want to play something else?
+                updateContinueWatching('remove', basedTypedInfo!!)
                 updateProgress({
                     positionMillis: 0,
                     viewingProgress: {

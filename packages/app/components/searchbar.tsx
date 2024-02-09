@@ -44,7 +44,7 @@ export function Searchbar(props: { setResults: Dispatcher<Base[]> }) {
             clearIcon={null}
             showCancel={false}
             showLoading={loading}
-            onCancel={() => resetSearch()}
+            onCancel={resetSearch}
             containerStyle={{
                 backgroundColor: 'transparent',
                 borderWidth: 0,

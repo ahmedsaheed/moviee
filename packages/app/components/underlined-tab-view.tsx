@@ -279,6 +279,7 @@ function EpisodeList({ episodes }: EpisodeListProps): JSX.Element {
             {episodes.map((episode, index) => (
                 <YGroup.Item backgroundColor="$transparent">
                     <ListItem
+                        key={index}
                         backgroundColor="$transparent"
                         title={`Episode ${index + 1}`}
                         subTitle={episode.name}

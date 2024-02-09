@@ -130,6 +130,9 @@ export function UserDetailScreen() {
         }
         if (type === 'movie') {
             if (progress !== null) {
+                if (progress.viewingProgress?.percentageCompleted === 100) {
+                    return 'REPLAY'
+                }
                 if (progress.positionMillis > 0) {
                     return 'CONTINUE'
                 }
@@ -142,8 +145,6 @@ export function UserDetailScreen() {
                     return `Continue S${progress.season} E${progress.episode}`
                 }
             }
-            // let use progress if available
-
             return `Play S${progress?.season || info!!.season.number} E${
                 progress?.episode || info!!.currentEpisode.number
             }`
@@ -188,7 +189,6 @@ export function UserDetailScreen() {
                     height: '100%',
                 }}
             >
-                <Spinner size="large" />
             </View>
         )
     }
@@ -349,15 +349,19 @@ export function UserDetailScreen() {
                             {playButtonText()}
                         </Button>
                         {progress?.viewingProgress?.percentageCompleted !==
-                            undefined && (
-                            <ShowProgressIndicator
-                                progressPercentVal={
-                                    progress?.viewingProgress
-                                        ?.percentageCompleted
-                                }
-                                timeLeft={progress?.viewingProgress?.timeLeft}
-                            />
-                        )}
+                            undefined &&
+                            progress?.viewingProgress?.percentageCompleted !==
+                                100 && (
+                                <ShowProgressIndicator
+                                    progressPercentVal={
+                                        progress?.viewingProgress
+                                            ?.percentageCompleted
+                                    }
+                                    timeLeft={
+                                        progress?.viewingProgress?.timeLeft
+                                    }
+                                />
+                            )}
                         <Paragraph
                             m="$4"
                             style={{

@@ -124,9 +124,10 @@ export const GridView = <T extends any>(props: Props<T>) => {
     const { data, renderItem, numColumns, gap = 5 } = props
     return (
         <View style={styles.container}>
-            {data.map(item => {
+            {data.map((item, index) => {
                 return (
                     <View
+                        key={index}
                         //@ts-ignore
                         style={{
                             width: 100 / numColumns + '%',
