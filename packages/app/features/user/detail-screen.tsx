@@ -189,6 +189,7 @@ export function UserDetailScreen() {
                     height: '100%',
                 }}
             >
+                <Spinner size="large" />
             </View>
         )
     }

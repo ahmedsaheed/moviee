@@ -183,7 +183,8 @@ export const VideoPlayer = (props: {
     }, [])
     return (
         <Video
-            source={{ uri: props.src, type: 'm3u8' }}
+            key={src}
+            source={{ uri: src, type: 'm3u8' }}
             style={styles.video}
             ref={videoRef}
             useNativeControls={true}
