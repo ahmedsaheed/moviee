@@ -3,7 +3,7 @@ import {
     SearchHeaderComponent,
 } from 'app/components/greeting'
 import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
-import { H1, H2, H4, H6, YStack } from '@my/ui'
+import { H1, H2, H4, H6, Paragraph, YStack } from '@my/ui'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { Searchbar as SearchBar } from 'app/components/searchbar'
 import { View, StyleSheet, Pressable } from 'react-native'
@@ -26,16 +26,6 @@ export const SearchScreen = () => {
                 <YStack f={1} p="$2" space>
                     <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
                         <SearchBar setResults={setSearchResults} />
-                        <H3
-                            px="$2"
-                            style={{
-                                fontFamily: 'System',
-                                opacity: 0.9,
-                            }}
-                            fontWeight="bold"
-                        >
-                            Explore Popular Series, Films, and More
-                        </H3>
                         {!searchResults.length && (
                             <GridView
                                 data={[
