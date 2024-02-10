@@ -82,7 +82,14 @@ export const providers = makeProviders({
 })
 
 export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
-    return await providers.runAll({
+    const cacheKey =
+        media?.type === 'movie'
+            ? `PROVIDER_CACHE_${media?.type}_${media?.tmdbId}`
+            : `PROVIDER_CACHE_${media?.type}_${media?.tmdbId}_${media?.season?.number}_${media?.episode?.number}`
+
+    const cached = await isCached(cacheKey)
+    if (cached?.isCached) return cached!!.value
+    const runOutput = await providers.runAll({
         media: media!!,
         sourceOrder: ['flixhq'],
         events: {
@@ -100,6 +107,9 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
             },
         },
     })
+    if (runOutput === null) return null
+    await storeToCache(cacheKey, runOutput)
+    return runOutput
 }
 
 export async function resolveMetaAndNavigateToDetails(
