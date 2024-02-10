@@ -82,7 +82,11 @@ export const providers = makeProviders({
 })
 
 export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
-    const cacheKey = `PROVIDER_CACHE_${media?.type}_${media?.tmdbId}`
+    const cacheKey =
+        media?.type === 'movie'
+            ? `PROVIDER_CACHE_${media?.type}_${media?.tmdbId}`
+            : `PROVIDER_CACHE_${media?.type}_${media?.tmdbId}_${media?.season?.number}_${media?.episode?.number}`
+
     const cached = await isCached(cacheKey)
     if (cached?.isCached) return cached!!.value
     const runOutput = await providers.runAll({
