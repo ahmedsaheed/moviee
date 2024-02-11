@@ -39,7 +39,7 @@ export const LargeLibraryHeaderComponent = ({ scrollY }) => (
                 p="$2"
                 pb="$0"
             >
-                Library
+                Wishlist
             </H2>
         </ScalingView>
     </LargeHeader>

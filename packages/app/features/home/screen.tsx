@@ -22,8 +22,6 @@ export function HomeScreen() {
         isLoading,
     } = useMovieDataFromCategories()
 
-    const { getItem: getContinueWatching } =
-        useAsyncStorage('continue_watching')
     const bottomTabBarHeight = useBottomTabBarHeight()
 
     const genre: HeadingAndMovies[] = [
