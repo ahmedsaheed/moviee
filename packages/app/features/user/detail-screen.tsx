@@ -1,4 +1,4 @@
-import { H3, Spinner } from '@my/ui'
+import { ButtonIcon, H3, Spinner } from '@my/ui'
 import { Image, SizableText } from 'tamagui'
 import { useEffect, useState } from 'react'
 import {
@@ -27,6 +27,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { StyleSheet } from 'react-native'
 import { SeasonSelector } from 'app/components/season-selector'
 import { ShowProgressIndicator } from 'app/components/progress-indicator'
+import { useWishlistStorage } from 'app/hooks/useWishlistStorage'
 
 const { useParam } = createParam<{ id: string; type: string }>()
 
@@ -51,15 +52,34 @@ export function UserDetailScreen() {
         images,
         similarMovies,
     } = useMovieData(type, Number(id!!))
+    const { isWishlisted, updateWishlist } = useWishlistStorage()
     const info = useSeasonsAndEpisodes(type, Number(id!!))
-    const { setItem, getItem, removeItem } = useAsyncStorage(`WATCHLIST_${id}`)
     const { getItem: getProgressInfo, setItem: setProgressInfo } =
         useAsyncStorage(`PROGRESS_INFO_${type}_${id}`)
-    const readItemFromWishlistStorage = async () => {
-        const item = await getItem()
-        if (item !== null) {
+
+    const baseTypedInfo = {
+        tmdbId: Number(id),
+        imageUrl: movieData?.poster_path,
+        backdropUrl: movieData?.backdrop_path,
+        title: movieData?.title ?? movieData?.name,
+        releaseYear: movieData?.release_date?.split('-')[0] ?? '',
+    } as unknown as Base
+
+    const checkWishlistStorage = async () => {
+        const isWishListed = await isWishlisted(baseTypedInfo)
+        console.log('isWishListed', isWishListed)
+        if (isWishListed) {
             setWishedListed(true)
         }
+    }
+
+    const addToWishlist = async () => {
+        await updateWishlist('add', baseTypedInfo)
+        setWishedListed(true)
+    }
+    const removeFromWishlist = async () => {
+        await updateWishlist('remove', baseTypedInfo)
+        setWishedListed(false)
     }
 
     const getProgress = async () => {
@@ -78,22 +98,8 @@ export function UserDetailScreen() {
         setProgress(progressInfo)
     }
 
-    const removeItemFromWishlistStorage = async () => {
-        const item = await getItem()
-        if (item !== null) {
-            await removeItem()
-            setWishedListed(false)
-        }
-    }
-
-    const writeItemToStorage = async newValue => {
-        await setItem(newValue)
-        if (newValue === 'true') {
-            setWishedListed(true)
-        }
-    }
     useEffect(() => {
-        readItemFromWishlistStorage()
+        checkWishlistStorage()
         getProgress()
     }, [])
 
@@ -105,14 +111,6 @@ export function UserDetailScreen() {
             .map(item => item.name)
             .join(', '),
     }
-
-    const baseTypedInfo = {
-        tmdbId: Number(id),
-        imageUrl: movieData?.poster_path,
-        backdropUrl: movieData?.backdrop_path,
-        title: movieData?.title ?? movieData?.name,
-        releaseYear: movieData?.release_date?.split('-')[0] ?? '',
-    } as unknown as Base
 
     const movieOverView = () => {
         const overview =
@@ -211,6 +209,7 @@ export function UserDetailScreen() {
                                     height: height / 1.7,
                                     alignItems: 'center',
                                     position: 'relative',
+                                    pointerEvents: 'auto',
                                 }}
                                 resizeMode="cover"
                             >
@@ -243,6 +242,7 @@ export function UserDetailScreen() {
                                             onPress={router.back}
                                         />
                                     </BlurView>
+
                                     {/*@ts-ignore*/}
                                     <BlurView
                                         intensity={10}
@@ -267,6 +267,7 @@ export function UserDetailScreen() {
                                     </BlurView>
 
                                     {/*@ts-ignore*/}
+
                                     <BlurView
                                         intensity={10}
                                         tint="dark"
@@ -286,16 +287,12 @@ export function UserDetailScreen() {
                                         {!wishedListed ? (
                                             <Plus
                                                 size="$1"
-                                                onPress={() =>
-                                                    writeItemToStorage('true')
-                                                }
+                                                onPress={addToWishlist}
                                             />
                                         ) : (
                                             <Check
                                                 size="$1"
-                                                onPress={() =>
-                                                    removeItemFromWishlistStorage()
-                                                }
+                                                onPress={removeFromWishlist}
                                             />
                                         )}
                                     </BlurView>
