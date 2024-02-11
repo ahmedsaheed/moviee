@@ -6,16 +6,12 @@ import {
 } from '@movie-web/providers'
 import { fetcher } from 'app/lib/fetcher/fetcher'
 import { router } from 'expo-router'
-import { getSeasonAndEpisodeDetails, isCached, storeToCache } from './genre'
-
-const formatMovieName = (movieName: string) => {
-    return movieName.replace(/\s/g, '%20')
-}
-
-export const movieUrl = (movieName: string): string =>
-    `https://api.themoviedb.org/3/search/multi?query=${formatMovieName(
-        movieName
-    )}&include_adult=false&language=en-US&page=1`
+import {
+    getSeasonAndEpisodeDetails,
+    isCached,
+    movieUrl,
+    storeToCache,
+} from './genre'
 
 const isMovieOrTV = meta =>
     meta?.media_type === 'movie' || meta?.media_type === 'tv'
@@ -91,7 +87,7 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
     if (cached?.isCached) return cached!!.value
     const runOutput = await providers.runAll({
         media: media!!,
-        sourceOrder: ['flixhq'],
+        sourceOrder: ['remotestream'],
         events: {
             init: evt => {
                 console.log('init', evt)
