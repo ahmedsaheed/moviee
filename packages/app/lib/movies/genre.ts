@@ -14,8 +14,10 @@ import {
     TvShowResult,
 } from 'app/@types/types'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { movieUrl } from './movies'
 
+const formatMovieName = (movieName: string) => {
+    return movieName.replace(/\s/g, '%20')
+}
 const PREFIX = 'https://api.themoviedb.org/3'
 const TRENDING_URI = (showType: ShowType) =>
     `${PREFIX}/trending/${
@@ -25,6 +27,10 @@ const MOVIE_GENRES_URI = (id: number | undefined) =>
     id !== undefined
         ? `${PREFIX}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=${id}`
         : ''
+export const movieUrl = (movieName: string): string =>
+    `https://api.themoviedb.org/3/search/multi?query=${formatMovieName(
+        movieName
+    )}&include_adult=false&language=en-US&page=1`
 
 const MOVIE_DETAILS_URI = (id: number | undefined) =>
     `${PREFIX}/movie/${id!!}?language=en-US`

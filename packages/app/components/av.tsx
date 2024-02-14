@@ -65,7 +65,7 @@ export const VideoPlayer = (props: {
 
     const resetProgress = async () => {
         await removeItem()
-        updateProgress({
+        await updateProgress({
             positionMillis: 0,
             viewingProgress: {
                 timeLeft: 0,

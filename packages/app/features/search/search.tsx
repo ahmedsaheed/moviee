@@ -3,11 +3,10 @@ import {
     SearchHeaderComponent,
 } from 'app/components/greeting'
 import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
-import { H1, H2, H4, H6, Paragraph, YStack } from '@my/ui'
+import { YStack } from '@my/ui'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { Searchbar as SearchBar } from 'app/components/searchbar'
 import { View, StyleSheet, Pressable } from 'react-native'
-import { H3 } from '@my/ui'
 import { Image } from 'react-native'
 import { useState } from 'react'
 import { Base } from 'app/@types/types'

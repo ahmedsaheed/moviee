@@ -7,7 +7,6 @@ import { HeaderComponent, LargeHeaderComponent } from 'app/components/greeting'
 import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
 import { useMovieDataFromCategories } from 'app/hooks/useMovieDataFromCategory'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
-import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 export function HomeScreen() {
     const {
         trendingToday,
@@ -22,8 +21,6 @@ export function HomeScreen() {
         isLoading,
     } = useMovieDataFromCategories()
 
-    const { getItem: getContinueWatching } =
-        useAsyncStorage('continue_watching')
     const bottomTabBarHeight = useBottomTabBarHeight()
 
     const genre: HeadingAndMovies[] = [
