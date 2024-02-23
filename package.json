@@ -28,7 +28,7 @@
     "react-native-web": "~0.19.6"
   },
   "dependencies": {
-    "@babel/runtime": "^7.18.9",
+    "@babel/runtime": "^7.23.9",
     "@manypkg/cli": "^0.19.1",
     "@movie-web/providers": "^2.0.1",
     "@types/base-64": "^1",
