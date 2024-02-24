@@ -2936,18 +2936,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@movie-web/providers@npm:^2.0.1":
-  version: 2.1.0
-  resolution: "@movie-web/providers@npm:2.1.0"
+"@movie-web/providers@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@movie-web/providers@npm:2.2.1"
   dependencies:
     cheerio: "npm:^1.0.0-rc.12"
+    cookie: "npm:^0.6.0"
     crypto-js: "npm:^4.1.1"
     form-data: "npm:^4.0.0"
     iso-639-1: "npm:^3.1.0"
     nanoid: "npm:^3.3.6"
     node-fetch: "npm:^2.7.0"
+    set-cookie-parser: "npm:^2.6.0"
     unpacker: "npm:^1.0.1"
-  checksum: 69e567659880af45926950bb66a8d9e7c3c38604c8a20d13de9dfcc396e4ee4fe4e66974bb036f058774c655882865f23319ef3dac1c28421c8cef6c484c2d25
+  checksum: e7813dcd9062d834dcbd32cf4cee28645f23ffcff54ebd1a1524b380e2153fc97abd5bf446a36ca608f130bff119e528f2e2424b776dd4ae33411da90b671f69
   languageName: node
   linkType: hard
 
@@ -7798,6 +7800,13 @@ __metadata:
   version: 2.0.0
   resolution: "convert-source-map@npm:2.0.0"
   checksum: c987be3ec061348cdb3c2bfb924bec86dea1eacad10550a85ca23edb0fe3556c3a61c7399114f3331ccb3499d7fd0285ab24566e5745929412983494c3926e15
+  languageName: node
+  linkType: hard
+
+"cookie@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "cookie@npm:0.6.0"
+  checksum: c1f8f2ea7d443b9331680598b0ae4e6af18a618c37606d1bbdc75bec8361cce09fe93e727059a673f2ba24467131a9fb5a4eec76bb1b149c1b3e1ccb268dc583
   languageName: node
   linkType: hard
 
@@ -13491,7 +13500,7 @@ __metadata:
   dependencies:
     "@babel/runtime": "npm:^7.18.9"
     "@manypkg/cli": "npm:^0.19.1"
-    "@movie-web/providers": "npm:^2.0.1"
+    "@movie-web/providers": "npm:^2.2.1"
     "@types/base-64": "npm:^1"
     "@types/react-native-video": "npm:^5"
     base-64: "npm:^1.0.0"
@@ -16321,6 +16330,13 @@ __metadata:
   version: 2.0.0
   resolution: "set-blocking@npm:2.0.0"
   checksum: 8980ebf7ae9eb945bb036b6e283c547ee783a1ad557a82babf758a065e2fb6ea337fd82cac30dd565c1e606e423f30024a19fff7afbf4977d784720c4026a8ef
+  languageName: node
+  linkType: hard
+
+"set-cookie-parser@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "set-cookie-parser@npm:2.6.0"
+  checksum: 8d451ebadb760989f93b634942c79de3c925ca7a986d133d08a80c40b5ae713ce12e354f0d5245c49f288c52daa7bd6554d5dc52f8a4eecaaf5e192881cf2b1f
   languageName: node
   linkType: hard
 
