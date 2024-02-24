@@ -13,6 +13,12 @@ import {
     storeToCache,
 } from './genre'
 
+export const providers = makeProviders({
+    fetcher: makeStandardFetcher(fetch),
+    target: targets.NATIVE,
+    consistentIpForRequests: true,
+})
+
 const isMovieOrTV = meta =>
     meta?.media_type === 'movie' || meta?.media_type === 'tv'
 
@@ -63,31 +69,23 @@ export const getMoviesMetadata = async (
     return {
         type: isTV ? 'show' : meta?.media_type,
         title: !isTV ? meta?.original_title : meta?.name,
-        tmdbId: meta.id,
+        tmdbId: String(meta.id),
         releaseYear: !isTV
-            ? meta.release_date.split('-')[0]
-            : meta.first_air_date.split('-')[0],
+            ? Number(meta.release_date.split('-')[0])
+            : Number(meta.first_air_date.split('-')[0]),
         ...(seriesInfo ?? {}),
     }
 }
-
-export const providers = makeProviders({
-    fetcher: makeStandardFetcher(fetch),
-    target: targets.NATIVE,
-    consistentIpForRequests: true,
-})
 
 export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
     const cacheKey =
         media?.type === 'movie'
             ? `PROVIDER_CACHE_${media?.type}_${media?.tmdbId}`
             : `PROVIDER_CACHE_${media?.type}_${media?.tmdbId}_${media?.season?.number}_${media?.episode?.number}`
-
     const cached = await isCached(cacheKey)
     if (cached?.isCached) return cached!!.value
     const runOutput = await providers.runAll({
         media: media!!,
-        sourceOrder: ['remotestream'],
         events: {
             init: evt => {
                 console.log('init', evt)

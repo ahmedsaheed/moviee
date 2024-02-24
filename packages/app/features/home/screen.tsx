@@ -59,12 +59,12 @@ export function HomeScreen() {
         },
     ]
     return (
-        <YStack style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}>
+        <YStack style={{ height: '100%' }}>
             <ScrollViewWithHeaders
                 showsVerticalScrollIndicator={false}
                 HeaderComponent={HeaderComponent}
                 LargeHeaderComponent={LargeHeaderComponent}
-                contentContainerStyle={{}}
+                contentContainerStyle={{ paddingBottom: bottomTabBarHeight }}
             >
                 <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
                     {isLoading ? (
@@ -86,6 +86,7 @@ export function HomeScreen() {
                                     item.movies && (
                                         <>
                                             <SizableText
+                                                key={item.heading}
                                                 theme="alt1"
                                                 size="$1"
                                                 style={{
@@ -108,6 +109,7 @@ export function HomeScreen() {
                                                 {item.heading}
                                             </SizableText>
                                             <MovieCards
+                                                key={index}
                                                 movies={item.movies}
                                                 onPress={
                                                     resolveMetaAndNavigateToDetails

@@ -466,6 +466,7 @@ function ExtraInfo(movieData) {
                                     </SizableText>
                                     {index !== 1 && (
                                         <SizableText
+                                            key={item.name}
                                             theme={'alt1'}
                                             style={{ fontFamily: 'System' }}
                                         >
@@ -526,6 +527,7 @@ const Badges = () => {
             {BadgesUrl.map((item, index) => {
                 return (
                     <YStack
+                        key={index}
                         alignItems="center"
                         padding="$0"
                         backgroundColor="$transparent"

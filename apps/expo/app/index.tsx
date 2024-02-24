@@ -6,9 +6,7 @@ import {
     Inter_900Black,
     Inter_400Regular,
 } from '@expo-google-fonts/inter'
-import { UserDetailScreen } from 'app/features/user/detail-screen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { NavigationContainer } from '@react-navigation/native'
 import { BlurView } from 'expo-blur'
 import { BottomTabBar } from '@react-navigation/bottom-tabs'
 import { View } from 'react-native'
@@ -78,6 +76,7 @@ export function MyTabs() {
                     backgroundColor: 'transparent',
                     elevation: 0,
                 },
+
                 tabBarBackground: () => (
                     // @ts-ignore
                     <BlurView
