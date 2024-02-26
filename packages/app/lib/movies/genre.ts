@@ -47,7 +47,13 @@ const getUriFromCategory = (category: MovieCategories): string => {
     return MOVIE_GENRES_URI(genreID)
 }
 
-export const storeToCache = async (key: string, value: any) => {
+export const storeToCache = async (
+    key: string,
+    value: any,
+    opts?: {
+        shouldExpire: boolean
+    }
+) => {
     try {
         const now = new Date()
         const time = now.getTime()
@@ -77,6 +83,7 @@ export const isCached = async (key: string) => {
         return { isCached: true, value: data.value }
     } catch (e) {
         console.error(e)
+        return { isCached: false }
     }
 }
 

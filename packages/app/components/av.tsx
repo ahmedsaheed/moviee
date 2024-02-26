@@ -187,7 +187,7 @@ export const VideoPlayer = (props: {
             source={{ uri: src, type: 'm3u8' }}
             style={styles.video}
             ref={videoRef}
-            useNativeControls={true}
+            // useNativeControls={true}
             resizeMode={ResizeMode.CONTAIN}
             isLooping={false}
             focusable={true}
@@ -224,7 +224,6 @@ export function PlayerWrapper({
         return <Spinner ai={'center'} size="large" color="$orange10" />
     }
     if (data) {
-        //@ts-ignore
         return (
             <VideoPlayer
                 src={data.stream?.playlist}

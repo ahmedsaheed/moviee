@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Base } from 'app/@types/types'
 import { getMovieByCategory, getTVByCategory } from 'app/lib/movies/genre'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
+import { useHomeScreenDataCache } from 'app/hooks/useHomeScreenDataCache'
 type MovieData = {
     trendingToday: Array<Base> | null
     trendingSeriesToday: Array<Base> | null
@@ -17,6 +18,7 @@ type MovieData = {
 export function useMovieDataFromCategories() {
     const { getItem: getContinueWatching } =
         useAsyncStorage('continue_watching')
+    const { getHomeScreenData, setHomeScreenData } = useHomeScreenDataCache()
     const [isLoading, setIsLoading] = useState(true)
     const [movieData, setMovieData] = useState({
         trendingToday: null,
@@ -45,32 +47,48 @@ export function useMovieDataFromCategories() {
 
     useEffect(() => {
         let isActive = true
-
         const fetchData = async () => {
+            let data: Array<Base[] | null>
+            let homeScreenData: MovieData
             try {
-                const data = await Promise.all([
-                    getMovieByCategory('TRENDING'),
-                    getTVByCategory(),
-                    getMovieByCategory('ACTION'),
-                    getMovieByCategory('ADVENTURE'),
-                    getMovieByCategory('DOCUMENTARY'),
-                    getMovieByCategory('DRAMA'),
-                    getMovieByCategory('COMEDY'),
-                    getMovieByCategory('ANIMATION'),
-                    getCurrentlyWatching(),
-                ])
+                const cacheData = await getHomeScreenData()
+                if (cacheData === null) {
+                    console.log('Fetching data from API')
+                    data = await Promise.all([
+                        getMovieByCategory('TRENDING'),
+                        getTVByCategory(),
+                        getMovieByCategory('ACTION'),
+                        getMovieByCategory('ADVENTURE'),
+                        getMovieByCategory('DOCUMENTARY'),
+                        getMovieByCategory('DRAMA'),
+                        getMovieByCategory('COMEDY'),
+                        getMovieByCategory('ANIMATION'),
+                        getCurrentlyWatching(),
+                    ])
+                    homeScreenData = {
+                        trendingToday: data[0]!!,
+                        trendingSeriesToday: data[1]!!,
+                        trendingWeekly: data[2]!!,
+                        adventureMovies: data[3]!!,
+                        comedyMovies: data[4]!!,
+                        animationMovies: data[5]!!,
+                        dramaMovies: data[6]!!,
+                        documentaryMovies: data[7]!!,
+                        currentlyWatching: data[8]!!,
+                    }
+                    await setHomeScreenData(homeScreenData)
+                } else {
+                    console.log('Fetching data from cache')
+                    const currentlyWatchingFresh = await getCurrentlyWatching()
+
+                    homeScreenData = {
+                        ...cacheData,
+                        currentlyWatching: currentlyWatchingFresh,
+                    }
+                }
+
                 if (isActive) {
-                    setMovieData({
-                        trendingToday: data[0],
-                        trendingSeriesToday: data[1],
-                        trendingWeekly: data[2],
-                        adventureMovies: data[3],
-                        comedyMovies: data[4],
-                        animationMovies: data[5],
-                        dramaMovies: data[6],
-                        documentaryMovies: data[7],
-                        currentlyWatching: data[8],
-                    })
+                    setMovieData(homeScreenData)
                     setIsLoading(false)
                 }
             } catch (error) {
