@@ -1,30 +1,67 @@
-import {
-    LargeSearchHeaderComponent,
-    SearchHeaderComponent,
-} from 'app/components/greeting'
-import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
 import { YStack } from '@my/ui'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
-import { Searchbar as SearchBar } from 'app/components/searchbar'
-import { View, StyleSheet, Pressable } from 'react-native'
+import { View, StyleSheet, Pressable, ScrollView } from 'react-native'
 import { Image } from 'react-native'
-import { useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { Base } from 'app/@types/types'
 import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
+import { Stack } from 'expo-router'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { ParamListBase } from '@react-navigation/native'
+import { getMultiSearch } from 'app/lib/movies/genre'
 
-export const SearchScreen = () => {
+export const SearchScreen = ({
+    navigation,
+}: NativeStackScreenProps<ParamListBase>) => {
     const [searchResults, setSearchResults] = useState<Base[]>([])
     const bottomTabBarHeight = useBottomTabBarHeight()
+    const [searchQuery, setSearchQuery] = useState<string>('')
+    const [loading, setLoading] = useState<boolean>(false)
+    const onTextChange = async (text: string) => {
+        if (text === '') {
+            setLoading(false)
+            setSearchQuery('')
+            return
+        }
+        setLoading(true)
+        setSearchQuery(text)
+        console.log('searchQuery', searchQuery)
+        const res = await getMultiSearch(searchQuery)
+        console.log('res', res)
+        setSearchResults(res)
+    }
+
+    const resetSearch = () => {
+        setSearchQuery('')
+        setSearchResults([])
+    }
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerSearchBarOptions: {
+                onChangeText: event => setSearchQuery(event.nativeEvent.text),
+                placeholder: 'Search Shows and Movies',
+                autoFocus: true,
+                onCancelButtonPress: () => resetSearch(),
+            },
+        })
+    }, [navigation])
+
+    useEffect(() => {
+        onTextChange(searchQuery)
+    }, [searchQuery])
+
     return (
-        <YStack style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}>
-            <ScrollViewWithHeaders
-                HeaderComponent={SearchHeaderComponent}
-                LargeHeaderComponent={LargeSearchHeaderComponent}
-                contentContainerStyle={{}}
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentInsetAdjustmentBehavior="automatic"
+        >
+            <YStack
+                style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}
             >
                 <YStack f={1} p="$2" space>
                     <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
-                        <SearchBar setResults={setSearchResults} />
+                        {/*<SearchBar setResults={setSearchResults} />*/}
                         {!searchResults.length && (
                             <GridView
                                 data={[
@@ -97,8 +134,8 @@ export const SearchScreen = () => {
                         )}
                     </YStack>
                 </YStack>
-            </ScrollViewWithHeaders>
-        </YStack>
+            </YStack>
+        </ScrollView>
     )
 }
 

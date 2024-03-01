@@ -1,13 +1,12 @@
 import { Card, Image, ScrollView, XStack } from '@my/ui'
 import { Base, HomeScreenCardProps } from 'app/@types/types'
 import { Link, useLink } from 'solito/link'
-import { Skeleton } from '@rneui/base'
 import { LinearGradient } from '@tamagui/linear-gradient'
 
 export function Cards(props: HomeScreenCardProps) {
     const { title, releaseYear, onPress, imageUrl, ...rest } = props
     return (
-        <Card elevate size="$6" bordered {...rest} onPress={onPress}>
+        <Card elevate bordered {...rest} onPress={onPress}>
             <Card.Header padded></Card.Header>
             <Card.Footer padded>
                 <XStack flex={1} />
@@ -46,7 +45,7 @@ export function MovieCards(
                 $sm={{ flexDirection: 'row' }}
                 paddingHorizontal="$0"
                 backgroundColor={'transparent'}
-                // space
+                gap="$1.5"
             >
                 {movies?.map((movie, index) => (
                     <Cards
@@ -61,7 +60,7 @@ export function MovieCards(
                             y: -10,
                             scale: 0.9,
                         }}
-                        size="$6"
+                        size="$4"
                         width={130}
                         height={180}
                         scale={0.9}
@@ -77,36 +76,5 @@ export function MovieCards(
                 ))}
             </XStack>
         </ScrollView>
-    )
-}
-
-function MovieCardSkeleton() {
-    return (
-        <>
-            <Skeleton
-                LinearGradientComponent={LinearGradient}
-                animation="wave"
-                width={100}
-                height={140}
-            />
-            <Skeleton
-                LinearGradientComponent={LinearGradient}
-                animation="wave"
-                width={100}
-                height={140}
-            />
-            <Skeleton
-                LinearGradientComponent={LinearGradient}
-                animation="wave"
-                width={100}
-                height={140}
-            />
-            <Skeleton
-                LinearGradientComponent={LinearGradient}
-                animation="wave"
-                width={100}
-                height={140}
-            />
-        </>
     )
 }

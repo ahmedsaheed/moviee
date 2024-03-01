@@ -28,6 +28,7 @@ import { StyleSheet } from 'react-native'
 import { SeasonSelector } from 'app/components/season-selector'
 import { ShowProgressIndicator } from 'app/components/progress-indicator'
 import { useWishlistStorage } from 'app/hooks/useWishlistStorage'
+import { Stack } from 'expo-router'
 
 const { useParam } = createParam<{ id: string; type: string }>()
 
@@ -193,6 +194,17 @@ export function UserDetailScreen() {
     }
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
+            <Stack.Screen
+                options={{
+                    title: movieData?.title ?? movieData.name,
+                    headerLargeTitle: false,
+                    // headerLargeStyle: { backgroundColor: 'transparent' },
+                    headerShown: true,
+                    headerTransparent: true,
+                    headerBlurEffect: 'dark',
+                    // headerBackVisible: true,
+                }}
+            />
             <YStack pb="$2" style={{ height: '100%' }}>
                 {!!movieData && (
                     <>

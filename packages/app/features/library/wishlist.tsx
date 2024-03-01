@@ -1,34 +1,32 @@
-import {
-    LargeLibraryHeaderComponent,
-    LargeSearchHeaderComponent,
-    SearchHeaderComponent,
-} from 'app/components/greeting'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { YStack } from '@my/ui'
-import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
 import { useWishlistStorage } from 'app/hooks/useWishlistStorage'
 import { ListItem, Separator, YGroup } from 'tamagui'
 import { ChevronRight, Play } from '@tamagui/lucide-icons'
 import { useEffect, useState } from 'react'
 import { Base } from 'app/@types/types'
 import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
+import { ScrollView } from 'react-native'
+import { Stack } from 'expo-router'
 
-export const Wishlist = () => {
+export function Wishlist() {
     const bottomTabBarHeight = useBottomTabBarHeight()
     return (
-        <YStack style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}>
-            <ScrollViewWithHeaders
-                HeaderComponent={SearchHeaderComponent}
-                LargeHeaderComponent={LargeLibraryHeaderComponent}
-                contentContainerStyle={{}}
+        <ScrollView>
+            <YStack
+                style={{
+                    paddingBottom: bottomTabBarHeight,
+                    height: '100%',
+                    marginTop: '40%',
+                }}
             >
                 <YStack f={1} p="$2" space>
                     <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
                         <WishlistList />
                     </YStack>
                 </YStack>
-            </ScrollViewWithHeaders>
-        </YStack>
+            </YStack>
+        </ScrollView>
     )
 }
 
