@@ -78,6 +78,7 @@ export const getMoviesMetadata = async (
 }
 
 export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
+    console.log('Providers are: ', providers.listSources())
     const cacheKey =
         media?.type === 'movie'
             ? `PROVIDER_CACHE_${media?.type}_${media?.tmdbId}`
@@ -86,6 +87,7 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
     if (cached?.isCached) return cached!!.value
     const runOutput = await providers.runAll({
         media: media!!,
+        sourceOrder: ['vidsrcto', 'vidsrc', 'nepu', 'ridomovies'],
         events: {
             init: evt => {
                 console.log('init', evt)

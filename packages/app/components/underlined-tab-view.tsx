@@ -171,7 +171,7 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
                     paddingBottom="$1.5"
                     borderColor="$color3"
                     borderBottomWidth="$0.5"
-                    backgroundColor="transparent"
+                    backgroundColor="black"
                 >
                     <Tabs.Tab
                         unstyled
@@ -193,7 +193,7 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
                             More Details
                         </SizableText>
                     </Tabs.Tab>
-                    <Tabs.Tab
+                    {/* <Tabs.Tab
                         unstyled
                         padding="$5"
                         value="tab3"
@@ -202,7 +202,7 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
                         <SizableText style={{ fontFamily: 'System' }} h="$2">
                             Notifications
                         </SizableText>
-                    </Tabs.Tab>
+                    </Tabs.Tab> */}
                 </Tabs.List>
             </YStack>
 
@@ -222,6 +222,7 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
                         value={currentTab}
                         forceMount
                         flex={1}
+                        pt="$4"
                         justifyContent="center"
                         w="100%"
                     >
@@ -249,7 +250,7 @@ const TabsRovingIndicator = ({
             exitStyle={{
                 opacity: 0,
             }}
-            {...(active && { backgroundColor: '$color8', opacity: 0.6 })}
+            {...(active && { backgroundColor: 'gray', opacity: 0.6 })}
             {...props}
         />
     )
@@ -277,10 +278,10 @@ function EpisodeList({ episodes }: EpisodeListProps): JSX.Element {
             backgroundColor="$transparent"
         >
             {episodes.map((episode, index) => (
-                <YGroup.Item backgroundColor="$transparent">
+                <YGroup.Item backgroundColor="black">
                     <ListItem
                         key={index}
-                        backgroundColor="$transparent"
+                        backgroundColor="black"
                         title={`Episode ${index + 1}`}
                         subTitle={episode.name}
                         icon={Play}
@@ -305,38 +306,38 @@ function MoreDetailsTab({
             width={'100%'}
             size="$5"
             separator={<Separator />}
-            backgroundColor="$transparent"
+            backgroundColor="transparent"
         >
-            <YGroup.Item backgroundColor="$transparent">
+            <YGroup.Item backgroundColor="transparent">
                 <ListItem
-                    backgroundColor="$transparent"
+                    backgroundColor="transparent"
                     title="Genre"
                     subTitle={genre}
                     icon={null}
                     iconAfter={null}
                 />
             </YGroup.Item>
-            <YGroup.Item backgroundColor="$transparent">
+            <YGroup.Item backgroundColor="transparent">
                 <ListItem
-                    backgroundColor="$transparent"
+                    backgroundColor="transparent"
                     title="Director"
                     subTitle={director}
                     icon={null}
                     iconAfter={null}
                 />
             </YGroup.Item>
-            <YGroup.Item backgroundColor="$transparent">
+            <YGroup.Item backgroundColor="transparent">
                 <ListItem
-                    backgroundColor="$transparent"
+                    backgroundColor="transparent"
                     title="Starring"
                     subTitle={starring}
                     icon={null}
                     iconAfter={null}
                 />
             </YGroup.Item>
-            <YGroup.Item backgroundColor="$transparent">
+            <YGroup.Item backgroundColor="transparent">
                 <ListItem
-                    backgroundColor="$transparent"
+                    backgroundColor="transparent"
                     title="Studio"
                     subTitle={studio}
                     icon={null}

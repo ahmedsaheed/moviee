@@ -3,10 +3,10 @@ import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
 import { HeadingAndMovies } from 'app/@types/types'
 import { MovieCards } from 'app/components/card'
 import { HomeTopCarousel } from 'app/components/home-carousel'
-import { HeaderComponent, LargeHeaderComponent } from 'app/components/greeting'
-import { ScrollViewWithHeaders } from '@codeherence/react-native-header'
 import { useMovieDataFromCategories } from 'app/hooks/useMovieDataFromCategory'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
+import { ScrollView } from 'react-native'
+import { Stack } from 'expo-router'
 export function HomeScreen() {
     const {
         trendingToday,
@@ -59,13 +59,11 @@ export function HomeScreen() {
         },
     ]
     return (
-        <YStack style={{ height: '100%' }}>
-            <ScrollViewWithHeaders
-                showsVerticalScrollIndicator={false}
-                HeaderComponent={HeaderComponent}
-                LargeHeaderComponent={LargeHeaderComponent}
-                contentContainerStyle={{ paddingBottom: bottomTabBarHeight }}
-            >
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentInsetAdjustmentBehavior="automatic"
+        >
+            <YStack style={{ height: '100%' }}>
                 <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
                     {isLoading ? (
                         <View
@@ -121,7 +119,7 @@ export function HomeScreen() {
                         </>
                     )}
                 </YStack>
-            </ScrollViewWithHeaders>
-        </YStack>
+            </YStack>
+        </ScrollView>
     )
 }
