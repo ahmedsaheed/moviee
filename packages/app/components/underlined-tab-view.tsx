@@ -13,12 +13,14 @@ import {
     TabsTabProps,
 } from 'tamagui'
 import { H5, Tabs, View } from '@my/ui'
-import { Base, Episode, ShowType } from 'app/@types/types'
+import { Base, Dispatcher, Episode, ShowType } from 'app/@types/types'
 import { MovieCards } from './card'
 import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
 import { Image, Pressable, StyleSheet } from 'react-native'
 import { GridView } from 'app/features/search/search'
 import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
+import { getMetaAndPlay } from 'app/features/user/detail-screen'
+import { ScrapeMedia } from '@movie-web/providers'
 
 interface MoreDetailsTabProps {
     genre?: string
@@ -28,15 +30,24 @@ interface MoreDetailsTabProps {
 }
 
 interface DetailedTabViewProps {
+    movieName: string
     movieType: ShowType
     movieId: string
     moreDetails?: MoreDetailsTabProps
     similarMovies?: Base[] | null
     seasonNumber?: number
+    setMedia: Dispatcher<ScrapeMedia | null>
 }
 export const DetailedTabView = (props: DetailedTabViewProps) => {
-    const { movieId, movieType, moreDetails, similarMovies, seasonNumber } =
-        props
+    const {
+        movieName,
+        movieId,
+        movieType,
+        moreDetails,
+        similarMovies,
+        seasonNumber,
+        setMedia,
+    } = props
     const info = useSeasonsAndEpisodes(
         movieType,
         Number(movieId!!),
@@ -112,7 +123,13 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
         switch (tab) {
             case 'tab1':
                 return info?.episodes ? (
-                    <EpisodeList episodes={info.episodes} />
+                    <EpisodeList
+                        episodes={info.episodes}
+                        movieName={movieName}
+                        movieId={movieId}
+                        seasonNumber={seasonNumber!!}
+                        setMedia={setMedia}
+                    />
                 ) : (
                     similarMovies && (
                         <View pt="$2">
@@ -266,9 +283,19 @@ const AnimatedYStack = styled(YStack, {
 
 interface EpisodeListProps {
     episodes: Episode[]
+    movieName: string
+    movieId: string
+    seasonNumber: number
+    setMedia: Dispatcher<ScrapeMedia | null>
 }
 
-function EpisodeList({ episodes }: EpisodeListProps): JSX.Element {
+function EpisodeList({
+    episodes,
+    movieName,
+    movieId,
+    seasonNumber,
+    setMedia,
+}: EpisodeListProps): JSX.Element {
     return (
         <YGroup
             alignSelf="center"
@@ -281,6 +308,15 @@ function EpisodeList({ episodes }: EpisodeListProps): JSX.Element {
                 <YGroup.Item backgroundColor="black">
                     <ListItem
                         key={index}
+                        onPress={() =>
+                            playFromEpisode(
+                                index + 1,
+                                movieName,
+                                movieId,
+                                seasonNumber,
+                                setMedia
+                            )
+                        }
                         backgroundColor="black"
                         title={`Episode ${index + 1}`}
                         subTitle={episode.name}
@@ -292,6 +328,21 @@ function EpisodeList({ episodes }: EpisodeListProps): JSX.Element {
             ))}
         </YGroup>
     )
+}
+
+async function playFromEpisode(
+    idx: number,
+    movieName: string,
+    movieId: string,
+    seasonNumber: number,
+    setMedia: Dispatcher<ScrapeMedia | null>
+) {
+    // movieName, movieId, seriesOptions { seasonNumber, episodeNumber }
+    const seriesOptions = { seasonNumber, episodeNumber: idx }
+    const res = await getMetaAndPlay(movieName, Number(movieId), seriesOptions)
+    if (res === null) return
+    console.log('res form episode list ', res)
+    // setMedia(res)
 }
 
 function MoreDetailsTab({

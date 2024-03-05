@@ -24,7 +24,7 @@ export default function HomeLayout() {
                     value={scheme === 'dark' ? DarkTheme : DarkTheme}
                 >
                     <StatusBar
-                        style={'auto'}
+                        style={'light'}
                         hideTransitionAnimation="fade"
                         animated={true}
                     />

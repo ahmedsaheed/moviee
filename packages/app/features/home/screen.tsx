@@ -63,7 +63,7 @@ export function HomeScreen() {
             showsVerticalScrollIndicator={false}
             contentInsetAdjustmentBehavior="automatic"
         >
-            <YStack style={{ height: '100%' }}>
+            <YStack style={{ height: '100%', paddingBottom: bottomTabBarHeight}}>
                 <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
                     {isLoading ? (
                         <View
@@ -85,13 +85,14 @@ export function HomeScreen() {
                                         <>
                                             <SizableText
                                                 key={item.heading}
-                                                theme="alt1"
-                                                size="$1"
+                                                // theme="alt1"
+                                                size="$2"
                                                 style={{
                                                     fontFamily: 'System',
                                                 }}
                                                 fontWeight="bold"
-                                                p={2}
+                                                px="$1"
+                                                py="$2"
                                                 enterStyle={{
                                                     opacity: 0,
                                                     y: 10,

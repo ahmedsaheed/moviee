@@ -79,7 +79,7 @@ function HomeStack() {
     return (
         <RouteStack.Navigator>
             <RouteStack.Screen
-                name="Home"
+                name="HomeStack"
                 component={HomeScreen}
                 options={{
                     title: 'For you',
@@ -88,35 +88,8 @@ function HomeStack() {
                     headerShown: true,
                     headerTransparent: true,
                     headerBlurEffect: 'dark',
-                    // headerBackVisible: true,
                 }}
             />
-            {/*<RouteStack.Screen*/}
-            {/*    name="wishlist"*/}
-            {/*    component={Wishlist}*/}
-            {/*    options={{*/}
-            {/*        title: 'Wishlist',*/}
-            {/*        headerLargeTitle: true,*/}
-            {/*        headerLargeStyle: { backgroundColor: 'black' },*/}
-            {/*        headerShown: true,*/}
-            {/*        headerTransparent: true,*/}
-            {/*        headerBlurEffect: 'dark',*/}
-            {/*        // headerBackVisible: true,*/}
-            {/*    }}*/}
-            {/*/>*/}
-            {/*<RouteStack.Screen*/}
-            {/*    name="search"*/}
-            {/*    component={SearchScreen}*/}
-            {/*    options={{*/}
-            {/*        title: 'Search',*/}
-            {/*        headerLargeTitle: true,*/}
-            {/*        headerLargeStyle: { backgroundColor: 'black' },*/}
-            {/*        headerShown: true,*/}
-            {/*        headerTransparent: true,*/}
-            {/*        headerBlurEffect: 'dark',*/}
-            {/*        // headerBackVisible: true,*/}
-            {/*    }}*/}
-            {/*/>*/}
         </RouteStack.Navigator>
     )
 }
@@ -125,7 +98,7 @@ function SearchStack() {
     return (
         <RouteStack.Navigator>
             <RouteStack.Screen
-                name="Search"
+                name="SearchStack"
                 component={SearchScreen}
                 options={{
                     title: 'Search',

@@ -61,8 +61,8 @@ export function MovieCards(
                             scale: 0.9,
                         }}
                         size="$4"
-                        width={130}
-                        height={180}
+                        width={110}
+                        height={150}
                         scale={0.9}
                         hoverStyle={{ scale: 0.925 }}
                         pressStyle={{ scale: 0.875 }}

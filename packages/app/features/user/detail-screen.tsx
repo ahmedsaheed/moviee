@@ -405,12 +405,14 @@ export function UserDetailScreen() {
                         <Badges />
 
                         <DetailedTabView
+                            movieName={movieData?.title ?? movieData.name}
                             movieType={type}
                             movieId={id!!}
                             // episodes={info?.episodes}
                             moreDetails={moreDetails}
                             similarMovies={similarMovies}
                             seasonNumber={progress?.season}
+                            setMedia={setMedia}
                         />
 
                         <PlayerWrapper
