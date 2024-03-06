@@ -65,8 +65,7 @@ export function useMovieDataFromCategories() {
             let data: Array<Base[] | null>
             let homeScreenData: MovieData
             try {
-                const cacheData = null
-                // await getHomeScreenData()
+                const cacheData = await getHomeScreenData()
                 if (cacheData === null) {
                     console.log('Fetching data from API')
                     data = await Promise.all([
@@ -106,14 +105,13 @@ export function useMovieDataFromCategories() {
                     console.log('Fetching data from cache')
                     const currentlyWatchingFresh = await getCurrentlyWatching()
 
-                    // homeScreenData = {
-                    //     ...cacheData,
-                    //     currentlyWatching: currentlyWatchingFresh,
-                    // }
+                    homeScreenData = {
+                        ...cacheData,
+                        currentlyWatching: currentlyWatchingFresh,
+                    }
                 }
 
                 if (isActive) {
-                    //@ts-ignore
                     setMovieData(homeScreenData)
                     setIsLoading(false)
                 }
