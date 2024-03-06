@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Base } from 'app/@types/types'
-import { getMovieByCategory, getTVByCategory } from 'app/lib/movies/genre'
+import {
+    getMovieByCategory,
+    getTVByCategory,
+    getMoviesByProvider,
+} from 'app/lib/movies/genre'
 import { useAsyncStorage } from '@react-native-async-storage/async-storage'
 import { useHomeScreenDataCache } from 'app/hooks/useHomeScreenDataCache'
 type MovieData = {
@@ -13,6 +17,11 @@ type MovieData = {
     dramaMovies: Array<Base> | null
     documentaryMovies: Array<Base> | null
     currentlyWatching: Array<Base> | null
+    netflixMovies: Array<Base> | null
+    amazonPrimeMovies: Array<Base> | null
+    disneyMovies: Array<Base> | null
+    huluMovies: Array<Base> | null
+    appleTvMovies: Array<Base> | null
 }
 
 export function useMovieDataFromCategories() {
@@ -30,6 +39,11 @@ export function useMovieDataFromCategories() {
         dramaMovies: null,
         documentaryMovies: null,
         currentlyWatching: null,
+        netflixMovies: null,
+        amazonPrimeMovies: null,
+        disneyMovies: null,
+        huluMovies: null,
+        appleTvMovies: null,
     } as MovieData)
 
     const getCurrentlyWatching = async () => {
@@ -51,7 +65,8 @@ export function useMovieDataFromCategories() {
             let data: Array<Base[] | null>
             let homeScreenData: MovieData
             try {
-                const cacheData = await getHomeScreenData()
+                const cacheData = null
+                // await getHomeScreenData()
                 if (cacheData === null) {
                     console.log('Fetching data from API')
                     data = await Promise.all([
@@ -64,6 +79,11 @@ export function useMovieDataFromCategories() {
                         getMovieByCategory('COMEDY'),
                         getMovieByCategory('ANIMATION'),
                         getCurrentlyWatching(),
+                        getMoviesByProvider('NETFLIX'),
+                        getMoviesByProvider('AMAZON_PRIME'),
+                        getMoviesByProvider('DISNEY_PLUS'),
+                        getMoviesByProvider('HULU'),
+                        getMoviesByProvider('APPLE_TV'),
                     ])
                     homeScreenData = {
                         trendingToday: data[0]!!,
@@ -75,19 +95,25 @@ export function useMovieDataFromCategories() {
                         dramaMovies: data[6]!!,
                         documentaryMovies: data[7]!!,
                         currentlyWatching: data[8]!!,
+                        netflixMovies: data[9]!!,
+                        amazonPrimeMovies: data[10]!!,
+                        disneyMovies: data[11]!!,
+                        huluMovies: data[12]!!,
+                        appleTvMovies: data[13]!!,
                     }
                     await setHomeScreenData(homeScreenData)
                 } else {
                     console.log('Fetching data from cache')
                     const currentlyWatchingFresh = await getCurrentlyWatching()
 
-                    homeScreenData = {
-                        ...cacheData,
-                        currentlyWatching: currentlyWatchingFresh,
-                    }
+                    // homeScreenData = {
+                    //     ...cacheData,
+                    //     currentlyWatching: currentlyWatchingFresh,
+                    // }
                 }
 
                 if (isActive) {
+                    //@ts-ignore
                     setMovieData(homeScreenData)
                     setIsLoading(false)
                 }

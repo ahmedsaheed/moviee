@@ -45,7 +45,7 @@ export function MovieCards(
                 $sm={{ flexDirection: 'row' }}
                 paddingHorizontal="$0"
                 backgroundColor={'transparent'}
-                gap="$1.5"
+                gap="$2"
             >
                 {movies?.map((movie, index) => (
                     <Cards

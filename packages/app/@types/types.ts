@@ -171,6 +171,23 @@ export const genresReverse: GenreReverseMap = {
     TRENDING: -1,
 }
 
+export type Provider =
+    | 'NETFLIX'
+    | 'HULU'
+    | 'DISNEY_PLUS'
+    | 'AMAZON_PRIME'
+    | 'APPLE_TV'
+export type ProviderMap = {
+    [name in Provider]: number
+}
+export const providerId: ProviderMap = {
+    NETFLIX: 8,
+    HULU: 15,
+    DISNEY_PLUS: 337,
+    AMAZON_PRIME: 9,
+    APPLE_TV: 2,
+}
+
 export type ImageDetails = {
     backdrops: Array<{
         aspect_ratio: number

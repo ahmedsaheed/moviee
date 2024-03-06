@@ -18,6 +18,11 @@ export function HomeScreen() {
         documentaryMovies,
         trendingSeriesToday,
         currentlyWatching,
+        disneyMovies,
+        appleTvMovies,
+        huluMovies,
+        netflixMovies,
+        amazonPrimeMovies,
         isLoading,
     } = useMovieDataFromCategories()
 
@@ -35,6 +40,26 @@ export function HomeScreen() {
         {
             heading: 'Action Movies',
             movies: trendingWeekly,
+        },
+        {
+            heading: 'Netflix · Popular Movies',
+            movies: netflixMovies,
+        },
+        {
+            heading: 'Amazon Prime · Popular Movies',
+            movies: amazonPrimeMovies,
+        },
+        {
+            heading: 'Disney · Popular Movies',
+            movies: disneyMovies,
+        },
+        {
+            heading: 'Apple TV · Popular Movies',
+            movies: appleTvMovies,
+        },
+        {
+            heading: 'Hulu · Popular Movies',
+            movies: huluMovies,
         },
         {
             heading: 'Comedy Movies',
@@ -63,7 +88,9 @@ export function HomeScreen() {
             showsVerticalScrollIndicator={false}
             contentInsetAdjustmentBehavior="automatic"
         >
-            <YStack style={{ height: '100%', paddingBottom: bottomTabBarHeight}}>
+            <YStack
+                style={{ height: '100%', paddingBottom: bottomTabBarHeight }}
+            >
                 <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
                     {isLoading ? (
                         <View

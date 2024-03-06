@@ -346,7 +346,7 @@ export function UserDetailScreen() {
                         <Button
                             mt="$2"
                             icon={Play}
-                            width={'80%'}
+                            width={'90%'}
                             alignSelf="center"
                             style={{
                                 textTransform: 'uppercase',
@@ -358,6 +358,16 @@ export function UserDetailScreen() {
                         >
                             {playButtonText()}
                         </Button>
+
+                        {type === 'show' && (
+                            <SeasonSelector
+                                id="select-demo-2"
+                                native
+                                seasonsLength={movieData?.number_of_seasons}
+                                updateProgress={updateProgress}
+                                initialSeason={progress?.season}
+                            />
+                        )}
                         {progress?.viewingProgress?.percentageCompleted !==
                             undefined &&
                             progress?.viewingProgress?.percentageCompleted !==
@@ -392,17 +402,9 @@ export function UserDetailScreen() {
                                 ...{showMore ? 'less' : 'more'}
                             </SizableText>
                         </Paragraph>
-                        {type === 'show' && (
-                            <SeasonSelector
-                                id="select-demo-2"
-                                native
-                                seasonsLength={movieData?.number_of_seasons}
-                                updateProgress={updateProgress}
-                                initialSeason={progress?.season}
-                            />
-                        )}
                         <ExtraInfo {...movieData} />
                         <Badges />
+
 
                         <DetailedTabView
                             movieName={movieData?.title ?? movieData.name}
@@ -433,7 +435,6 @@ export function UserDetailScreen() {
 function ExtraInfo(movieData) {
     return (
         <View
-            padding="$2"
             mx="$4"
             style={{
                 fontWeight: 'bold',
@@ -535,8 +536,8 @@ const Badges = () => {
             space="$2"
             borderWidth={2}
             borderColor="transparent"
-            padding="$2"
             mx="$4"
+            py="$1"
         >
             {BadgesUrl.map((item, index) => {
                 return (

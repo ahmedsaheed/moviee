@@ -153,7 +153,7 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
             orientation="horizontal"
             size="$4"
             flexDirection="column"
-            backgroundColor="transparent"
+            backgroundColor="$transparent"
             px="$4"
             mt="$4"
         >
@@ -188,13 +188,14 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
                     paddingBottom="$1.5"
                     borderColor="$color3"
                     borderBottomWidth="$0.5"
-                    backgroundColor="black"
+                    backgroundColor="$transparent"
                 >
                     <Tabs.Tab
                         unstyled
                         padding="$5"
                         value="tab1"
                         onInteraction={handleOnInteraction}
+                        backgroundColor="$transparent"
                     >
                         <SizableText style={{ fontFamily: 'System' }} h="$2">
                             {movieType === 'movie' ? 'Related' : 'Episodes'}
@@ -341,8 +342,8 @@ async function playFromEpisode(
     const seriesOptions = { seasonNumber, episodeNumber: idx }
     const res = await getMetaAndPlay(movieName, Number(movieId), seriesOptions)
     if (res === null) return
-    console.log('res form episode list ', res)
-    // setMedia(res)
+    console.log('res from episode list ', res)
+    setMedia(res)
 }
 
 function MoreDetailsTab({
@@ -406,7 +407,7 @@ const SimilarMovies = ({ similarMovies }: { similarMovies: Base[] | null }) => {
     if (!similarMovies) return
     return (
         <GridView
-            gap={1}
+            gap={0.4}
             data={similarMovies!!}
             renderItem={item => (
                 <View
@@ -427,7 +428,7 @@ const SimilarMovies = ({ similarMovies }: { similarMovies: Base[] | null }) => {
                     />
                 </View>
             )}
-            numColumns={2}
+            numColumns={3}
         />
     )
 }
@@ -435,7 +436,7 @@ const SimilarMovies = ({ similarMovies }: { similarMovies: Base[] | null }) => {
 const styles = StyleSheet.create({
     itemContainer: {
         borderRadius: 10,
-        height: 250,
+        height: 180,
         marginBottom: 5,
         justifyContent: 'center',
         alignItems: 'center',

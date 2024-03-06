@@ -92,7 +92,8 @@ export const VideoPlayer = (props: {
             if (!progressInfo) return
             res = JSON.parse(progressInfo) as ProgressInfo
         }
-        setPosition(res.positionMillis ?? 0)
+        const pos = src === res.uri ? res.positionMillis : 0
+        setPosition(pos)
         if (mediaType === 'show') {
             setSeasonInfo({
                 season: res.season ?? 1,

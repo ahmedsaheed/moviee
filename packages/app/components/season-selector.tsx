@@ -1,4 +1,4 @@
-import { Select, Adapt, Sheet, YStack, getFontSize } from 'tamagui'
+import { Select, Adapt, Sheet, YStack, getFontSize, setupNativeSheet } from 'tamagui'
 import type { FontSizeTokens, SelectProps } from 'tamagui'
 import { ChevronDown, ChevronUp, Check } from '@tamagui/lucide-icons'
 import { useState, useEffect, useMemo } from 'react'
@@ -10,6 +10,7 @@ interface SeasonSelectorProps extends SelectProps {
     updateProgress?: (progressInfo: ProgressInfo) => void
     initialSeason?: number
 }
+
 
 export function SeasonSelector(props: SeasonSelectorProps) {
     const { seasonsLength, updateProgress, initialSeason } = props
@@ -45,13 +46,13 @@ export function SeasonSelector(props: SeasonSelectorProps) {
             disablePreventBodyScroll
             {...props}
         >
-            <Select.Trigger mx="$4" width={220} iconAfter={ChevronDown}>
+            <Select.Trigger mx="$4" my="$2" py="$1.5" width={"90%"} iconAfter={ChevronDown}>
                 <Select.Value placeholder="Something" />
             </Select.Trigger>
 
             <Adapt when="sm" platform="touch">
                 <Sheet
-                    native={!!props.native}
+                    native
                     modal
                     dismissOnSnapToBottom
                     animationConfig={{
@@ -60,6 +61,7 @@ export function SeasonSelector(props: SeasonSelectorProps) {
                         mass: 1.2,
                         stiffness: 250,
                     }}
+                    snapPoints={[50, 40]}
                 >
                     <Sheet.Frame>
                         <Sheet.ScrollView>
@@ -88,9 +90,7 @@ export function SeasonSelector(props: SeasonSelectorProps) {
                     <LinearGradient
                         start={[0, 0]}
                         end={[0, 1]}
-                        // fullscreen
                         colors={['black', 'transparent']}
-                        // borderRadius="$4"
                     />
                 </Select.ScrollUpButton>
 
@@ -160,9 +160,7 @@ export function SeasonSelector(props: SeasonSelectorProps) {
                     <LinearGradient
                         start={[0, 0]}
                         end={[0, 1]}
-                        // fullscreen
                         colors={['transparent', 'black']}
-                        // borderRadius="$4"
                     />
                 </Select.ScrollDownButton>
             </Select.Content>
