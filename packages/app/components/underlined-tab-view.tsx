@@ -13,12 +13,14 @@ import {
     TabsTabProps,
 } from 'tamagui'
 import { H5, Tabs, View } from '@my/ui'
-import { Base, Episode, ShowType } from 'app/@types/types'
+import { Base, Dispatcher, Episode, ShowType } from 'app/@types/types'
 import { MovieCards } from './card'
 import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
 import { Image, Pressable, StyleSheet } from 'react-native'
 import { GridView } from 'app/features/search/search'
 import { useSeasonsAndEpisodes } from 'app/hooks/useSeasonsAndEpisodes'
+import { getMetaAndPlay } from 'app/features/user/detail-screen'
+import { ScrapeMedia } from '@movie-web/providers'
 
 interface MoreDetailsTabProps {
     genre?: string
@@ -28,15 +30,24 @@ interface MoreDetailsTabProps {
 }
 
 interface DetailedTabViewProps {
+    movieName: string
     movieType: ShowType
     movieId: string
     moreDetails?: MoreDetailsTabProps
     similarMovies?: Base[] | null
     seasonNumber?: number
+    setMedia: Dispatcher<ScrapeMedia | null>
 }
 export const DetailedTabView = (props: DetailedTabViewProps) => {
-    const { movieId, movieType, moreDetails, similarMovies, seasonNumber } =
-        props
+    const {
+        movieName,
+        movieId,
+        movieType,
+        moreDetails,
+        similarMovies,
+        seasonNumber,
+        setMedia,
+    } = props
     const info = useSeasonsAndEpisodes(
         movieType,
         Number(movieId!!),
@@ -112,7 +123,13 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
         switch (tab) {
             case 'tab1':
                 return info?.episodes ? (
-                    <EpisodeList episodes={info.episodes} />
+                    <EpisodeList
+                        episodes={info.episodes}
+                        movieName={movieName}
+                        movieId={movieId}
+                        seasonNumber={seasonNumber!!}
+                        setMedia={setMedia}
+                    />
                 ) : (
                     similarMovies && (
                         <View pt="$2">
@@ -136,7 +153,7 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
             orientation="horizontal"
             size="$4"
             flexDirection="column"
-            backgroundColor="transparent"
+            backgroundColor="$transparent"
             px="$4"
             mt="$4"
         >
@@ -171,13 +188,14 @@ export const DetailedTabView = (props: DetailedTabViewProps) => {
                     paddingBottom="$1.5"
                     borderColor="$color3"
                     borderBottomWidth="$0.5"
-                    backgroundColor="black"
+                    backgroundColor="$transparent"
                 >
                     <Tabs.Tab
                         unstyled
                         padding="$5"
                         value="tab1"
                         onInteraction={handleOnInteraction}
+                        backgroundColor="$transparent"
                     >
                         <SizableText style={{ fontFamily: 'System' }} h="$2">
                             {movieType === 'movie' ? 'Related' : 'Episodes'}
@@ -266,9 +284,19 @@ const AnimatedYStack = styled(YStack, {
 
 interface EpisodeListProps {
     episodes: Episode[]
+    movieName: string
+    movieId: string
+    seasonNumber: number
+    setMedia: Dispatcher<ScrapeMedia | null>
 }
 
-function EpisodeList({ episodes }: EpisodeListProps): JSX.Element {
+function EpisodeList({
+    episodes,
+    movieName,
+    movieId,
+    seasonNumber,
+    setMedia,
+}: EpisodeListProps): JSX.Element {
     return (
         <YGroup
             alignSelf="center"
@@ -281,6 +309,15 @@ function EpisodeList({ episodes }: EpisodeListProps): JSX.Element {
                 <YGroup.Item backgroundColor="black">
                     <ListItem
                         key={index}
+                        onPress={() =>
+                            playFromEpisode(
+                                index + 1,
+                                movieName,
+                                movieId,
+                                seasonNumber,
+                                setMedia
+                            )
+                        }
                         backgroundColor="black"
                         title={`Episode ${index + 1}`}
                         subTitle={episode.name}
@@ -292,6 +329,21 @@ function EpisodeList({ episodes }: EpisodeListProps): JSX.Element {
             ))}
         </YGroup>
     )
+}
+
+async function playFromEpisode(
+    idx: number,
+    movieName: string,
+    movieId: string,
+    seasonNumber: number,
+    setMedia: Dispatcher<ScrapeMedia | null>
+) {
+    // movieName, movieId, seriesOptions { seasonNumber, episodeNumber }
+    const seriesOptions = { seasonNumber, episodeNumber: idx }
+    const res = await getMetaAndPlay(movieName, Number(movieId), seriesOptions)
+    if (res === null) return
+    console.log('res from episode list ', res)
+    setMedia(res)
 }
 
 function MoreDetailsTab({
@@ -355,7 +407,7 @@ const SimilarMovies = ({ similarMovies }: { similarMovies: Base[] | null }) => {
     if (!similarMovies) return
     return (
         <GridView
-            gap={1}
+            gap={0.4}
             data={similarMovies!!}
             renderItem={item => (
                 <View
@@ -376,7 +428,7 @@ const SimilarMovies = ({ similarMovies }: { similarMovies: Base[] | null }) => {
                     />
                 </View>
             )}
-            numColumns={2}
+            numColumns={3}
         />
     )
 }
@@ -384,7 +436,7 @@ const SimilarMovies = ({ similarMovies }: { similarMovies: Base[] | null }) => {
 const styles = StyleSheet.create({
     itemContainer: {
         borderRadius: 10,
-        height: 250,
+        height: 180,
         marginBottom: 5,
         justifyContent: 'center',
         alignItems: 'center',

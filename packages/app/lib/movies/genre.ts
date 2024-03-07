@@ -12,6 +12,8 @@ import {
     ShowType,
     TvShowAPIResponse,
     TvShowResult,
+    Provider,
+    providerId,
 } from 'app/@types/types'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -200,6 +202,24 @@ const getTVSeriesDetails = async (id: number) => {
     return response
 }
 
+export const getMoviesByProvider = async (provider: Provider) => {
+    const providerIds = providerId[provider]
+    const url = `${PREFIX}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&watch_region=US&with_watch_providers=${providerIds}`
+    const cached = await isCached(url)
+    if (cached?.isCached) {
+        const data = cached!!.value as Array<Movie>
+        return data?.map(movie => {
+            return extractToBase(movie)
+        })
+    }
+    const response = await fetcher<ApiResponse>(url)
+    const data = response.results as Movie[]
+    if (!data) return null
+    storeToCache(url, data)
+    return data?.map(movie => {
+        return extractToBase(movie)
+    })
+}
 export const getTVDataAndImages = async (id: number) => {
     const cacheKey = imagesUri(id, 'show')
     const cached = await isCached(cacheKey)
@@ -261,6 +281,7 @@ const getMovieDetails = async (
     const response = await fetcher<DetailedMovieInfo>(uri)
     return response ?? null
 }
+
 function extractToBase(movie: Movie | TvShowResult): Base {
     if ('title' in movie) {
         return {

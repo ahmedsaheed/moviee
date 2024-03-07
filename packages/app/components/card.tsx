@@ -45,7 +45,7 @@ export function MovieCards(
                 $sm={{ flexDirection: 'row' }}
                 paddingHorizontal="$0"
                 backgroundColor={'transparent'}
-                gap="$1.5"
+                gap="$2"
             >
                 {movies?.map((movie, index) => (
                     <Cards
@@ -61,8 +61,8 @@ export function MovieCards(
                             scale: 0.9,
                         }}
                         size="$4"
-                        width={130}
-                        height={180}
+                        width={110}
+                        height={150}
                         scale={0.9}
                         hoverStyle={{ scale: 0.925 }}
                         pressStyle={{ scale: 0.875 }}

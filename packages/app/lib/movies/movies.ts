@@ -56,7 +56,7 @@ export const getMoviesMetadata = async (
                 number: seasonNumber,
                 tmdbId: String(moreSeriesInfo?.id!!),
             },
-            episodes: {
+            episode: {
                 number: episodeNumber,
                 tmdbId: String(moreSeriesInfo?.episodes[episodeNumber]!!.id!!),
             },
@@ -78,6 +78,7 @@ export const getMoviesMetadata = async (
 }
 
 export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
+    console.log('Original res: ', media)
     console.log('Providers are: ', providers.listSources())
     const cacheKey =
         media?.type === 'movie'
@@ -87,7 +88,7 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
     if (cached?.isCached) return cached!!.value
     const runOutput = await providers.runAll({
         media: media!!,
-        sourceOrder: ['vidsrcto', 'vidsrc', 'nepu', 'ridomovies'],
+        // sourceOrder: ['vidsrcto', 'vidsrc', 'nepu', 'ridomovies'],
         events: {
             init: evt => {
                 console.log('init', evt)

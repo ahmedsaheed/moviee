@@ -1,4 +1,4 @@
-import { YStack } from '@my/ui'
+import { YStack, H4 } from '@my/ui'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { View, StyleSheet, Pressable, ScrollView } from 'react-native'
 import { Image } from 'react-native'
@@ -61,7 +61,6 @@ export const SearchScreen = ({
             >
                 <YStack f={1} p="$2" space>
                     <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
-                        {/*<SearchBar setResults={setSearchResults} />*/}
                         {!searchResults.length && (
                             <GridView
                                 data={[
@@ -99,38 +98,44 @@ export const SearchScreen = ({
                                 numColumns={2}
                             />
                         )}
-                        {searchResults && (
-                            <GridView
-                                data={searchResults}
-                                renderItem={item => (
-                                    <Pressable
-                                        onPress={() =>
-                                            resolveMetaAndNavigateToDetails(
-                                                item.title,
-                                                item.tmdbId
-                                            )
-                                        }
-                                    >
-                                        <View
-                                            style={
-                                                styles.searchResultItemContainer
+                        {searchResults.length != 0 && (
+                            <>
+                                <H4 px="$2">Film & TV</H4>
+                                <GridView
+                                    data={searchResults}
+                                    renderItem={item => (
+                                        <Pressable
+                                            onPress={() =>
+                                                resolveMetaAndNavigateToDetails(
+                                                    item.title,
+                                                    item.tmdbId
+                                                )
                                             }
                                         >
-                                            <Image
-                                                source={{ uri: item.imageUrl }}
-                                                resizeMode={'cover'}
-                                                style={{
-                                                    width: '90%',
-                                                    height: '100%',
-                                                    borderRadius: 10,
-                                                    padding: 5,
-                                                }}
-                                            />
-                                        </View>
-                                    </Pressable>
-                                )}
-                                numColumns={2}
-                            />
+                                            <View
+                                                style={
+                                                    styles.searchResultItemContainer
+                                                }
+                                            >
+                                                <Image
+                                                    source={{
+                                                        uri: item.imageUrl,
+                                                    }}
+                                                    resizeMode={'cover'}
+                                                    style={{
+                                                        width: '90%',
+                                                        height: '100%',
+                                                        borderRadius: 10,
+                                                        padding: 5,
+                                                    }}
+                                                />
+                                            </View>
+                                        </Pressable>
+                                    )}
+                                    numColumns={3}
+                                    gap={2}
+                                />
+                            </>
                         )}
                     </YStack>
                 </YStack>
@@ -183,7 +188,7 @@ const styles = StyleSheet.create({
     },
     searchResultItemContainer: {
         borderRadius: 10,
-        height: 250,
+        height: 180,
         marginBottom: 5,
         justifyContent: 'center',
         alignItems: 'center',
