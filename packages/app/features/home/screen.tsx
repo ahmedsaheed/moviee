@@ -5,7 +5,7 @@ import { MovieCards } from 'app/components/card'
 import { HomeTopCarousel } from 'app/components/home-carousel'
 import { useMovieDataFromCategories } from 'app/hooks/useMovieDataFromCategory'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
-import { ScrollView } from 'react-native'
+import { Dimensions, ScrollView } from 'react-native'
 import { Stack } from 'expo-router'
 export function HomeScreen() {
     const {
@@ -25,6 +25,7 @@ export function HomeScreen() {
         amazonPrimeMovies,
         isLoading,
     } = useMovieDataFromCategories()
+    const { height } = Dimensions.get('window')
 
     const bottomTabBarHeight = useBottomTabBarHeight()
 
@@ -94,11 +95,13 @@ export function HomeScreen() {
                 <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
                     {isLoading ? (
                         <View
+                            mih={'100%'}
                             style={{
                                 flex: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                height: '100%',
+                                height: height,
+                                minHeight: height,
                             }}
                         >
                             <Spinner size="large" />

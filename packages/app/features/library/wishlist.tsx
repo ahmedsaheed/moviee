@@ -3,26 +3,35 @@ import { YStack } from '@my/ui'
 import { useWishlistStorage } from 'app/hooks/useWishlistStorage'
 import { ListItem, Separator, YGroup } from 'tamagui'
 import { ChevronRight, Play } from '@tamagui/lucide-icons'
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { Base } from 'app/@types/types'
 import { resolveMetaAndNavigateToDetails } from 'app/lib/movies/movies'
 import { ScrollView } from 'react-native'
-import { Stack } from 'expo-router'
 
 export function Wishlist() {
     const bottomTabBarHeight = useBottomTabBarHeight()
+    const [wishlist, setWishlist] = useState<Base[]>([])
+    const { getAllWishlist } = useWishlistStorage()
+
+    useLayoutEffect(() => {
+        getAllWishlist().then(list => {
+            setWishlist(list)
+        })
+    }, [])
     return (
-        <ScrollView>
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentInsetAdjustmentBehavior="automatic"
+        >
             <YStack
                 style={{
                     paddingBottom: bottomTabBarHeight,
                     height: '100%',
-                    marginTop: '40%',
                 }}
             >
                 <YStack f={1} p="$2" space>
                     <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
-                        <WishlistList />
+                        <WishlistList wishlist={wishlist} />
                     </YStack>
                 </YStack>
             </YStack>
@@ -30,15 +39,12 @@ export function Wishlist() {
     )
 }
 
-function WishlistList() {
-    const [wishlist, setWishlist] = useState<Base[]>([])
-    const { getAllWishlist } = useWishlistStorage()
-
-    useEffect(() => {
-        getAllWishlist().then(list => {
-            setWishlist(list)
-        })
-    }, [])
+function WishlistList(
+    props: {
+        wishlist: Base[]
+    } = { wishlist: [] }
+) {
+    const { wishlist } = props
 
     if (wishlist.length === 0) {
         return (
@@ -71,7 +77,7 @@ function WishlistList() {
             {wishlist.map((wish, index) => (
                 <YGroup.Item backgroundColor="$transparent">
                     <ListItem
-                        key={index}
+                        key={index + wish.tmdbId}
                         backgroundColor="$transparent"
                         title={wish.title}
                         subTitle={`id: ${wish.tmdbId}, `}

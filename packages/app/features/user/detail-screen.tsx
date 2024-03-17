@@ -178,36 +178,51 @@ export function UserDetailScreen() {
         setLoading(false)
     }, [media])
 
-    if (movieData === null) {
-        return (
-            <View
-                style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100%',
-                }}
-            >
-                <Spinner size="large" />
-            </View>
-        )
-    }
     return (
-        <ScrollView showsVerticalScrollIndicator={false}>
-            <Stack.Screen
-                options={{
-                    title: movieData?.title ?? movieData.name,
-                    headerLargeTitle: false,
-                    // headerLargeStyle: { backgroundColor: 'transparent' },
-                    headerShown: true,
-                    headerTransparent: true,
-                    headerBlurEffect: 'dark',
-                    // headerBackVisible: true,
-                }}
-            />
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentInsetAdjustmentBehavior="automatic"
+        >
             <YStack pb="$2" style={{ height: '100%' }}>
+                {movieData === null && (
+                    <View
+                        mih={'100%'}
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: height,
+                            minHeight: height,
+                        }}
+                    >
+                        <Spinner size="large" />
+                    </View>
+                )}
                 {!!movieData && (
                     <>
+                        <Stack.Screen
+                            options={{
+                                title: movieData?.title ?? movieData.name,
+                                headerLargeTitle: false,
+                                headerShown: true,
+                                headerTransparent: true,
+                                headerBlurEffect: 'dark',
+                                headerRight: () => {
+                                    return !wishedListed ? (
+                                        <Plus
+                                            size="$1"
+                                            onPress={addToWishlist}
+                                        />
+                                    ) : (
+                                        <Check
+                                            size="$1"
+                                            onPress={removeFromWishlist}
+                                        />
+                                    )
+                                },
+                                // headerBackVisible: true,
+                            }}
+                        />
                         <View style={{ flex: 1, position: 'relative' }}>
                             <ImageBackground
                                 source={{
@@ -218,97 +233,13 @@ export function UserDetailScreen() {
                                 }}
                                 style={{
                                     width: '100%',
-                                    height: height / 1.7,
+                                    height: height / 2,
                                     alignItems: 'center',
                                     position: 'relative',
                                     pointerEvents: 'auto',
                                 }}
                                 resizeMode="cover"
                             >
-                                <XStack
-                                    flex={1}
-                                    width={'100%'}
-                                    space="$8"
-                                    padding="$4"
-                                >
-                                    {/*@ts-ignore*/}
-                                    <BlurView
-                                        intensity={40}
-                                        tint="dark"
-                                        mt="$10"
-                                        style={{
-                                            width: '7%',
-                                            height: 30,
-                                            position: 'absolute',
-                                            top: 60,
-                                            left: 10,
-                                            borderRadius: '50%',
-                                            overflow: 'hidden',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <ChevronLeft
-                                            size="$1"
-                                            onPress={router.back}
-                                        />
-                                    </BlurView>
-
-                                    {/*@ts-ignore*/}
-                                    <BlurView
-                                        intensity={10}
-                                        tint="dark"
-                                        style={{
-                                            width: '7%',
-                                            height: 30,
-                                            position: 'absolute',
-                                            top: 60,
-                                            right: 10,
-                                            borderRadius: '50%',
-                                            overflow: 'hidden',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <Share
-                                            size="$1"
-                                            onPress={router.back}
-                                        />
-                                    </BlurView>
-
-                                    {/*@ts-ignore*/}
-
-                                    <BlurView
-                                        intensity={10}
-                                        tint="dark"
-                                        style={{
-                                            width: '7%',
-                                            height: 30,
-                                            position: 'absolute',
-                                            top: 60,
-                                            right: 50,
-                                            borderRadius: '50%',
-                                            overflow: 'hidden',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        {!wishedListed ? (
-                                            <Plus
-                                                size="$1"
-                                                onPress={addToWishlist}
-                                            />
-                                        ) : (
-                                            <Check
-                                                size="$1"
-                                                onPress={removeFromWishlist}
-                                            />
-                                        )}
-                                    </BlurView>
-                                </XStack>
                                 <LinearGradient
                                     colors={['black', 'transparent']}
                                     style={styles.gradient}
@@ -404,7 +335,6 @@ export function UserDetailScreen() {
                         </Paragraph>
                         <ExtraInfo {...movieData} />
                         <Badges />
-
 
                         <DetailedTabView
                             movieName={movieData?.title ?? movieData.name}
