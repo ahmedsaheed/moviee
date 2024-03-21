@@ -9,14 +9,15 @@ import { Stack } from 'expo-router'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { ParamListBase } from '@react-navigation/native'
 import { getMultiSearch } from 'app/lib/movies/genre'
+import { useNavigation, useRoute } from '@react-navigation/native'
 
-export const SearchScreen = ({
-    navigation,
-}: NativeStackScreenProps<ParamListBase>) => {
+export const SearchScreen = ({ navigation }) => {
+    // const nav = useNavigation()
     const [searchResults, setSearchResults] = useState<Base[]>([])
     const bottomTabBarHeight = useBottomTabBarHeight()
     const [searchQuery, setSearchQuery] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(false)
+
     const onTextChange = async (text: string) => {
         if (text === '') {
             setLoading(false)
@@ -36,7 +37,7 @@ export const SearchScreen = ({
         setSearchResults([])
     }
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         navigation.setOptions({
             headerSearchBarOptions: {
                 onChangeText: event => setSearchQuery(event.nativeEvent.text),
@@ -56,8 +57,22 @@ export const SearchScreen = ({
             showsVerticalScrollIndicator={false}
             contentInsetAdjustmentBehavior="automatic"
         >
+            <Stack.Screen
+                options={{
+                    headerSearchBarOptions: {
+                        onChangeText: event =>
+                            setSearchQuery(event.nativeEvent.text),
+                        placeholder: 'Search Shows and Movies',
+                        autoFocus: true,
+                        onCancelButtonPress: () => resetSearch(),
+                    },
+                }}
+            />
             <YStack
-                style={{ paddingBottom: bottomTabBarHeight, height: '100%' }}
+                style={{
+                    paddingBottom: bottomTabBarHeight,
+                    height: '100%',
+                }}
             >
                 <YStack f={1} p="$2" space>
                     <YStack space="$2" pt={'4'} pb={'6'} maw={600}>
