@@ -2940,9 +2940,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@movie-web/providers@npm:^2.2.1":
-  version: 2.2.2
-  resolution: "@movie-web/providers@npm:2.2.2"
+"@movie-web/providers@npm:^2.2.4":
+  version: 2.2.4
+  resolution: "@movie-web/providers@npm:2.2.4"
   dependencies:
     cheerio: "npm:^1.0.0-rc.12"
     cookie: "npm:^0.6.0"
@@ -2953,7 +2953,7 @@ __metadata:
     node-fetch: "npm:^2.7.0"
     set-cookie-parser: "npm:^2.6.0"
     unpacker: "npm:^1.0.1"
-  checksum: 0a374ac73b8ab355bbf79b2c6a578d07c48017d26f9d20412e856c16609b21e6e92aec8971e26593e86203febe1c2f1b5fad21917eeb20bf3f7a1597add6f3e5
+  checksum: f882a5661db41c21741021fbd46f23902bc7e521bf5cdacd0d9d30dbb709e2e0524469868ad76b20c41730882e128ad40d961170486f0fdf457fe1f16eea1550
   languageName: node
   linkType: hard
 
@@ -14370,7 +14370,7 @@ __metadata:
   dependencies:
     "@babel/runtime": "npm:^7.18.9"
     "@manypkg/cli": "npm:^0.19.1"
-    "@movie-web/providers": "npm:^2.2.1"
+    "@movie-web/providers": "npm:^2.2.4"
     "@types/base-64": "npm:^1"
     "@types/react-native-video": "npm:^5"
     base-64: "npm:^1.0.0"

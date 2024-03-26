@@ -88,7 +88,7 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
     if (cached?.isCached) return cached!!.value
     const runOutput = await providers.runAll({
         media: media!!,
-        // sourceOrder: ['vidsrcto', 'vidsrc', 'nepu', 'ridomovies'],
+        sourceOrder: ['vidsrc', 'hdrezka'],
         events: {
             init: evt => {
                 console.log('init', evt)
@@ -106,6 +106,7 @@ export async function retrieveFromProvider(media: ScrapeMedia | null = null) {
     })
     if (runOutput === null) return null
     await storeToCache(cacheKey, runOutput)
+    console.log('Run output: ', runOutput.stream.type)
     return runOutput
 }
 

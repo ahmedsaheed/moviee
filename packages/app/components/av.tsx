@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AVPlaybackStatus, ResizeMode, Video } from 'expo-av'
-import { RunOutput } from '@movie-web/providers'
+import { Qualities, RunOutput } from '@movie-web/providers'
 import { Spinner } from '@my/ui'
 import { StyleSheet } from 'react-native'
 import { Base, Dispatcher, ShowType } from 'app/@types/types'
@@ -225,9 +225,22 @@ export function PlayerWrapper({
         return <Spinner ai={'center'} size="large" color="$orange10" />
     }
     if (data) {
+        let streamUrl: string
+        if (data.stream.type === 'file') {
+            // export declare type Qualities = 'unknown' | '360' | '480' | '720' | '1080' | '4k';
+            const availableQualities = Object.keys(data.stream.qualities)
+            let highestQuality: Qualities = availableQualities[
+                availableQualities.length - 1
+            ] as Qualities
+            // @ts-ignore
+            streamUrl = data.stream.qualities[highestQuality].url
+        } else {
+            streamUrl = data.stream.playlist
+        }
+
         return (
             <VideoPlayer
-                src={data.stream?.playlist}
+                src={streamUrl}
                 id={id}
                 mediaType={mediaType}
                 setProgress={setProgress}
