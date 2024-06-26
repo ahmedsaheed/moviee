@@ -21,7 +21,7 @@
     "react-native-web": "~0.19.6",
     "react-native-web-lite": "^1.90.7",
     "tamagui": "^1.90.7",
-    "vercel": "latest"
+    "vercel": "34.2.8"
   },
   "devDependencies": {
     "@tamagui/next-plugin": "^1.90.7",
