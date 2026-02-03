@@ -12,8 +12,8 @@
   "dependencies": {
     "@tamagui/config": "^1.90.7",
     "@tamagui/next-theme": "^1.90.7",
-    "app": "0.0.0",
-    "next": "^13.5.2",
+    "app": "0.1.0",
+    "next": "^15.5.10",
     "raf": "^3.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -21,7 +21,7 @@
     "react-native-web": "~0.19.6",
     "react-native-web-lite": "^1.90.7",
     "tamagui": "^1.90.7",
-    "vercel": "latest"
+    "vercel": "39.2.5"
   },
   "devDependencies": {
     "@tamagui/next-plugin": "^1.90.7",
